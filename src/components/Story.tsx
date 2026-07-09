@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useScroll, useSpring } from 'framer-motion'
-import { timeline } from '../data/content'
+import { storyClosing, storyQuote, timeline } from '../data/content'
 import { Reveal, StaggerText } from './Reveal'
 import './Story.css'
 
@@ -30,6 +30,9 @@ export function Story() {
             </em>
           </h2>
           <Reveal delay={0.2}>
+            <p className="story__quote">“{storyQuote}”</p>
+          </Reveal>
+          <Reveal delay={0.3}>
             <span className="rule" />
           </Reveal>
         </div>
@@ -78,6 +81,12 @@ export function Story() {
             )
           })}
         </div>
+
+        <Reveal className="story__closing">
+          <span className="rule" />
+          <p className="eyebrow">{storyClosing.label}</p>
+          <p className="story__closing-body">{storyClosing.body}</p>
+        </Reveal>
       </div>
     </section>
   )

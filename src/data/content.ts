@@ -6,6 +6,9 @@ export const couple = {
   hashtag: '#AngelAndRyan2026',
 }
 
+export const storyQuote =
+  'From a simple meeting in faith to a lifetime of love.'
+
 export interface TimelineEntry {
   index: string
   year: string
@@ -17,33 +20,38 @@ export interface TimelineEntry {
 export const timeline: TimelineEntry[] = [
   {
     index: '01',
-    year: '2019',
-    title: 'A Chance Encounter',
-    body: 'It began the way the best stories do — unplanned. A mutual friend, a crowded room, and a conversation neither of them wanted to end.',
+    year: 'Pinamanculan, Butuan City',
+    title: 'Rooted in Faith',
+    body: 'It began where the best journeys do — in faith. At a humble church in Pinamanculan, Butuan City, friendly hellos and shared moments of worship quietly blossomed into something much deeper.',
     image: '/images/photo-overlook-portrait.jpg',
   },
   {
     index: '02',
-    year: '2021',
-    title: 'The First Adventure',
-    body: 'A spontaneous road trip with a broken playlist and no itinerary. Somewhere along the way, "you and me" quietly became "us."',
+    year: 'The Courtship',
+    title: 'The First Yes',
+    body: 'Ryan knew right away that Angel was someone truly special, so he took the leap and courted her. Asking her to be his was the best decision he ever made — and his heart soared when she finally said yes.',
     image: '/images/photo-hiraya.jpg',
   },
   {
     index: '03',
-    year: '2024',
-    title: 'Building a Life',
-    body: 'Keys to a first home, a kitchen that always smells like something burning, and the certainty that home was never the address — it was each other.',
+    year: 'Eleven Years & Ten Months',
+    title: 'Growing Up Together',
+    body: 'They navigated life side by side — growing up together, supporting each other’s dreams, and building a foundation of trust, laughter, and unbreakable companionship. Through every high and low, their love only deepened.',
     image: '/images/photo-garden-bench.jpg',
   },
   {
     index: '04',
-    year: '2025',
-    title: 'She Said Yes',
-    body: 'At golden hour, with trembling hands and a ring hidden for three long months, Ryan asked. Angel cried before he finished the question.',
+    year: 'Angel’s Birthday',
+    title: 'The Easiest Yes',
+    body: 'After nearly a dozen years of beautiful memories, Ryan waited for a very special day. On Angel’s birthday, he got down on one knee and asked his best friend to marry him. She said yes — all over again.',
     image: '/images/photo-bouquet.jpg',
   },
 ]
+
+export const storyClosing = {
+  label: 'The Next Chapter',
+  body: 'From that church in Butuan City to the wedding altar, our journey has been nothing short of a blessing. On October 29, 2026, we will stand together and vow to spend the rest of our lives as husband and wife — and we can’t wait to celebrate with all of our family and friends.',
+}
 
 export interface GalleryItem {
   src: string
