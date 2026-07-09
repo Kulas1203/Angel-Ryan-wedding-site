@@ -1,9 +1,9 @@
 export const WEDDING_DATE = new Date('2026-10-29T15:00:00')
 
 export const couple = {
-  names: 'Angel & Ralph',
+  names: 'Angel & Ryan',
   dateLabel: 'October 29, 2026',
-  hashtag: '#AngelAndRalph2026',
+  hashtag: '#AngelAndRyan2026',
 }
 
 export interface TimelineEntry {
@@ -40,7 +40,7 @@ export const timeline: TimelineEntry[] = [
     index: '04',
     year: '2025',
     title: 'She Said Yes',
-    body: 'At golden hour, with trembling hands and a ring hidden for three long months, Ralph asked. Angel cried before he finished the question.',
+    body: 'At golden hour, with trembling hands and a ring hidden for three long months, Ryan asked. Angel cried before he finished the question.',
     image: '/images/story-4.svg',
   },
 ]

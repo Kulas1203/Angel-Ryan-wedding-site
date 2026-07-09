@@ -1,6 +1,6 @@
-# Angel & Ralph — Wedding Site
+# Angel & Ryan — Wedding Site
 
-A luxury, editorial-style wedding landing page for **Angel & Ralph**, celebrating
+A luxury, editorial-style wedding landing page for **Angel & Ryan**, celebrating
 **October 29, 2026**.
 
 ## Stack
