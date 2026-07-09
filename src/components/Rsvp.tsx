@@ -6,10 +6,10 @@ import './Rsvp.css'
 
 type Status = 'idle' | 'submitting' | 'success' | 'error'
 
-// RSVPs are emailed to the couple via FormSubmit (no backend needed).
-// Replies go to the primary address below and are CC'd to the second.
-const RSVP_ENDPOINT = 'https://formsubmit.co/ajax/rysarsuelo2@gmail.com'
-const RSVP_CC = 'calumbaangel@gmail.com'
+// RSVPs are emailed to the couple via Web3Forms (no backend needed).
+// The access key is bound to the recipient inbox configured at web3forms.com.
+const RSVP_ENDPOINT = 'https://api.web3forms.com/submit'
+const WEB3FORMS_ACCESS_KEY = 'REPLACE_WITH_ACCESS_KEY'
 
 interface RsvpProps {
   open: boolean
@@ -43,14 +43,19 @@ export function Rsvp({ open, onClose }: RsvpProps) {
     if (status === 'submitting') return
     const data = new FormData(e.currentTarget)
     setStatus('submitting')
+    // Abort rather than hang if the network is slow — the guest gets the
+    // error state and a retry button instead of an endless spinner.
+    const abort = new AbortController()
+    const timeout = setTimeout(() => abort.abort(), 15_000)
     try {
       const res = await fetch(RSVP_ENDPOINT, {
         method: 'POST',
+        signal: abort.signal,
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          _subject: 'New RSVP — Angel & Ryan Wedding',
-          _template: 'table',
-          _cc: RSVP_CC,
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: 'New RSVP — Angel & Ryan Wedding',
+          from_name: 'Wedding Website',
           name: data.get('name'),
           email: data.get('email'),
           attending:
@@ -59,10 +64,13 @@ export function Rsvp({ open, onClose }: RsvpProps) {
           dietary: data.get('dietary') || '—',
         }),
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const body = await res.json()
+      if (!res.ok || !body.success) throw new Error(`HTTP ${res.status}`)
       setStatus('success')
     } catch {
       setStatus('error')
+    } finally {
+      clearTimeout(timeout)
     }
   }
 
