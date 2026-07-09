@@ -22,7 +22,10 @@ export function Hero() {
   return (
     <section ref={ref} className="hero" id="top">
       <motion.div className="hero__bg" style={reduced ? undefined : { y: bgY }}>
-        <div className="hero__bg-zoom" style={{ backgroundImage: 'url(/images/hero.svg)' }} />
+        <div
+          className="hero__bg-zoom"
+          style={{ backgroundImage: 'url(/images/photo-overlook-view.jpg)' }}
+        />
         <div className="hero__scrim" />
       </motion.div>
 

@@ -37,8 +37,9 @@ with zero extra setup.
 
 ## Before launch
 
-- Replace the placeholder artwork in `public/images/` with real photography
-  (keep the same filenames, or update `src/data/content.ts`).
+- The current photos (`public/images/photo-*.jpg`) are temporary — swap in the
+  prenuptial shoot photography when it's ready (keep the same filenames, or
+  update `src/data/content.ts` and the hero image in `src/components/Hero.tsx`).
 - Edit venue names, times, and story copy in `src/data/content.ts`.
 - Wire the RSVP form to a real endpoint (Formspree, Google Forms, or an API
   route) — see the note in `src/components/Rsvp.tsx`; it currently simulates

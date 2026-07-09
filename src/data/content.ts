@@ -20,28 +20,28 @@ export const timeline: TimelineEntry[] = [
     year: '2019',
     title: 'A Chance Encounter',
     body: 'It began the way the best stories do — unplanned. A mutual friend, a crowded room, and a conversation neither of them wanted to end.',
-    image: '/images/story-1.svg',
+    image: '/images/photo-overlook-portrait.jpg',
   },
   {
     index: '02',
     year: '2021',
     title: 'The First Adventure',
-    body: 'A spontaneous road trip with a broken playlist and no itinerary. Somewhere along the coast, "you and me" quietly became "us."',
-    image: '/images/story-2.svg',
+    body: 'A spontaneous road trip with a broken playlist and no itinerary. Somewhere along the way, "you and me" quietly became "us."',
+    image: '/images/photo-hiraya.jpg',
   },
   {
     index: '03',
     year: '2024',
     title: 'Building a Life',
     body: 'Keys to a first home, a kitchen that always smells like something burning, and the certainty that home was never the address — it was each other.',
-    image: '/images/story-3.svg',
+    image: '/images/photo-garden-bench.jpg',
   },
   {
     index: '04',
     year: '2025',
     title: 'She Said Yes',
     body: 'At golden hour, with trembling hands and a ring hidden for three long months, Ryan asked. Angel cried before he finished the question.',
-    image: '/images/story-4.svg',
+    image: '/images/photo-bouquet.jpg',
   },
 ]
 
@@ -52,15 +52,31 @@ export interface GalleryItem {
 }
 
 export const gallery: GalleryItem[] = [
-  { src: '/images/gallery-1.svg', alt: 'Engagement portrait', caption: 'The engagement · I' },
-  { src: '/images/gallery-2.svg', alt: 'Golden hour walk', caption: 'Golden hour' },
-  { src: '/images/gallery-3.svg', alt: 'City evening', caption: 'City lights' },
-  { src: '/images/gallery-4.svg', alt: 'Quiet moment', caption: 'A quiet moment' },
-  { src: '/images/gallery-5.svg', alt: 'The ring', caption: 'The ring' },
-  { src: '/images/gallery-6.svg', alt: 'Coastal trip', caption: 'The coast, 2021' },
-  { src: '/images/gallery-7.svg', alt: 'Dancing', caption: 'First dance rehearsal' },
-  { src: '/images/gallery-8.svg', alt: 'Home', caption: 'Home' },
-  { src: '/images/gallery-9.svg', alt: 'Together', caption: 'Always' },
+  {
+    src: '/images/photo-overlook-view.jpg',
+    alt: 'Angel and Ryan gazing at the mountains',
+    caption: 'Looking ahead, together',
+  },
+  {
+    src: '/images/photo-hiraya.jpg',
+    alt: 'Angel and Ryan at the Hiraya sign',
+    caption: 'Hiraya',
+  },
+  {
+    src: '/images/photo-bouquet.jpg',
+    alt: 'White bouquet with eucalyptus',
+    caption: 'The bouquet',
+  },
+  {
+    src: '/images/photo-overlook-portrait.jpg',
+    alt: 'Angel and Ryan at the mountain overlook',
+    caption: 'Above the valley',
+  },
+  {
+    src: '/images/photo-garden-bench.jpg',
+    alt: 'Angel and Ryan in the garden',
+    caption: 'A quiet moment',
+  },
 ]
 
 export const details = [

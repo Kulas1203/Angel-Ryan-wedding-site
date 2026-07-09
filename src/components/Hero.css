@@ -18,7 +18,7 @@
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: center 62%;
   animation: hero-zoom 36s var(--ease-out-expo) infinite alternate;
   will-change: transform;
 }
@@ -36,8 +36,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(20, 19, 17, 0.35), rgba(20, 19, 17, 0.12) 40%, rgba(20, 19, 17, 0.55)),
-    radial-gradient(ellipse at center, transparent 30%, rgba(20, 19, 17, 0.35));
+    linear-gradient(to bottom, rgba(20, 19, 17, 0.5), rgba(20, 19, 17, 0.32) 40%, rgba(20, 19, 17, 0.68)),
+    radial-gradient(ellipse at center, rgba(20, 19, 17, 0.18) 30%, rgba(20, 19, 17, 0.45));
 }
 
 .hero__content {
@@ -48,8 +48,14 @@
 }
 
 .hero__eyebrow {
-  color: rgba(250, 248, 243, 0.75);
+  color: rgba(250, 248, 243, 0.92);
   margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  text-shadow: 0 1px 14px rgba(20, 19, 17, 0.55);
+}
+
+.hero__names,
+.hero__date {
+  text-shadow: 0 2px 24px rgba(20, 19, 17, 0.35);
 }
 
 .hero__names {
