@@ -36,7 +36,7 @@ export function Gallery() {
       <div className="container">
         <div className="section-head">
           <Reveal>
-            <p className="eyebrow">№ 03 — Gallery</p>
+            <p className="eyebrow">№ 04 — Gallery</p>
           </Reveal>
           <h2>
             <StaggerText text="Moments," />{' '}

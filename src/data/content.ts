@@ -6,6 +6,16 @@ export const couple = {
   hashtag: '#AngelAndRyan2026',
 }
 
+export const invitation = {
+  opening: 'Together with their families',
+  body: 'request the honor of your presence as they exchange vows and celebrate the beginning of their forever',
+  date: 'Thursday, the twenty-ninth of October',
+  year: 'Two thousand twenty-six',
+  time: 'Three o’clock in the afternoon',
+  venue: 'Pavillion Watergate',
+  city: 'Butuan City',
+}
+
 export const storyQuote =
   'From a simple meeting in faith to a lifetime of love.'
 
@@ -91,21 +101,21 @@ export const details = [
   {
     label: 'The Ceremony',
     time: 'Three o’clock in the afternoon',
-    venue: 'The Glasshouse Conservatory',
-    address: 'One Garden Terrace',
+    venue: 'Pavillion Watergate',
+    address: 'Butuan City',
     note: 'Doors open at half past two. The ceremony begins promptly.',
   },
   {
     label: 'The Reception',
-    time: 'Six o’clock in the evening',
-    venue: 'The Meridian Ballroom',
-    address: 'Twelve Vine & Main',
-    note: 'Dinner, toasts, and dancing until midnight.',
+    time: 'To follow the ceremony',
+    venue: 'Pavillion Watergate',
+    address: 'Butuan City',
+    note: 'Dinner, toasts, and dancing to follow at the same venue.',
   },
 ] as const
 
 export const dressCode = {
   label: 'Attire',
-  value: 'Formal · Black tie optional',
-  note: 'We kindly invite you to dress in evening elegance — deep neutrals warmly encouraged.',
+  value: 'Formal · Sage, emerald & earth tones',
+  note: 'We kindly invite you to dress in garden elegance — sage green, emerald, and warm rustic neutrals are warmly encouraged.',
 }

@@ -4,11 +4,11 @@
 }
 
 .details__eyebrow {
-  color: var(--bronze);
+  color: var(--sage);
 }
 
 .details__rule {
-  background: rgba(156, 124, 82, 0.5);
+  background: rgba(156, 176, 140, 0.5);
 }
 
 .details__grid {
@@ -20,7 +20,7 @@
 }
 
 .details__card-inner {
-  border: 1px solid rgba(250, 248, 243, 0.16);
+  border: 1px solid rgba(250, 253, 246, 0.16);
   padding: clamp(2.4rem, 5vw, 3.6rem) clamp(1.8rem, 4vw, 3rem);
   text-align: center;
   display: flex;
@@ -32,22 +32,22 @@
 }
 
 .details__card-inner:hover {
-  border-color: rgba(156, 124, 82, 0.6);
-  background: rgba(250, 248, 243, 0.03);
+  border-color: rgba(156, 176, 140, 0.6);
+  background: rgba(250, 253, 246, 0.03);
 }
 
 .details__label {
   font-size: 0.68rem;
   letter-spacing: 0.42em;
   text-transform: uppercase;
-  color: var(--bronze);
+  color: var(--sage);
 }
 
 .details__time {
   font-family: var(--serif);
   font-style: italic;
   font-size: 1.05rem;
-  color: rgba(250, 248, 243, 0.75);
+  color: rgba(250, 253, 246, 0.75);
 }
 
 .details__venue {
@@ -61,19 +61,19 @@
   font-size: 0.8rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(250, 248, 243, 0.6);
+  color: rgba(250, 253, 246, 0.6);
 }
 
 .details__divider {
   width: 40px;
   height: 1px;
-  background: rgba(156, 124, 82, 0.5);
+  background: rgba(156, 176, 140, 0.5);
   margin-block: 0.6rem;
 }
 
 .details__note {
   font-size: 0.92rem;
-  color: rgba(250, 248, 243, 0.65);
+  color: rgba(250, 253, 246, 0.65);
   max-width: 34ch;
   margin-inline: auto;
 }
@@ -97,5 +97,5 @@
   font-size: 0.78rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--bronze);
+  color: var(--sage);
 }

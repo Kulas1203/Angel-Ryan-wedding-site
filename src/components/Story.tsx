@@ -21,7 +21,7 @@ export function Story() {
       <div className="container">
         <div className="section-head">
           <Reveal>
-            <p className="eyebrow">№ 01 — Our Story</p>
+            <p className="eyebrow">№ 02 — Our Story</p>
           </Reveal>
           <h2>
             <StaggerText text="A love written" />{' '}

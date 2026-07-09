@@ -56,7 +56,7 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(20, 19, 17, 0.94);
+  background: rgba(15, 26, 20, 0.94);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: grid;
@@ -84,7 +84,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  color: rgba(250, 248, 243, 0.8);
+  color: rgba(250, 253, 246, 0.8);
   font-size: 0.74rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -95,7 +95,7 @@
   font-style: italic;
   letter-spacing: 0.1em;
   text-transform: none;
-  color: var(--bronze);
+  color: var(--sage);
 }
 
 .lightbox__nav {
@@ -107,15 +107,15 @@
   width: 3.2rem;
   height: 3.2rem;
   border-radius: 50%;
-  border: 1px solid rgba(250, 248, 243, 0.25);
+  border: 1px solid rgba(250, 253, 246, 0.25);
   display: grid;
   place-items: center;
   transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .lightbox__nav:hover {
-  border-color: var(--bronze);
-  background: rgba(156, 124, 82, 0.2);
+  border-color: var(--sage);
+  background: rgba(156, 176, 140, 0.2);
 }
 
 .lightbox__nav--prev {
@@ -130,14 +130,14 @@
   position: absolute;
   top: clamp(0.8rem, 3vw, 2rem);
   right: clamp(0.8rem, 3vw, 2.5rem);
-  color: rgba(250, 248, 243, 0.8);
+  color: rgba(250, 253, 246, 0.8);
   font-size: 1.1rem;
   padding: 0.6rem;
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .lightbox__close:hover {
-  color: var(--bronze);
+  color: var(--sage);
   transform: rotate(90deg);
 }
 

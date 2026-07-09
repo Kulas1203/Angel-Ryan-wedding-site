@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(20, 19, 17, 0.55);
+  background: rgba(15, 26, 20, 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: grid;
@@ -17,7 +17,7 @@
   max-height: 92svh;
   overflow-y: auto;
   padding: clamp(2.2rem, 5vw, 3.4rem);
-  box-shadow: 0 40px 90px rgba(20, 19, 17, 0.35);
+  box-shadow: 0 40px 90px rgba(15, 26, 20, 0.35);
 }
 
 .rsvp__close {
@@ -84,7 +84,7 @@
 .rsvp__field input:focus,
 .rsvp__field select:focus {
   outline: none;
-  border-bottom-color: var(--bronze);
+  border-bottom-color: var(--emerald);
 }
 
 .rsvp__field input::placeholder {
@@ -125,8 +125,8 @@
 }
 
 .rsvp__attend-options label.is-active {
-  border-color: var(--bronze);
-  background: var(--bronze);
+  border-color: var(--emerald);
+  background: var(--emerald);
   color: var(--alabaster);
 }
 
@@ -161,7 +161,7 @@
 }
 
 .rsvp__submit:hover:not(:disabled) {
-  background: var(--bronze);
+  background: var(--emerald);
 }
 
 .rsvp__submit:disabled {
@@ -172,7 +172,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 1.5px solid rgba(250, 248, 243, 0.3);
+  border: 1.5px solid rgba(250, 253, 246, 0.3);
   border-top-color: var(--alabaster);
   animation: spin 0.8s linear infinite;
 }
@@ -216,13 +216,13 @@
   font-size: 0.72rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--bronze);
+  border-bottom: 1px solid var(--emerald);
   padding-bottom: 0.2rem;
   transition: color 0.3s ease;
 }
 
 .rsvp__done:hover {
-  color: var(--bronze);
+  color: var(--emerald);
 }
 
 /* ── Floating action button ──────────────────────────────────── */
@@ -242,10 +242,10 @@
   text-transform: uppercase;
   padding: 1.05rem 2.2rem;
   border-radius: 999px;
-  box-shadow: 0 18px 44px rgba(20, 19, 17, 0.28);
+  box-shadow: 0 18px 44px rgba(15, 26, 20, 0.28);
   transition: background-color 0.4s ease;
 }
 
 .rsvp-fab__btn:hover {
-  background: var(--bronze);
+  background: var(--emerald);
 }

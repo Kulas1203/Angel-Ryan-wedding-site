@@ -1,13 +1,15 @@
 :root {
-  /* ── Palette · refined neutrals + bronze accent ─────────────── */
-  --ivory: #f4f0e9;
-  --alabaster: #faf8f3;
-  --ink: #1c1b19;
-  --ink-soft: #37342f;
-  --stone: #8b857a;
-  --line: rgba(28, 27, 25, 0.14);
-  --bronze: #9c7c52;
-  --bronze-soft: rgba(156, 124, 82, 0.35);
+  /* ── Palette · sage, emerald, white & rustic brown ──────────── */
+  --ivory: #f2f5ec; /* sage-tinted white, page ground */
+  --alabaster: #fbfdf8; /* white */
+  --ink: #1b2a21; /* deep forest charcoal */
+  --ink-soft: #33453a;
+  --stone: #7e8877; /* sage grey */
+  --line: rgba(27, 42, 33, 0.14);
+  --bronze: #8a5f3d; /* rustic brown */
+  --bronze-soft: rgba(156, 176, 140, 0.5);
+  --emerald: #2d6a4f;
+  --sage: #9cb08c;
 
   /* ── Type ───────────────────────────────────────────────────── */
   --serif: 'Playfair Display', 'Georgia', serif;
@@ -48,7 +50,7 @@ body {
 }
 
 ::selection {
-  background: var(--bronze);
+  background: var(--emerald);
   color: var(--alabaster);
 }
 
@@ -113,7 +115,7 @@ a {
 
 .section-head h2 em {
   font-style: italic;
-  color: var(--bronze);
+  color: var(--emerald);
 }
 
 .rule {
@@ -128,7 +130,7 @@ a {
 
 /* Keyboard focus */
 :focus-visible {
-  outline: 1px solid var(--bronze);
+  outline: 1px solid var(--emerald);
   outline-offset: 4px;
 }
 

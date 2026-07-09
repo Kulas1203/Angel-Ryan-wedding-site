@@ -1,0 +1,124 @@
+.invitation {
+  background: var(--alabaster);
+  border-bottom: 1px solid var(--line);
+}
+
+.invitation__card {
+  max-width: 680px;
+  margin-inline: auto;
+  border: 1px solid rgba(156, 176, 140, 0.55);
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  background: var(--alabaster);
+}
+
+.invitation__card-inner {
+  border: 1px solid rgba(156, 176, 140, 0.35);
+  padding: clamp(2.8rem, 7vw, 4.5rem) clamp(1.6rem, 5vw, 3.5rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.invitation__opening {
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: 0.9rem;
+}
+
+.invitation__names {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  line-height: 1.1;
+  margin-bottom: 0.7rem;
+}
+
+.invitation__names span {
+  font-style: italic;
+  font-size: 0.55em;
+  color: var(--emerald);
+  margin-inline: 0.2em;
+}
+
+.invitation__body {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  line-height: 1.8;
+  color: var(--ink-soft);
+  max-width: 42ch;
+}
+
+.invitation__leaf {
+  color: var(--sage);
+  font-size: 1.5rem;
+  margin-block: 1.2rem 0.9rem;
+}
+
+.invitation__date {
+  font-family: var(--serif);
+  font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+  line-height: 1.3;
+}
+
+.invitation__year {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--emerald);
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+}
+
+.invitation__time {
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-top: 0.5rem;
+}
+
+.invitation__divider {
+  width: 44px;
+  height: 1px;
+  background: rgba(156, 176, 140, 0.6);
+  margin-block: 1.4rem;
+}
+
+.invitation__venue {
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  line-height: 1.2;
+}
+
+.invitation__city {
+  font-size: 0.76rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.invitation__cta {
+  margin-top: 2.2rem;
+  background: var(--emerald);
+  color: var(--alabaster);
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding: 1rem 2.6rem;
+  border-radius: 999px;
+  transition: background-color 0.4s ease;
+}
+
+.invitation__cta:hover {
+  background: var(--ink);
+}
+
+.invitation__hashtag {
+  margin-top: 1.4rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--stone);
+}

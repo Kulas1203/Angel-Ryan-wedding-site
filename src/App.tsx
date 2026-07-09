@@ -3,6 +3,7 @@ import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
 import { Countdown } from './components/Countdown'
+import { Invitation } from './components/Invitation'
 import { Story } from './components/Story'
 import { Details } from './components/Details'
 import { Gallery } from './components/Gallery'
@@ -28,6 +29,7 @@ export default function App() {
       <main>
         <Hero />
         <Countdown />
+        <Invitation onRsvp={() => setRsvpOpen(true)} />
         <Story />
         <Details />
         <Gallery />

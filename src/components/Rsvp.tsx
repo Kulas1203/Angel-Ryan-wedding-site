@@ -83,7 +83,7 @@ export function Rsvp({ open, onClose }: RsvpProps) {
                       cy="32"
                       r="30"
                       fill="none"
-                      stroke="var(--bronze)"
+                      stroke="var(--emerald)"
                       strokeWidth="1.5"
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
@@ -92,7 +92,7 @@ export function Rsvp({ open, onClose }: RsvpProps) {
                     <motion.path
                       d="M20 33 L28.5 41.5 L45 24"
                       fill="none"
-                      stroke="var(--bronze)"
+                      stroke="var(--emerald)"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"

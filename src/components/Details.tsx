@@ -8,7 +8,7 @@ export function Details() {
       <div className="container">
         <div className="section-head">
           <Reveal>
-            <p className="eyebrow details__eyebrow">№ 02 — The Day</p>
+            <p className="eyebrow details__eyebrow">№ 03 — The Day</p>
           </Reveal>
           <h2>
             <StaggerText text="An evening of" />{' '}

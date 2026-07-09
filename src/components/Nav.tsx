@@ -4,6 +4,7 @@ import { scrollToSection } from '../hooks/useSmoothScroll'
 import './Nav.css'
 
 const links = [
+  { label: 'Invitation', target: '#invitation' },
   { label: 'Our Story', target: '#story' },
   { label: 'Details', target: '#details' },
   { label: 'Gallery', target: '#gallery' },

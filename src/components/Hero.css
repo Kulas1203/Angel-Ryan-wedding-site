@@ -36,8 +36,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(20, 19, 17, 0.5), rgba(20, 19, 17, 0.32) 40%, rgba(20, 19, 17, 0.68)),
-    radial-gradient(ellipse at center, rgba(20, 19, 17, 0.18) 30%, rgba(20, 19, 17, 0.45));
+    linear-gradient(to bottom, rgba(15, 26, 20, 0.5), rgba(15, 26, 20, 0.32) 40%, rgba(15, 26, 20, 0.68)),
+    radial-gradient(ellipse at center, rgba(15, 26, 20, 0.18) 30%, rgba(15, 26, 20, 0.45));
 }
 
 .hero__content {
@@ -48,14 +48,14 @@
 }
 
 .hero__eyebrow {
-  color: rgba(250, 248, 243, 0.92);
+  color: rgba(250, 253, 246, 0.92);
   margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
-  text-shadow: 0 1px 14px rgba(20, 19, 17, 0.55);
+  text-shadow: 0 1px 14px rgba(15, 26, 20, 0.55);
 }
 
 .hero__names,
 .hero__date {
-  text-shadow: 0 2px 24px rgba(20, 19, 17, 0.35);
+  text-shadow: 0 2px 24px rgba(15, 26, 20, 0.35);
 }
 
 .hero__names {
@@ -83,7 +83,7 @@
   display: block;
   font-style: italic;
   font-size: 0.42em;
-  color: var(--bronze);
+  color: #c9d7b4;
   line-height: 1;
 }
 
@@ -98,13 +98,13 @@
   font-size: clamp(0.85rem, 1.4vw, 1.05rem);
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: rgba(250, 248, 243, 0.85);
+  color: rgba(250, 253, 246, 0.85);
 }
 
 .hero__date-rule {
   width: clamp(2.5rem, 6vw, 5rem);
   height: 1px;
-  background: rgba(250, 248, 243, 0.35);
+  background: rgba(250, 253, 246, 0.35);
 }
 
 .hero__scroll-cue {
@@ -117,7 +117,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.9rem;
-  color: rgba(250, 248, 243, 0.7);
+  color: rgba(250, 253, 246, 0.7);
 }
 
 .hero__scroll-label {
@@ -129,7 +129,7 @@
 .hero__scroll-line {
   width: 1px;
   height: 52px;
-  background: rgba(250, 248, 243, 0.4);
+  background: rgba(250, 253, 246, 0.4);
   position: relative;
   overflow: hidden;
 }
@@ -138,7 +138,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--bronze);
+  background: var(--sage);
   animation: scroll-drip 2.2s var(--ease-out-expo) infinite;
 }
 

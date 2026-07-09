@@ -17,7 +17,7 @@
 }
 
 .nav--solid {
-  background: rgba(244, 240, 233, 0.88);
+  background: rgba(242, 245, 236, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--ink);
@@ -32,7 +32,7 @@
 }
 
 .nav__monogram span {
-  color: var(--bronze);
+  color: var(--sage);
   margin-inline: 0.15em;
 }
 
@@ -60,7 +60,7 @@
   bottom: 0;
   width: 100%;
   height: 1px;
-  background: var(--bronze);
+  background: var(--emerald);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.45s var(--ease-out-expo);
@@ -91,8 +91,8 @@
 }
 
 .nav__rsvp:hover {
-  background: var(--bronze);
-  border-color: var(--bronze);
+  background: var(--emerald);
+  border-color: var(--emerald);
   color: var(--alabaster);
 }
 
