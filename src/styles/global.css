@@ -1,0 +1,144 @@
+:root {
+  /* ── Palette · refined neutrals + bronze accent ─────────────── */
+  --ivory: #f4f0e9;
+  --alabaster: #faf8f3;
+  --ink: #1c1b19;
+  --ink-soft: #37342f;
+  --stone: #8b857a;
+  --line: rgba(28, 27, 25, 0.14);
+  --bronze: #9c7c52;
+  --bronze-soft: rgba(156, 124, 82, 0.35);
+
+  /* ── Type ───────────────────────────────────────────────────── */
+  --serif: 'Playfair Display', 'Georgia', serif;
+  --sans: 'Jost', 'Helvetica Neue', sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--bronze);
+  color: var(--alabaster);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: var(--sans);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Editorial primitives ────────────────────────────────────── */
+
+.container {
+  width: min(1200px, 90vw);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  text-align: center;
+  margin-bottom: clamp(4rem, 9vw, 7rem);
+}
+
+.section-head h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+}
+
+.section-head h2 em {
+  font-style: italic;
+  color: var(--bronze);
+}
+
+.rule {
+  width: 1px;
+  height: 56px;
+  background: var(--bronze-soft);
+}
+
+.section {
+  padding-block: clamp(6rem, 14vw, 11rem);
+}
+
+/* Keyboard focus */
+:focus-visible {
+  outline: 1px solid var(--bronze);
+  outline-offset: 4px;
+}
+
+/* Reduced motion: let content simply appear */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

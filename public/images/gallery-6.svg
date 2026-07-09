@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="720" viewBox="0 0 900 720">
+  <defs>
+    <linearGradient id="gstone11a" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#b9b2a6"/>
+      <stop offset="1" stop-color="#d8d2c6"/>
+    </linearGradient>
+    <radialGradient id="gstone11b" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#d8d2c6"/>
+      <stop offset="1" stop-color="#b9b2a6"/>
+    </radialGradient>
+    
+  <filter id="grainstone11">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  </defs>
+  <g filter="url(#grainstone11)">
+    <rect width="900" height="720" fill="url(#gstone11a)"/>
+    
+    <rect x="-180" y="396.00000000000006" width="1260" height="115.2" fill="url(#gstone11b)" opacity="0.8" transform="rotate(-14 450 360)"/>
+    <rect x="-180" y="244.8" width="1260" height="36" fill="#6d675e" opacity="0.35" transform="rotate(-14 450 360)"/>
+    <rect x="-180" y="547.2" width="1260" height="14.4" fill="#6d675e" opacity="0.5" transform="rotate(-14 450 360)"/>
+  </g>
+</svg>

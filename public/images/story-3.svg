@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1125" viewBox="0 0 900 1125">
+  <defs>
+    <linearGradient id="gbronze4a" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#8a6d47"/>
+      <stop offset="1" stop-color="#b59a72"/>
+    </linearGradient>
+    <radialGradient id="gbronze4b" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#b59a72"/>
+      <stop offset="1" stop-color="#8a6d47"/>
+    </radialGradient>
+    
+  <filter id="grainbronze4">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  </defs>
+  <g filter="url(#grainbronze4)">
+    <rect width="900" height="1125" fill="url(#gbronze4a)"/>
+    
+    <path d="M 144 562.5 A 306 306 0 0 1 756 562.5" fill="none" stroke="#f4f0e9" stroke-opacity="0.55" stroke-width="1.4"/>
+    <circle cx="450" cy="562.5" r="189.72" fill="url(#gbronze4b)" opacity="0.85"/>
+  </g>
+</svg>

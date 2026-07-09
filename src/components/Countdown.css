@@ -1,0 +1,46 @@
+.countdown {
+  border-bottom: 1px solid var(--line);
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+  background: var(--alabaster);
+}
+
+.countdown__inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.countdown__unit {
+  display: flex;
+  align-items: center;
+}
+
+.countdown__divider {
+  width: 1px;
+  height: 3.4rem;
+  background: var(--line);
+  margin-inline: clamp(1.4rem, 5vw, 4rem);
+}
+
+.countdown__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 3.5ch;
+}
+
+.countdown__value {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown__label {
+  font-size: 0.66rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--stone);
+}

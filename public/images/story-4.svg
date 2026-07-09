@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1125" viewBox="0 0 900 1125">
+  <defs>
+    <linearGradient id="gdusk5a" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#2a2724"/>
+      <stop offset="1" stop-color="#4a423a"/>
+    </linearGradient>
+    <radialGradient id="gdusk5b" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#4a423a"/>
+      <stop offset="1" stop-color="#2a2724"/>
+    </radialGradient>
+    
+  <filter id="graindusk5">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  </defs>
+  <g filter="url(#graindusk5)">
+    <rect width="900" height="1125" fill="url(#gdusk5a)"/>
+    
+    <circle cx="450" cy="472.5" r="270" fill="url(#gdusk5b)" opacity="0.9"/>
+    <circle cx="450" cy="472.5" r="345.6" fill="none" stroke="#9c7c52" stroke-opacity="0.45" stroke-width="1.2"/>
+    <line x1="108" y1="877.5" x2="792" y2="877.5" stroke="#9c7c52" stroke-opacity="0.4" stroke-width="1"/>
+  </g>
+</svg>

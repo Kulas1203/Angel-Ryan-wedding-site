@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1150" viewBox="0 0 900 1150">
+  <defs>
+    <linearGradient id="gcharcoal10a" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#1c1b19"/>
+      <stop offset="1" stop-color="#3a362f"/>
+    </linearGradient>
+    <radialGradient id="gcharcoal10b" cx="0.35" cy="0.3" r="1">
+      <stop offset="0" stop-color="#3a362f"/>
+      <stop offset="1" stop-color="#1c1b19"/>
+    </radialGradient>
+    
+  <filter id="graincharcoal10">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  </defs>
+  <g filter="url(#graincharcoal10)">
+    <rect width="900" height="1150" fill="url(#gcharcoal10a)"/>
+    
+    <path d="M 144 575 A 306 306 0 0 1 756 575" fill="none" stroke="#9c7c52" stroke-opacity="0.55" stroke-width="1.4"/>
+    <circle cx="450" cy="575" r="189.72" fill="url(#gcharcoal10b)" opacity="0.85"/>
+  </g>
+</svg>

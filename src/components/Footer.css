@@ -1,0 +1,54 @@
+.footer {
+  background: var(--ink);
+  color: var(--alabaster);
+  padding-block: clamp(5rem, 10vw, 8rem);
+  text-align: center;
+}
+
+.footer__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.footer__monogram {
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 6vw, 4rem);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.footer__monogram span {
+  font-style: italic;
+  font-size: 0.6em;
+  color: var(--bronze);
+  margin-inline: 0.18em;
+}
+
+.footer__names {
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.7);
+}
+
+.footer__date {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--bronze);
+}
+
+.footer__rule {
+  width: 1px;
+  height: 44px;
+  background: rgba(156, 124, 82, 0.45);
+  margin-block: 1rem;
+}
+
+.footer__tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.45);
+}

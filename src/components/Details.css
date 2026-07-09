@@ -1,0 +1,101 @@
+.details {
+  background: var(--ink);
+  color: var(--alabaster);
+}
+
+.details__eyebrow {
+  color: var(--bronze);
+}
+
+.details__rule {
+  background: rgba(156, 124, 82, 0.5);
+}
+
+.details__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.details__card-inner {
+  border: 1px solid rgba(250, 248, 243, 0.16);
+  padding: clamp(2.4rem, 5vw, 3.6rem) clamp(1.8rem, 4vw, 3rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  height: 100%;
+  transition: border-color 0.5s ease, background-color 0.5s ease;
+}
+
+.details__card-inner:hover {
+  border-color: rgba(156, 124, 82, 0.6);
+  background: rgba(250, 248, 243, 0.03);
+}
+
+.details__label {
+  font-size: 0.68rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.details__time {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: rgba(250, 248, 243, 0.75);
+}
+
+.details__venue {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.2;
+}
+
+.details__address {
+  font-size: 0.8rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 243, 0.6);
+}
+
+.details__divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(156, 124, 82, 0.5);
+  margin-block: 0.6rem;
+}
+
+.details__note {
+  font-size: 0.92rem;
+  color: rgba(250, 248, 243, 0.65);
+  max-width: 34ch;
+  margin-inline: auto;
+}
+
+.details__attire {
+  margin-top: clamp(4rem, 8vw, 6rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.details__attire-value {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+}
+
+.details__hashtag {
+  margin-top: 1.2rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
