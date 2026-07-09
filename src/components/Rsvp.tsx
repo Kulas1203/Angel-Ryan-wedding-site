@@ -9,7 +9,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error'
 // RSVPs are emailed to the couple via Web3Forms (no backend needed).
 // The access key is bound to the recipient inbox configured at web3forms.com.
 const RSVP_ENDPOINT = 'https://api.web3forms.com/submit'
-const WEB3FORMS_ACCESS_KEY = 'REPLACE_WITH_ACCESS_KEY'
+const WEB3FORMS_ACCESS_KEY = 'e2feaf48-ed5b-481e-a7d4-8722733e876a'
 
 interface RsvpProps {
   open: boolean
