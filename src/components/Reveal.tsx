@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
@@ -56,11 +57,11 @@ export function StaggerText({ text, className, delay = 0 }: StaggerTextProps) {
       transition={{ staggerChildren: 0.08, delayChildren: delay }}
     >
       {words.map((word, i) => (
-        <span
-          key={i}
-          style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}
-        >
-          <motion.span
+        <Fragment key={i}>
+          <span
+            style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}
+          >
+            <motion.span
             style={{ display: 'inline-block' }}
             variants={{
               hidden: { y: '110%', opacity: 0 },
@@ -72,9 +73,13 @@ export function StaggerText({ text, className, delay = 0 }: StaggerTextProps) {
             }}
           >
             {word}
-            {i < words.length - 1 ? ' ' : ''}
-          </motion.span>
-        </span>
+            </motion.span>
+          </span>
+          {/* The space must live outside the overflow-hidden box as a real
+              text node — a no-break space inside the box rendered
+              inconsistently across browsers, joining words together. */}
+          {i < words.length - 1 ? ' ' : null}
+        </Fragment>
       ))}
     </motion.span>
   )

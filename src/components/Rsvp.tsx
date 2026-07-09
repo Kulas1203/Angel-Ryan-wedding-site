@@ -4,7 +4,12 @@ import { MagneticButton } from './MagneticButton'
 import { couple } from '../data/content'
 import './Rsvp.css'
 
-type Status = 'idle' | 'submitting' | 'success'
+type Status = 'idle' | 'submitting' | 'success' | 'error'
+
+// RSVPs are emailed to the couple via FormSubmit (no backend needed).
+// Replies go to the primary address below and are CC'd to the second.
+const RSVP_ENDPOINT = 'https://formsubmit.co/ajax/rysarsuelo2@gmail.com'
+const RSVP_CC = 'calumbaangel@gmail.com'
 
 interface RsvpProps {
   open: boolean
@@ -33,13 +38,32 @@ export function Rsvp({ open, onClose }: RsvpProps) {
     return () => clearTimeout(id)
   }, [open])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (status !== 'idle') return
+    if (status === 'submitting') return
+    const data = new FormData(e.currentTarget)
     setStatus('submitting')
-    // NOTE: wire this to a real endpoint (Formspree, Google Form, or an API
-    // route) before launch — currently a graceful front-end simulation.
-    setTimeout(() => setStatus('success'), 1600)
+    try {
+      const res = await fetch(RSVP_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: 'New RSVP — Angel & Ryan Wedding',
+          _template: 'table',
+          _cc: RSVP_CC,
+          name: data.get('name'),
+          email: data.get('email'),
+          attending:
+            data.get('attending') === 'yes' ? 'Joyfully accepts' : 'Regretfully declines',
+          guests: data.get('guests') ?? '—',
+          dietary: data.get('dietary') || '—',
+        }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setStatus('success')
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
@@ -186,10 +210,19 @@ export function Rsvp({ open, onClose }: RsvpProps) {
                   >
                     {status === 'submitting' ? (
                       <span className="rsvp__spinner" aria-label="Sending" />
+                    ) : status === 'error' ? (
+                      'Try again'
                     ) : (
                       'Send reply'
                     )}
                   </MagneticButton>
+
+                  {status === 'error' && (
+                    <p className="rsvp__error" role="alert">
+                      We couldn’t send your reply just now. Please try again in a
+                      moment — or message the couple directly.
+                    </p>
+                  )}
                 </motion.form>
               )}
             </AnimatePresence>

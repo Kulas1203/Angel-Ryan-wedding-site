@@ -183,6 +183,12 @@
   }
 }
 
+.rsvp__error {
+  font-size: 0.88rem;
+  color: #9a4a35;
+  max-width: 42ch;
+}
+
 /* ── Success state ───────────────────────────────────────────── */
 
 .rsvp__success {
