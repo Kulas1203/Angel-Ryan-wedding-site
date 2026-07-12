@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { Nav } from './components/Nav'
+import { Intro } from './components/Intro'
 import { Hero } from './components/Hero'
 import { Countdown } from './components/Countdown'
 import { Invitation } from './components/Invitation'
@@ -25,6 +26,7 @@ export default function App() {
 
   return (
     <>
+      <Intro />
       <Nav onRsvp={() => setRsvpOpen(true)} />
       <main>
         <Hero />

@@ -74,7 +74,17 @@ export function Story() {
                     viewport={{ once: true, margin: '-15% 0px' }}
                     transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <img src={entry.image} alt={entry.title} loading="lazy" />
+                    {/* Ken Burns settle: the photo eases from a zoom to rest
+                        while the mask wipes open. */}
+                    <motion.img
+                      src={entry.image}
+                      alt={entry.title}
+                      loading="lazy"
+                      initial={{ scale: 1.14 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true, margin: '-15% 0px' }}
+                      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+                    />
                   </motion.div>
                 </div>
               </article>

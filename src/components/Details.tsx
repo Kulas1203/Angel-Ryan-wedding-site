@@ -4,7 +4,7 @@ import './Details.css'
 
 export function Details() {
   return (
-    <section className="section details" id="details">
+    <section className="section details grain" id="details">
       <div className="container">
         <div className="section-head">
           <Reveal>

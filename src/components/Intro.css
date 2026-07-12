@@ -1,0 +1,64 @@
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.intro__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* slight overlap hides any subpixel seam */
+  background: var(--ink);
+}
+
+.intro__panel--top {
+  top: 0;
+}
+
+.intro__panel--bottom {
+  bottom: 0;
+}
+
+.intro__mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  color: var(--alabaster);
+}
+
+.intro__names {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.intro__names em {
+  font-style: italic;
+  font-size: 0.55em;
+  color: var(--sage);
+  margin-inline: 0.15em;
+}
+
+.intro__rule {
+  display: block;
+  width: clamp(90px, 18vw, 160px);
+  height: 1px;
+  background: rgba(156, 176, 140, 0.7);
+  transform-origin: center;
+}
+
+.intro__date {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(250, 253, 246, 0.75);
+}

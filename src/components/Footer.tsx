@@ -4,7 +4,7 @@ import './Footer.css'
 
 export function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer grain">
       <Reveal>
         <div className="footer__inner">
           <p className="footer__monogram">

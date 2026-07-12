@@ -137,11 +137,6 @@
   max-width: 420px;
   aspect-ratio: 4 / 5;
   object-fit: cover;
-  transition: transform 1.2s var(--ease-out-expo);
-}
-
-.story__media-mask:hover img {
-  transform: scale(1.04);
 }
 
 .story__item:not(.story__item--flipped) .story__media img {

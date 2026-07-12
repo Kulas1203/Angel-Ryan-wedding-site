@@ -29,7 +29,7 @@ export function Nav({ onRsvp }: NavProps) {
       className={`nav ${scrolled ? 'nav--solid' : ''}`}
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 1.2, delay: 2.2, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 1.2, delay: 3.4, ease: [0.16, 1, 0.3, 1] }}
     >
       <button
         className="nav__monogram"
