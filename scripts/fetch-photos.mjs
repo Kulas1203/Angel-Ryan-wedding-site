@@ -8,6 +8,8 @@ const RAW_BASE =
   'https://raw.githubusercontent.com/Kulas1203/Angel-Ryan-wedding-site/claude/angel-ralph-wedding-site-emn6u0/public/images'
 
 const photos = [
+  'monogram.webp',
+  'monogram-ivory.webp',
   'photo-bouquet.jpg',
   'photo-garden-bench.jpg',
   'photo-hiraya.jpg',

@@ -12,8 +12,9 @@
   --sage: #9cb08c;
 
   /* ── Type ───────────────────────────────────────────────────── */
-  --serif: 'Playfair Display', 'Georgia', serif;
+  --serif: 'Cormorant Garamond', 'Georgia', serif;
   --sans: 'Jost', 'Helvetica Neue', sans-serif;
+  --script: 'Great Vibes', 'Brush Script MT', cursive;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -107,9 +108,9 @@ a {
 
 .section-head h2 {
   font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
-  line-height: 1.08;
+  font-weight: 500;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1.05;
   letter-spacing: 0.01em;
 }
 

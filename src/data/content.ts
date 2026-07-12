@@ -1,9 +1,9 @@
 export const WEDDING_DATE = new Date('2026-10-29T15:00:00')
 
 export const couple = {
-  names: 'Angel & Ryan',
+  names: 'Ryan & Angel',
   dateLabel: 'October 29, 2026',
-  hashtag: '#AngelAndRyan2026',
+  hashtag: '#RyanAndAngel2026',
 }
 
 export const invitation = {

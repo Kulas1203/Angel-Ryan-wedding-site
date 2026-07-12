@@ -45,24 +45,15 @@ export function Intro() {
 
       <motion.div
         className="intro__mark"
-        initial={{ opacity: 0, scale: 0.96, filter: 'blur(14px)' }}
+        initial={{ opacity: 0, scale: 0.94, filter: 'blur(14px)' }}
         animate={{
           opacity: [0, 1, 1, 0],
-          scale: [0.96, 1, 1.01, 1.05],
+          scale: [0.94, 1, 1.01, 1.06],
           filter: ['blur(14px)', 'blur(0px)', 'blur(0px)', 'blur(8px)'],
         }}
         transition={{ duration: 2.0, times: [0, 0.35, 0.78, 1], ease: 'easeInOut' }}
       >
-        <span className="intro__names">
-          A <em>&amp;</em> R
-        </span>
-        <motion.span
-          className="intro__rule"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.55, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-        />
-        <span className="intro__date">10 · 29 · 2026</span>
+        <img className="intro__logo" src="/images/monogram-ivory.webp" alt="" />
       </motion.div>
     </div>
   )

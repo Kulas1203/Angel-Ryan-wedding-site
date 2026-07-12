@@ -29,9 +29,14 @@ export function Invitation({ onRsvp }: InvitationProps) {
         <Reveal>
           <div className="invitation__card">
             <div className="invitation__card-inner">
+              <img
+                className="invitation__monogram"
+                src="/images/monogram.webp"
+                alt="Ryan & Angel monogram"
+              />
               <p className="invitation__opening">{invitation.opening}</p>
               <p className="invitation__names">
-                Angel <span>&amp;</span> Ryan
+                Ryan <span>&amp;</span> Angel
               </p>
               <p className="invitation__body">{invitation.body}</p>
 

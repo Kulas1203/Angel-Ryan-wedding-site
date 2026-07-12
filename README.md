@@ -1,6 +1,6 @@
-# Angel & Ryan — Wedding Site
+# Ryan & Angel — Wedding Site
 
-A luxury, editorial-style wedding landing page for **Angel & Ryan**, celebrating
+A luxury, editorial-style wedding landing page for **Ryan & Angel**, celebrating
 **October 29, 2026**.
 
 ## Stack
@@ -8,7 +8,7 @@ A luxury, editorial-style wedding landing page for **Angel & Ryan**, celebrating
 - **Vite + React 18 + TypeScript** — fast SPA build
 - **Framer Motion** — scroll-triggered reveals, staggered text, magnetic buttons, lightbox & modal transitions
 - **Lenis** — buttery smooth scrolling (respects `prefers-reduced-motion`)
-- **Playfair Display + Jost** — serif display / geometric sans pairing
+- **Cormorant Garamond + Great Vibes + Jost** — serif display / geometric sans pairing
 - Palette: ivory, alabaster, charcoal ink, with a bronze accent
 
 ## Sections

@@ -21,6 +21,12 @@
   gap: 0.55rem;
 }
 
+.invitation__monogram {
+  width: clamp(160px, 26vw, 220px);
+  mix-blend-mode: multiply; /* hides the artwork's white ground on paper */
+  margin-bottom: 0.6rem;
+}
+
 .invitation__opening {
   font-size: 0.72rem;
   letter-spacing: 0.4em;
@@ -31,16 +37,18 @@
 
 .invitation__names {
   font-family: var(--serif);
-  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 6.5vw, 3.9rem);
   line-height: 1.1;
   margin-bottom: 0.7rem;
 }
 
 .invitation__names span {
-  font-style: italic;
-  font-size: 0.55em;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: 0.6em;
   color: var(--emerald);
-  margin-inline: 0.2em;
+  margin-inline: 0.18em;
 }
 
 .invitation__body {

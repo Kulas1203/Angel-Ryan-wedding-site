@@ -36,7 +36,7 @@ export function Nav({ onRsvp }: NavProps) {
         onClick={() => scrollToSection('#top')}
         aria-label="Back to top"
       >
-        A<span>·</span>R
+        R<span>·</span>A
       </button>
 
       <nav className="nav__links" aria-label="Sections">

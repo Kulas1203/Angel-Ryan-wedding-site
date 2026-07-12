@@ -54,7 +54,7 @@ export function Rsvp({ open, onClose }: RsvpProps) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: WEB3FORMS_ACCESS_KEY,
-          subject: 'New RSVP — Angel & Ryan Wedding',
+          subject: 'New RSVP — Ryan & Angel Wedding',
           from_name: 'Wedding Website',
           name: data.get('name'),
           email: data.get('email'),

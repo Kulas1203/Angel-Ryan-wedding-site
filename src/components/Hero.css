@@ -60,8 +60,8 @@
 
 .hero__names {
   font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(3.2rem, 11vw, 8.5rem);
+  font-weight: 500;
+  font-size: clamp(3.4rem, 11.5vw, 9rem);
   line-height: 1.02;
   letter-spacing: 0.015em;
   display: flex;
@@ -81,10 +81,11 @@
 
 .hero__amp {
   display: block;
-  font-style: italic;
-  font-size: 0.42em;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: 0.44em;
   color: #c9d7b4;
-  line-height: 1;
+  line-height: 0.9;
 }
 
 .hero__date {
