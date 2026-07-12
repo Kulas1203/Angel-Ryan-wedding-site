@@ -1,6 +1,7 @@
 .countdown {
   border-bottom: 1px solid var(--line);
   padding-block: clamp(2.5rem, 5vw, 4rem);
+  padding-inline: 0.75rem;
   background: var(--alabaster);
 }
 
@@ -8,6 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: 100%;
 }
 
 .countdown__unit {
@@ -43,4 +45,28 @@
   letter-spacing: 0.36em;
   text-transform: uppercase;
   color: var(--stone);
+}
+
+/* Compact layout so all four units always fit on narrow screens —
+   a center-justified flex row clips its left edge when it overflows,
+   which hid the Days figure on phones. */
+@media (max-width: 560px) {
+  .countdown__divider {
+    margin-inline: 0.8rem;
+    height: 2.5rem;
+  }
+
+  .countdown__cell {
+    min-width: 2.6ch;
+    gap: 0.35rem;
+  }
+
+  .countdown__value {
+    font-size: 1.7rem;
+  }
+
+  .countdown__label {
+    font-size: 0.54rem;
+    letter-spacing: 0.24em;
+  }
 }
