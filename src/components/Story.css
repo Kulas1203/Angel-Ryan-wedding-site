@@ -95,8 +95,8 @@
 
 .story__title {
   font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  font-weight: 500;
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
   line-height: 1.15;
 }
 
