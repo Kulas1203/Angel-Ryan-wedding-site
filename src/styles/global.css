@@ -127,6 +127,8 @@ a {
 
 .section {
   padding-block: clamp(6rem, 14vw, 11rem);
+  /* Native fallback (reduced-motion path) clears the fixed navbar too. */
+  scroll-margin-top: 72px;
 }
 
 /* ── Film grain ──────────────────────────────────────────────── */

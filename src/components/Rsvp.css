@@ -255,3 +255,12 @@
 .rsvp-fab__btn:hover {
   background: var(--emerald);
 }
+
+/* Smaller, less intrusive pill on phones. */
+@media (max-width: 640px) {
+  .rsvp-fab__btn {
+    font-size: 0.66rem;
+    padding: 0.85rem 1.7rem;
+    box-shadow: 0 12px 30px rgba(15, 26, 20, 0.25);
+  }
+}

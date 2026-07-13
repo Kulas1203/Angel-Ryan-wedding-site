@@ -15,6 +15,7 @@ export default function App() {
   useSmoothScroll()
   const [rsvpOpen, setRsvpOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
+  const [invitationInView, setInvitationInView] = useState(false)
 
   // The floating RSVP pill appears once the hero has scrolled away.
   useEffect(() => {
@@ -22,6 +23,19 @@ export default function App() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // The invitation section carries its own RSVP call-to-action, so the
+  // floating pill steps aside while it is on screen.
+  useEffect(() => {
+    const target = document.querySelector('#invitation')
+    if (!target) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setInvitationInView(entry.isIntersecting),
+      { rootMargin: '-15% 0px -15% 0px' },
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -37,7 +51,10 @@ export default function App() {
         <Gallery />
       </main>
       <Footer />
-      <RsvpFab visible={fabVisible && !rsvpOpen} onOpen={() => setRsvpOpen(true)} />
+      <RsvpFab
+        visible={fabVisible && !rsvpOpen && !invitationInView}
+        onOpen={() => setRsvpOpen(true)}
+      />
       <Rsvp open={rsvpOpen} onClose={() => setRsvpOpen(false)} />
     </>
   )

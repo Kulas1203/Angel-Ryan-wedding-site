@@ -3,11 +3,14 @@ import Lenis from 'lenis'
 
 let lenis: Lenis | null = null
 
+// Clearance for the fixed navbar so anchored sections land below it.
+const NAV_OFFSET = -72
+
 export function scrollToSection(selector: string) {
   const el = document.querySelector(selector)
   if (!el) return
   if (lenis) {
-    lenis.scrollTo(el as HTMLElement, { offset: 0, duration: 1.6 })
+    lenis.scrollTo(el as HTMLElement, { offset: NAV_OFFSET, duration: 1.6 })
   } else {
     el.scrollIntoView({ behavior: 'smooth' })
   }

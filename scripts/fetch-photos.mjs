@@ -10,6 +10,7 @@ const RAW_BASE =
 const photos = [
   'monogram.webp',
   'monogram-ivory.webp',
+  'og.jpg',
   'photo-bouquet.jpg',
   'photo-garden-bench.jpg',
   'photo-hiraya.jpg',
