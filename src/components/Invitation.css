@@ -36,19 +36,19 @@
 }
 
 .invitation__names {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(2.6rem, 6.5vw, 3.9rem);
-  line-height: 1.1;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: clamp(3.6rem, 9vw, 5.4rem);
+  line-height: 1;
   margin-bottom: 0.7rem;
 }
 
 .invitation__names span {
   font-family: var(--script);
   font-weight: 400;
-  font-size: 0.6em;
+  font-size: 0.9em;
   color: var(--emerald);
-  margin-inline: 0.18em;
+  margin-inline: 0.1em;
 }
 
 .invitation__body {

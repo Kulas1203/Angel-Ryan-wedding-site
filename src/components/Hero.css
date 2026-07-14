@@ -59,20 +59,25 @@
 }
 
 .hero__names {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(3.4rem, 11.5vw, 9rem);
-  line-height: 1.02;
-  letter-spacing: 0.015em;
+  font-family: var(--script);
+  font-weight: 400;
+  /* Calligraphy carries a smaller x-height, so it is set larger than the
+     serif was to hold the same visual weight. */
+  font-size: clamp(4.4rem, 16vw, 12rem);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.2rem, 1vw, 0.8rem);
+  gap: clamp(0.1rem, 0.4vw, 0.4rem);
 }
 
 .hero__line {
   display: block;
   overflow: hidden;
+  /* Clearance for descenders (the 'y' in Ryan) inside the reveal mask. */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
 }
 
 .hero__line > span {
@@ -83,9 +88,9 @@
   display: block;
   font-family: var(--script);
   font-weight: 400;
-  font-size: 0.44em;
+  font-size: 0.6em;
   color: #c9d7b4;
-  line-height: 0.9;
+  line-height: 0.8;
 }
 
 .hero__date {

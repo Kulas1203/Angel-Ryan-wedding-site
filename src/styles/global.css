@@ -1,3 +1,13 @@
+/* Self-hosted calligraphy display face — no runtime Google Fonts request,
+   so it always renders on first paint. */
+@font-face {
+  font-family: 'Alex Brush';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/alex-brush-latin.woff2') format('woff2');
+}
+
 :root {
   /* ── Palette · sage, emerald, white & rustic brown ──────────── */
   --ivory: #f2f5ec; /* sage-tinted white, page ground */
@@ -14,7 +24,7 @@
   /* ── Type ───────────────────────────────────────────────────── */
   --serif: 'Cormorant Garamond', 'Georgia', serif;
   --sans: 'Jost', 'Helvetica Neue', sans-serif;
-  --script: 'Great Vibes', 'Brush Script MT', cursive;
+  --script: 'Alex Brush', 'Brush Script MT', cursive;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -110,13 +120,20 @@ a {
   font-family: var(--serif);
   font-weight: 500;
   font-size: clamp(2.6rem, 6vw, 4.6rem);
-  line-height: 1.05;
+  line-height: 1.15;
   letter-spacing: 0.01em;
 }
 
+/* The emphasis word in each heading becomes calligraphy — bumped in size
+   to sit optically level with the serif (scripts have a small x-height)
+   and given breathing room so its descenders/flourishes never clip. */
 .section-head h2 em {
-  font-style: italic;
+  font-family: var(--script);
+  font-style: normal;
   color: var(--emerald);
+  font-size: 1.5em;
+  line-height: 0.85;
+  padding-inline: 0.08em;
 }
 
 .rule {

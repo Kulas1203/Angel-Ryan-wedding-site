@@ -59,7 +59,15 @@ export function StaggerText({ text, className, delay = 0 }: StaggerTextProps) {
       {words.map((word, i) => (
         <Fragment key={i}>
           <span
-            style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}
+            style={{
+              display: 'inline-block',
+              overflow: 'hidden',
+              verticalAlign: 'bottom',
+              // Room for calligraphy descenders/flourishes in emphasis words;
+              // the negative margin keeps the baseline where it was.
+              paddingBottom: '0.16em',
+              marginBottom: '-0.16em',
+            }}
           >
             <motion.span
             style={{ display: 'inline-block' }}
