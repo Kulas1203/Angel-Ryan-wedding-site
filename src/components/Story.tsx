@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { motion, useScroll, useSpring } from 'framer-motion'
+import { motion, useScroll, useSpring } from 'motion/react'
 import { storyClosing, storyQuote, timeline } from '../data/content'
 import { Reveal, StaggerText } from './Reveal'
 import './Story.css'

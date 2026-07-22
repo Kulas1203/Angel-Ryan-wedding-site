@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { gallery } from '../data/content'
 import { Reveal, StaggerText } from './Reveal'
 import './Gallery.css'

@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
 
 interface RevealProps {
@@ -29,7 +29,9 @@ export function Reveal({
       initial={reduced ? false : { opacity: 0, y, x }}
       whileInView={{ opacity: 1, y: 0, x: 0 }}
       viewport={{ once, margin: '-12% 0px' }}
-      transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
+      // easeOutQuint — a gentler start/finish than expo, so reveals glide
+      // in rather than snap.
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -76,7 +78,7 @@ export function StaggerText({ text, className, delay = 0 }: StaggerTextProps) {
               visible: {
                 y: '0%',
                 opacity: 1,
-                transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
               },
             }}
           >

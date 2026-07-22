@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { MotionConfig } from 'motion/react'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { Nav } from './components/Nav'
 import { Intro } from './components/Intro'
@@ -39,7 +40,12 @@ export default function App() {
   }, [])
 
   return (
-    <>
+    // A single smooth default easing for every unspecified transition, and
+    // Motion honours the OS "reduce motion" setting app-wide.
+    <MotionConfig
+      reducedMotion="user"
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    >
       <Intro />
       <Nav onRsvp={() => setRsvpOpen(true)} />
       <main>
@@ -56,6 +62,6 @@ export default function App() {
         onOpen={() => setRsvpOpen(true)}
       />
       <Rsvp open={rsvpOpen} onClose={() => setRsvpOpen(false)} />
-    </>
+    </MotionConfig>
   )
 }

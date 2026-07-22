@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { cancelFrame, frame } from 'motion/react'
 import Lenis from 'lenis'
 
 let lenis: Lenis | null = null
@@ -24,20 +25,19 @@ export function useSmoothScroll() {
     if (prefersReduced) return
 
     lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.25,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     })
 
-    let rafId: number
-    const raf = (time: number) => {
-      lenis?.raf(time)
-      rafId = requestAnimationFrame(raf)
-    }
-    rafId = requestAnimationFrame(raf)
+    // Drive Lenis from Motion's frame loop so smooth scrolling and every
+    // scroll-linked animation (hero parallax, timeline spine) advance on the
+    // exact same tick — no cross-loop drift or micro-jitter.
+    const update = (data: { timestamp: number }) => lenis?.raf(data.timestamp)
+    frame.update(update, true)
 
     return () => {
-      cancelAnimationFrame(rafId)
+      cancelFrame(update)
       lenis?.destroy()
       lenis = null
     }

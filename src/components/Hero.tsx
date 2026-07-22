@@ -1,5 +1,11 @@
 import { useRef } from 'react'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from 'motion/react'
 import { couple } from '../data/content'
 import { scrollToSection } from '../hooks/useSmoothScroll'
 import './Hero.css'
@@ -13,9 +19,17 @@ export function Hero() {
     target: ref,
     offset: ['start start', 'end start'],
   })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '60%'])
-  const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+  // Spring-smooth the scroll progress once, then derive every parallax value
+  // from it — the background and title drift with a gentle lag instead of
+  // snapping frame-for-frame to the scrollbar.
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.001,
+  })
+  const bgY = useTransform(progress, [0, 1], ['0%', '22%'])
+  const contentY = useTransform(progress, [0, 1], ['0%', '60%'])
+  const fade = useTransform(progress, [0, 0.7], [1, 0])
 
   // With motion enabled the opening title card plays first; the hero's own
   // choreography starts as the curtains part (~1.75s in).

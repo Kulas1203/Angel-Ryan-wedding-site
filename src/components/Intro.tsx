@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import './Intro.css'
 
 const CURTAIN_EASE = [0.76, 0, 0.24, 1] as const

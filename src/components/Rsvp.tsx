@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { MagneticButton } from './MagneticButton'
 import { couple } from '../data/content'
 import './Rsvp.css'
