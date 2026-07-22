@@ -23,8 +23,8 @@ export function Hero() {
   // from it — the background and title drift with a gentle lag instead of
   // snapping frame-for-frame to the scrollbar.
   const progress = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 30,
+    stiffness: 220,
+    damping: 40,
     restDelta: 0.001,
   })
   const bgY = useTransform(progress, [0, 1], ['0%', '22%'])
