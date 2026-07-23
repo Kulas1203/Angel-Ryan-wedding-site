@@ -21,16 +21,23 @@
   bottom: 0;
 }
 
-.intro__mark {
+/* The stage owns the 3D perspective so the mark can turn in depth. */
+.intro__stage {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
+  perspective: 1400px;
 }
 
-/* Pre-rendered ivory line art on transparency (monogram-ivory.webp),
-   so it composites cleanly over the dark panels even while the parent
-   animates blur/opacity. */
+.intro__mark {
+  transform-style: preserve-3d;
+  will-change: transform, filter, opacity;
+}
+
+/* Pre-rendered ivory line art on transparency (monogram-ivory.webp).
+   The drop shadow lends the turning card a little real depth. */
 .intro__logo {
   width: clamp(240px, 44vw, 420px);
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.45));
 }

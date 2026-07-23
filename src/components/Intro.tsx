@@ -3,11 +3,14 @@ import { motion, useReducedMotion } from 'motion/react'
 import './Intro.css'
 
 const CURTAIN_EASE = [0.76, 0, 0.24, 1] as const
-const INTRO_MS = 3000
+// The curtains part late, after the monogram's full 3D reveal + hold.
+const CURTAIN_DELAY = 3.0
+const CURTAIN_DURATION = 1.3
+const INTRO_MS = 4500
 
 /**
- * Film-style opening: a dark title card with the monogram easing into
- * focus, then the screen parts like curtains to reveal the hero.
+ * Film-style opening: the monogram turns in from a 3D card flip, holds with
+ * a gentle float, then the screen parts like curtains to reveal the hero.
  */
 export function Intro() {
   const reduced = useReducedMotion()
@@ -34,27 +37,43 @@ export function Intro() {
         className="intro__panel intro__panel--top"
         initial={{ y: 0 }}
         animate={{ y: '-100%' }}
-        transition={{ delay: 1.75, duration: 1.15, ease: CURTAIN_EASE }}
+        transition={{ delay: CURTAIN_DELAY, duration: CURTAIN_DURATION, ease: CURTAIN_EASE }}
       />
       <motion.div
         className="intro__panel intro__panel--bottom"
         initial={{ y: 0 }}
         animate={{ y: '100%' }}
-        transition={{ delay: 1.75, duration: 1.15, ease: CURTAIN_EASE }}
+        transition={{ delay: CURTAIN_DELAY, duration: CURTAIN_DURATION, ease: CURTAIN_EASE }}
       />
 
-      <motion.div
-        className="intro__mark"
-        initial={{ opacity: 0, scale: 0.94, filter: 'blur(14px)' }}
-        animate={{
-          opacity: [0, 1, 1, 0],
-          scale: [0.94, 1, 1.01, 1.06],
-          filter: ['blur(14px)', 'blur(0px)', 'blur(0px)', 'blur(8px)'],
-        }}
-        transition={{ duration: 2.0, times: [0, 0.35, 0.78, 1], ease: 'easeInOut' }}
-      >
-        <img className="intro__logo" src="/images/monogram-ivory.webp" alt="" />
-      </motion.div>
+      {/* The stage carries the perspective; the mark rotates within it in 3D. */}
+      <div className="intro__stage">
+        <motion.div
+          className="intro__mark"
+          initial={{
+            opacity: 0,
+            rotateY: -92,
+            rotateX: 16,
+            scale: 0.82,
+            filter: 'blur(14px)',
+          }}
+          animate={{
+            opacity: [0, 1, 1, 1, 0],
+            // Turn to face front, then a soft settle-and-float before the exit.
+            rotateY: [-92, 0, 5, -3, 0],
+            rotateX: [16, 0, -2.5, 1.5, 0],
+            scale: [0.82, 1, 1.005, 1.015, 1.08],
+            filter: ['blur(14px)', 'blur(0px)', 'blur(0px)', 'blur(0px)', 'blur(10px)'],
+          }}
+          transition={{
+            duration: 3.3,
+            times: [0, 0.32, 0.56, 0.8, 1],
+            ease: 'easeInOut',
+          }}
+        >
+          <img className="intro__logo" src="/images/monogram-ivory.webp" alt="" />
+        </motion.div>
+      </div>
     </div>
   )
 }

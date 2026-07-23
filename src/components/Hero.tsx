@@ -32,8 +32,8 @@ export function Hero() {
   const fade = useTransform(progress, [0, 0.7], [1, 0])
 
   // With motion enabled the opening title card plays first; the hero's own
-  // choreography starts as the curtains part (~1.75s in).
-  const t = reduced ? 0 : 1.5
+  // choreography starts as the curtains part (~3s in).
+  const t = reduced ? 0 : 2.8
 
   const [first, second] = couple.names.split(' & ')
 
