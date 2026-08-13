@@ -12,9 +12,11 @@ const links = [
 
 interface NavProps {
   onRsvp: () => void
+  /** The navbar stays out of frame until the envelope has been opened. */
+  revealed: boolean
 }
 
-export function Nav({ onRsvp }: NavProps) {
+export function Nav({ onRsvp, revealed }: NavProps) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -48,8 +50,8 @@ export function Nav({ onRsvp }: NavProps) {
       <motion.header
         className={`nav ${scrolled ? 'nav--solid' : ''}`}
         initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1.2, delay: 4.3, ease: [0.16, 1, 0.3, 1] }}
+        animate={revealed ? { y: 0, opacity: 1 } : { y: -80, opacity: 0 }}
+        transition={{ duration: 1.2, delay: 1.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <button
           className="nav__monogram"

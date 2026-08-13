@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { MotionConfig } from 'motion/react'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { Nav } from './components/Nav'
-import { Intro } from './components/Intro'
+import { Envelope } from './components/Envelope'
 import { Hero } from './components/Hero'
 import { Countdown } from './components/Countdown'
 import { Invitation } from './components/Invitation'
@@ -17,6 +17,9 @@ export default function App() {
   const [rsvpOpen, setRsvpOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const [invitationInView, setInvitationInView] = useState(false)
+  // The site waits behind the sealed envelope; the hero and navbar hold
+  // their opening frame until the guest breaks the seal.
+  const [revealed, setRevealed] = useState(false)
 
   // The floating RSVP pill appears once the hero has scrolled away.
   useEffect(() => {
@@ -46,10 +49,10 @@ export default function App() {
       reducedMotion="user"
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Intro />
-      <Nav onRsvp={() => setRsvpOpen(true)} />
+      <Envelope onReveal={() => setRevealed(true)} />
+      <Nav onRsvp={() => setRsvpOpen(true)} revealed={revealed} />
       <main>
-        <Hero />
+        <Hero revealed={revealed} />
         <Countdown />
         <Invitation onRsvp={() => setRsvpOpen(true)} />
         <Story />

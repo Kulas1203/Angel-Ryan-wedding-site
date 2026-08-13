@@ -17,6 +17,16 @@ export function scrollToSection(selector: string) {
   }
 }
 
+/**
+ * Freezes the page behind an overlay. Lenis owns the wheel and touch
+ * gestures, so the native `overflow: hidden` alone would not stop it.
+ */
+export function lockScroll(locked: boolean) {
+  document.body.style.overflow = locked ? 'hidden' : ''
+  if (locked) lenis?.stop()
+  else lenis?.start()
+}
+
 export function useSmoothScroll() {
   useEffect(() => {
     const prefersReduced = window.matchMedia(

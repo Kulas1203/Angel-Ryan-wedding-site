@@ -12,7 +12,12 @@ import './Hero.css'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-export function Hero() {
+interface HeroProps {
+  /** True once the envelope has been opened; cues the opening choreography. */
+  revealed: boolean
+}
+
+export function Hero({ revealed }: HeroProps) {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -31,10 +36,9 @@ export function Hero() {
   const contentY = useTransform(progress, [0, 1], ['0%', '60%'])
   const fade = useTransform(progress, [0, 0.7], [1, 0])
 
-  // With motion enabled the opening title card plays first; the hero's own
-  // choreography starts as the curtains part (~3s in).
-  const t = reduced ? 0 : 2.8
-
+  // Every delay below is measured from the moment the envelope's curtains
+  // begin to part, so the names arrive with the reveal rather than on a
+  // fixed clock the guest never sees.
   const [first, second] = couple.names.split(' & ')
 
   return (
@@ -54,8 +58,8 @@ export function Hero() {
         <motion.p
           className="eyebrow hero__eyebrow"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: t + 0.5, ease: EASE }}
+          animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 1.2, delay: 0.35, ease: EASE }}
         >
           Together with their families
         </motion.p>
@@ -64,8 +68,12 @@ export function Hero() {
           <span className="hero__line">
             <motion.span
               initial={{ y: '105%', filter: 'blur(12px)' }}
-              animate={{ y: '0%', filter: 'blur(0px)' }}
-              transition={{ duration: 1.6, delay: t + 0.7, ease: EASE }}
+              animate={
+                revealed
+                  ? { y: '0%', filter: 'blur(0px)' }
+                  : { y: '105%', filter: 'blur(12px)' }
+              }
+              transition={{ duration: 1.6, delay: 0.55, ease: EASE }}
             >
               {first}
             </motion.span>
@@ -73,16 +81,24 @@ export function Hero() {
           <motion.span
             className="hero__amp"
             initial={{ opacity: 0, scale: 0.85, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 1.5, delay: t + 1.5, ease: EASE }}
+            animate={
+              revealed
+                ? { opacity: 1, scale: 1, filter: 'blur(0px)' }
+                : { opacity: 0, scale: 0.85, filter: 'blur(8px)' }
+            }
+            transition={{ duration: 1.5, delay: 1.3, ease: EASE }}
           >
             &amp;
           </motion.span>
           <span className="hero__line">
             <motion.span
               initial={{ y: '105%', filter: 'blur(12px)' }}
-              animate={{ y: '0%', filter: 'blur(0px)' }}
-              transition={{ duration: 1.6, delay: t + 1.0, ease: EASE }}
+              animate={
+                revealed
+                  ? { y: '0%', filter: 'blur(0px)' }
+                  : { y: '105%', filter: 'blur(12px)' }
+              }
+              transition={{ duration: 1.6, delay: 0.85, ease: EASE }}
             >
               {second}
             </motion.span>
@@ -92,8 +108,12 @@ export function Hero() {
         <motion.div
           className="hero__date"
           initial={{ opacity: 0, letterSpacing: '0.5em' }}
-          animate={{ opacity: 1, letterSpacing: '0.34em' }}
-          transition={{ duration: 1.8, delay: t + 1.9, ease: EASE }}
+          animate={
+            revealed
+              ? { opacity: 1, letterSpacing: '0.34em' }
+              : { opacity: 0, letterSpacing: '0.5em' }
+          }
+          transition={{ duration: 1.8, delay: 1.65, ease: EASE }}
         >
           <span className="hero__date-rule" />
           <span>{couple.dateLabel}</span>
@@ -106,8 +126,8 @@ export function Hero() {
         onClick={() => scrollToSection('#invitation')}
         aria-label="Scroll to the invitation"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: t + 2.7, duration: 1.2 }}
+        animate={{ opacity: revealed ? 1 : 0 }}
+        transition={{ delay: 2.35, duration: 1.2 }}
       >
         <span className="hero__scroll-label">Scroll</span>
         <span className="hero__scroll-line" />

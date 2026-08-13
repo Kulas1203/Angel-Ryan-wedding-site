@@ -1,0 +1,329 @@
+/* ── The sealed-invitation gate ──────────────────────────────────
+   A dark ground carries the envelope; the two panels part like
+   curtains once the card has been drawn out. */
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+}
+
+/* Once the seal is pressed, nothing here should intercept a click. */
+.gate--opening {
+  pointer-events: none;
+}
+
+.gate__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* slight overlap hides any subpixel seam */
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* The shared .grain utility declares position: relative, which would fight
+   these absolutely positioned panels — so the film grain is inlined here. */
+.gate__panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Both gradients run dark at the outer edge, so the closed pair reads as
+   one softly vignetted ground with no visible join. */
+.gate__panel--top {
+  top: 0;
+  background: linear-gradient(180deg, #0e1712 0%, #1b2a21 100%);
+}
+
+.gate__panel--bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, #0e1712 0%, #1b2a21 100%);
+}
+
+.gate__stage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  perspective: 1500px;
+}
+
+/* Warm pool of light behind the paper. */
+.gate__glow {
+  position: absolute;
+  width: min(660px, 116vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(156, 176, 140, 0.2) 0%,
+    rgba(156, 176, 140, 0.07) 40%,
+    transparent 66%
+  );
+  pointer-events: none;
+}
+
+.gate__enter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.8rem, 4vw, 2.6rem);
+  transform-style: preserve-3d;
+}
+
+.gate__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: none;
+  cursor: pointer;
+}
+
+/* ── Caption ─────────────────────────────────────────────────── */
+
+.gate__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+
+.gate__script {
+  font-family: var(--script);
+  font-size: clamp(2.1rem, 6.5vw, 3.1rem);
+  line-height: 1;
+  color: #e6eede;
+}
+
+.gate__hint {
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--sage);
+  padding-left: 0.44em; /* balance the trailing letter-space */
+}
+
+/* ── The envelope ────────────────────────────────────────────── */
+
+.env {
+  position: relative;
+  width: min(480px, 78vw);
+  aspect-ratio: 1.42 / 1;
+  transform-style: preserve-3d;
+}
+
+/* Body — the back of the envelope, with the bottom flap's V seam. */
+.env__body {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 4px;
+  background: linear-gradient(163deg, #fdfcf4 0%, #f4f1e3 48%, #e9e5d4 100%);
+  box-shadow:
+    0 2px 4px rgba(14, 23, 18, 0.2),
+    0 30px 64px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.env__body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(27, 42, 33, 0.07) 0%,
+    rgba(27, 42, 33, 0.015) 100%
+  );
+  clip-path: polygon(0% 100%, 50% 38%, 100% 100%);
+}
+
+/* Flap — hinged along the envelope's top edge. */
+.env__flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  z-index: 4;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+}
+
+/* Swung past vertical, the flap belongs behind the card. */
+.env__flap.is-open {
+  z-index: 0;
+}
+
+.env__flap-face,
+.env__flap-liner {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+
+.env__flap-face {
+  background: linear-gradient(180deg, #fbfaf1 0%, #f1eee0 62%, #e4e0cd 100%);
+  filter: drop-shadow(0 5px 9px rgba(14, 23, 18, 0.22));
+}
+
+/* The underside is lined in emerald. Rather than lean on
+   backface-visibility — unreliable once a face carries a filter and a
+   clip-path — the two faces simply swap at the exact frame the flap
+   passes edge-on, where neither has any width on screen.
+   The gradient runs dark-to-light because the flip inverts it: the fold
+   ends up shaded and the raised tip catches the light. */
+.env__flap-liner {
+  opacity: 0;
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(180deg, #1f4c37 0%, #2d6a4f 48%, #3a8362 100%);
+}
+
+.env__flap.is-open .env__flap-face {
+  opacity: 0;
+}
+
+.env__flap.is-open .env__flap-liner {
+  opacity: 1;
+}
+
+/* Card — tucked behind the body until it is drawn out. */
+.env__letter {
+  position: absolute;
+  z-index: 1;
+  left: 5%;
+  right: 5%;
+  bottom: 4%;
+  height: 92%;
+  border-radius: 3px;
+  background: linear-gradient(172deg, #fffef9 0%, #f8f6ec 100%);
+  box-shadow:
+    0 -2px 12px rgba(14, 23, 18, 0.16),
+    0 22px 44px rgba(0, 0, 0, 0.34);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  /* Only the top ~62% of the card clears the envelope, so the type stacks
+     from the top edge down and never strays out of the visible band. */
+  padding: 7% 8% 8%;
+  text-align: center;
+  overflow: hidden;
+}
+
+.env__letter::after {
+  content: '';
+  position: absolute;
+  inset: 4.5%;
+  border: 1px solid rgba(138, 95, 61, 0.24);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.env__eyebrow {
+  font-family: var(--sans);
+  font-size: clamp(0.42rem, 1.45vw, 0.58rem);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  padding-left: 0.34em;
+}
+
+.env__names {
+  font-family: var(--script);
+  font-size: clamp(1.7rem, 7.6vw, 2.9rem);
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.env__rule {
+  width: 38px;
+  height: 1px;
+  margin-block: 0.15rem;
+  background: var(--bronze-soft);
+}
+
+.env__date {
+  font-family: var(--serif);
+  font-size: clamp(0.72rem, 2.8vw, 1.1rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.env__venue {
+  font-family: var(--sans);
+  font-size: clamp(0.38rem, 1.3vw, 0.52rem);
+  line-height: 1.5;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--stone);
+  padding-left: 0.26em;
+}
+
+/* Wax seal — the wrapper owns the centring so Motion is free to drive
+   the seal's own transform. */
+.env__seal-pos {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+}
+
+.env__seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(76px, 17vw, 106px);
+  aspect-ratio: 1;
+  /* Wax spreads unevenly as it sets, so the rim is deliberately off-round
+     and tipped a few degrees away from the envelope's axis. */
+  border-radius: 46% 54% 51% 49% / 52% 47% 53% 48%;
+  rotate: -6deg;
+  /* Matte body with a broad, soft sheen — not the tight specular dot of
+     polished plastic. */
+  background:
+    radial-gradient(58% 52% at 36% 30%, rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(circle at 50% 46%, #35785a 0%, #2b664c 58%, #1d4a35 100%);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.44),
+    inset 0 -4px 9px rgba(0, 0, 0, 0.34),
+    inset 0 3px 6px rgba(255, 255, 255, 0.12);
+}
+
+/* The rim the stamp presses down as it lifts away. */
+.env__seal::after {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: inherit;
+  border: 1px solid rgba(240, 246, 234, 0.16);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.22);
+}
+
+.env__seal-mark {
+  font-family: var(--script);
+  font-size: clamp(1.3rem, 3.7vw, 1.8rem);
+  line-height: 1;
+  color: #eef4e6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  transform: translateY(-0.04em);
+}
