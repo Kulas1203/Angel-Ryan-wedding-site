@@ -54,6 +54,51 @@
   background: linear-gradient(0deg, #060b08 0%, #121e17 62%, #1b2a21 100%);
 }
 
+/* An engraved border around the whole view, the way a formal invitation
+   is ruled. It frames the composition and is the single biggest step from
+   "an envelope on a dark page" to "a presentation". */
+.gate__frame {
+  position: absolute;
+  inset: clamp(13px, 2.3vw, 32px);
+  z-index: 3;
+  border: 1px solid rgba(203, 171, 110, 0.34);
+  pointer-events: none;
+}
+
+.gate__frame::after {
+  content: '';
+  position: absolute;
+  inset: clamp(5px, 0.7vw, 9px);
+  border: 1px solid rgba(203, 171, 110, 0.15);
+}
+
+.gate__frame-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  rotate: 45deg;
+  background: var(--foil);
+  opacity: 0.7;
+  box-shadow: 0 0 7px rgba(203, 171, 110, 0.5);
+}
+
+.gate__frame-corner--tl {
+  top: -4px;
+  left: -4px;
+}
+.gate__frame-corner--tr {
+  top: -4px;
+  right: -4px;
+}
+.gate__frame-corner--bl {
+  bottom: -4px;
+  left: -4px;
+}
+.gate__frame-corner--br {
+  bottom: -4px;
+  right: -4px;
+}
+
 .gate__stage {
   position: relative;
   z-index: 2;
@@ -164,7 +209,7 @@
 
 .env {
   position: relative;
-  width: min(500px, 80vw);
+  width: min(560px, 84vw);
   aspect-ratio: 1.42 / 1;
   transform-style: preserve-3d;
 }
@@ -317,12 +362,73 @@
   opacity: 0.85;
 }
 
+/* Foil border printed on the envelope. Drawn above the paper layers so it
+   reads as one continuous rule across flap and body, the way a bordered
+   envelope actually looks. */
+.env__frame {
+  position: absolute;
+  inset: 4.5%;
+  z-index: 5;
+  border: 1px solid rgba(203, 171, 110, 0.5);
+  pointer-events: none;
+}
+
+.env__frame::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(203, 171, 110, 0.2);
+}
+
+.env__frame-corner {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  rotate: 45deg;
+  background: var(--foil);
+  opacity: 0.8;
+}
+
+.env__frame-corner--tl { top: -3px; left: -3px; }
+.env__frame-corner--tr { top: -3px; right: -3px; }
+.env__frame-corner--bl { bottom: -3px; left: -3px; }
+.env__frame-corner--br { bottom: -3px; right: -3px; }
+
+/* Blind-debossed crest, pressed into the flap. Tone-on-tone so it reads as
+   texture in the paper rather than a second printed mark competing with the
+   seal — the couple's own artwork drives the relief through a mask. */
+.env__crest {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  translate: -50% 0;
+  width: 23%;
+  aspect-ratio: 1;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-mask-image: url('/images/monogram-ivory.webp');
+  mask-image: url('/images/monogram-ivory.webp');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  opacity: 0.42;
+  filter: drop-shadow(0 1px 0.5px rgba(120, 104, 70, 0.5));
+  pointer-events: none;
+}
+
+.env__flap.is-open .env__crest {
+  opacity: 0;
+}
+
 /* Light sweeping across the stock — the single strongest cue that this is
    a physical, foiled object rather than a flat shape. */
 .env__sheen {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 7;
   border-radius: 5px;
   overflow: hidden;
   pointer-events: none;
@@ -472,7 +578,7 @@
   position: absolute;
   top: 60%;
   left: 50%;
-  z-index: 5;
+  z-index: 6;
   transform: translate(-50%, -50%);
 }
 
@@ -524,6 +630,21 @@
   border-radius: inherit;
   border: 1px solid rgba(203, 171, 110, 0.42);
   box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* Roped rim: fine radial ticks around the edge, the way a seal die is cut. */
+.env__seal-bead {
+  position: absolute;
+  inset: 5%;
+  border-radius: inherit;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(244, 229, 189, 0.34) 0deg 1deg,
+    transparent 1deg 4deg
+  );
+  -webkit-mask: radial-gradient(closest-side, transparent 89%, #000 91%);
+  mask: radial-gradient(closest-side, transparent 89%, #000 91%);
   pointer-events: none;
 }
 

@@ -92,6 +92,19 @@ export function Envelope({ onReveal }: EnvelopeProps) {
         transition={{ delay: curtain ? CURTAIN_AT : 0, duration: fadeOut ? 0.4 : CURTAIN_DUR, ease: CURTAIN_EASE }}
       />
 
+      {/* Engraved rule around the whole view. */}
+      <motion.div
+        className="gate__frame"
+        aria-hidden="true"
+        animate={{ opacity: opening ? 0 : 1 }}
+        transition={{ duration: 0.6, ease: 'easeIn' }}
+      >
+        <span className="gate__frame-corner gate__frame-corner--tl" />
+        <span className="gate__frame-corner gate__frame-corner--tr" />
+        <span className="gate__frame-corner gate__frame-corner--bl" />
+        <span className="gate__frame-corner gate__frame-corner--br" />
+      </motion.div>
+
       <div className="gate__stage">
         <div className="gate__glow" />
 
@@ -104,7 +117,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
             // up, so a tall card still clears the envelope without running
             // off the top of the screen. Viewport units keep the trade
             // proportional on any display.
-            y: opening && !reduced ? '12vh' : 0,
+            y: opening && !reduced ? '16vh' : 0,
             scale: 1,
           }}
           transition={{
@@ -171,6 +184,8 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                 </defs>
                 <polygon points="1,1 99,1 50,98.5" stroke="url(#foil-flap)" />
               </svg>
+              {/* The couple's crest, blind-debossed into the flap. */}
+              <span className="env__crest" />
             </motion.div>
 
             {/* Sits behind the envelope body, so it reads as tucked inside. */}
@@ -234,6 +249,24 @@ export function Envelope({ onReveal }: EnvelopeProps) {
               </svg>
             </motion.div>
 
+            {/* Foil border printed across the finished envelope. It leaves
+                with the paper, so it shares the body's exit. */}
+            <motion.div
+              className="env__frame"
+              aria-hidden="true"
+              animate={
+                opening && !reduced
+                  ? { opacity: 0, y: 64 }
+                  : { opacity: 1, y: 0 }
+              }
+              transition={{ delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' }}
+            >
+              <span className="env__frame-corner env__frame-corner--tl" />
+              <span className="env__frame-corner env__frame-corner--tr" />
+              <span className="env__frame-corner env__frame-corner--bl" />
+              <span className="env__frame-corner env__frame-corner--br" />
+            </motion.div>
+
             <div className="env__seal-pos">
               <motion.div
                 className="env__seal"
@@ -250,6 +283,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                     : { duration: 3.2, repeat: reduced ? 0 : Infinity, ease: 'easeInOut' }
                 }
               >
+                <span className="env__seal-bead" aria-hidden="true" />
                 <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
               </motion.div>
             </div>
