@@ -98,8 +98,23 @@ export function Envelope({ onReveal }: EnvelopeProps) {
         <motion.div
           className="gate__enter"
           initial={reduced ? false : { opacity: 0, y: 44, scale: 0.9 }}
-          animate={{ opacity: fadeOut ? 0 : 1, y: 0, scale: 1 }}
-          transition={{ duration: fadeOut ? 0.4 : 1.25, ease: EASE_OUT }}
+          animate={{
+            opacity: fadeOut ? 0 : 1,
+            // The whole arrangement settles downward as the card is drawn
+            // up, so a tall card still clears the envelope without running
+            // off the top of the screen. Viewport units keep the trade
+            // proportional on any display.
+            y: opening && !reduced ? '12vh' : 0,
+            scale: 1,
+          }}
+          transition={{
+            opacity: { duration: fadeOut ? 0.4 : 1.25, ease: EASE_OUT },
+            scale: { duration: 1.25, ease: EASE_OUT },
+            y:
+              opening && !reduced
+                ? { delay: LETTER_AT, duration: 1.15, ease: EASE_OUT }
+                : { duration: 1.25, ease: EASE_OUT },
+          }}
         >
           <motion.div
             className="env"
@@ -114,6 +129,8 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                 : { duration: 6.5, delay: 1.1, repeat: Infinity, ease: 'easeInOut' }
             }
           >
+            <span className="env__shadow" aria-hidden="true" />
+
             {/* Hinged at the top edge; swings back and lies behind the body. */}
             <motion.div
               className={`env__flap ${flapBehind ? 'is-open' : ''}`}
@@ -135,6 +152,25 @@ export function Envelope({ onReveal }: EnvelopeProps) {
             >
               <span className="env__flap-face" />
               <span className="env__flap-liner" />
+              {/* Engraved foil edge. It rides above both faces, so the rule
+                  reads on ivory and on emerald alike, and turns with the
+                  flap. non-scaling-stroke keeps it hairline-thin even though
+                  the viewBox is stretched to the flap's proportions. */}
+              <svg
+                className="env__foil env__foil--flap"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="foil-flap" x1="0" y1="0" x2="0.7" y2="1">
+                    <stop offset="0%" stopColor="#f4e5bd" />
+                    <stop offset="42%" stopColor="#cbab6e" />
+                    <stop offset="100%" stopColor="#8d6d3c" />
+                  </linearGradient>
+                </defs>
+                <polygon points="1,1 99,1 50,98.5" stroke="url(#foil-flap)" />
+              </svg>
             </motion.div>
 
             {/* Sits behind the envelope body, so it reads as tucked inside. */}
@@ -179,7 +215,24 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                   : { opacity: 1, y: 0, rotateX: 0 }
               }
               transition={{ delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' }}
-            />
+            >
+              {/* The bottom flap's seam, drawn in the same foil. */}
+              <svg
+                className="env__foil env__foil--body"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="foil-body" x1="0" y1="1" x2="0.6" y2="0">
+                    <stop offset="0%" stopColor="#8d6d3c" />
+                    <stop offset="50%" stopColor="#cbab6e" />
+                    <stop offset="100%" stopColor="#f4e5bd" />
+                  </linearGradient>
+                </defs>
+                <polygon points="1,99 50,38 99,99" stroke="url(#foil-body)" />
+              </svg>
+            </motion.div>
 
             <div className="env__seal-pos">
               <motion.div
@@ -200,6 +253,10 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                 <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
               </motion.div>
             </div>
+
+            {/* Light travelling across the stock. Sits above every layer,
+                so it catches the paper, the foil and the wax together. */}
+            <span className="env__sheen" aria-hidden="true" />
           </motion.div>
 
           <div className="gate__caption">
@@ -210,6 +267,16 @@ export function Envelope({ onReveal }: EnvelopeProps) {
             >
               You’re Invited
             </motion.p>
+            <motion.span
+              className="gate__ornament"
+              aria-hidden="true"
+              animate={{ opacity: opening ? 0 : 1 }}
+              transition={{ duration: 0.4, ease: 'easeIn' }}
+            >
+              <span className="gate__ornament-line" />
+              <span className="gate__ornament-dot" />
+              <span className="gate__ornament-line" />
+            </motion.span>
             <motion.p
               className="gate__hint"
               animate={
