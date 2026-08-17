@@ -14,6 +14,7 @@ const assets = [
   'images/monogram.webp',
   'images/monogram-ivory.webp',
   'images/og.jpg',
+  'images/paper-grain.png',
   'images/photo-bouquet.jpg',
   'images/photo-garden-bench.jpg',
   'images/photo-hiraya.jpg',

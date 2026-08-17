@@ -109,6 +109,8 @@ export function Envelope({ onReveal }: EnvelopeProps) {
 
       <div className="gate__stage">
         <div className="gate__glow" />
+        {/* The lit plane the envelope is lying on. */}
+        <div className="gate__surface" />
 
         <motion.div
           className="gate__enter"
@@ -132,20 +134,13 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           }}
         >
           <div className="env-tilt">
-          <motion.div
-            className="env"
-            animate={
-              reduced || opening
-                ? { y: 0, rotate: 0 }
-                : { y: [0, -9, 0], rotate: [0, 0.55, 0] }
-            }
-            transition={
-              reduced || opening
-                ? { duration: 0.5, ease: 'easeOut' }
-                : { duration: 6.5, delay: 1.1, repeat: Infinity, ease: 'easeInOut' }
-            }
-          >
+          {/* No idle float: the envelope is lying on a surface with a contact
+              shadow under it, and a resting object that drifts is the first
+              thing to give the illusion away. */}
+          <div className="env">
             <span className="env__shadow" aria-hidden="true" />
+            {/* The near edge of the stock, turned toward the lens by the tilt. */}
+            <span className="env__edge" aria-hidden="true" />
 
             {/* Only the flap needs 3D, so it gets its own perspective stage.
                 Everything else stays in a flat context where z-index is
@@ -172,26 +167,33 @@ export function Envelope({ onReveal }: EnvelopeProps) {
             >
               <span className="env__flap-face" />
               <span className="env__flap-liner" />
-              {/* Engraved foil edge. It rides above both faces, so the rule
-                  reads on ivory and on emerald alike, and turns with the
-                  flap. non-scaling-stroke keeps it hairline-thin even though
-                  the viewBox is stretched to the flap's proportions. */}
+              {/* The cut edge of the stock along the flap's free sides. The
+                  left one faces the key light and reads brightest; the right
+                  is turned away. It rides above both faces so it survives
+                  the turn, and non-scaling-stroke keeps it hairline-thin
+                  even though the viewBox is stretched to the flap. */}
               <svg
-                className="env__foil env__foil--flap"
+                className="env__flap-edge"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
                 aria-hidden="true"
               >
-                <defs>
-                  <linearGradient id="foil-flap" x1="0" y1="0" x2="0.7" y2="1">
-                    <stop offset="0%" stopColor="#f4e5bd" />
-                    <stop offset="42%" stopColor="#cbab6e" />
-                    <stop offset="100%" stopColor="#8d6d3c" />
-                  </linearGradient>
-                </defs>
-                <polygon points="1,1 99,1 50,98.5" stroke="url(#foil-flap)" />
+                <polyline
+                  points="0.5,0.5 50,99"
+                  stroke="rgba(184,224,198,0.28)"
+                  fill="none"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <polyline
+                  points="99.5,0.5 50,99"
+                  stroke="rgba(150,196,168,0.15)"
+                  fill="none"
+                  strokeWidth="1"
+                  vectorEffect="non-scaling-stroke"
+                />
               </svg>
-              {/* The couple's crest, struck in foil on the flap. */}
+              {/* The couple's crest, foil-stamped on the flap. */}
               <span className="env__crest" />
             </motion.div>
             </div>
@@ -239,40 +241,36 @@ export function Envelope({ onReveal }: EnvelopeProps) {
               }
               transition={{ delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' }}
             >
-              {/* The bottom flap's seam, drawn in the same foil. */}
+              {/* The back of a real envelope is four folded panels, not a
+                  printed rectangle: the two side flaps turn in, the bottom
+                  flap folds up over them, and the pointed top flap closes
+                  over the lot. Each drops a shadow on the one beneath, and
+                  those overlaps are what the eye reads as paper. */}
+              <span className="env__panel env__panel--left" />
+              <span className="env__panel env__panel--right" />
+              <span className="env__panel env__panel--bottom" />
+
+              {/* The cut edge of the stock along each fold. */}
               <svg
-                className="env__foil env__foil--body"
+                className="env__seams"
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
                 aria-hidden="true"
               >
-                <defs>
-                  <linearGradient id="foil-body" x1="0" y1="1" x2="0.6" y2="0">
-                    <stop offset="0%" stopColor="#8d6d3c" />
-                    <stop offset="50%" stopColor="#cbab6e" />
-                    <stop offset="100%" stopColor="#f4e5bd" />
-                  </linearGradient>
-                </defs>
-                <polygon points="1,99 50,38 99,99" stroke="url(#foil-body)" />
+                {/* Edges turned toward the key light. */}
+                <polyline className="is-lit" points="0,0 50,50" />
+                <polyline className="is-lit" points="50,50 0,100" />
+                <polyline className="is-lit" points="22,50 78,50" />
+                <polyline className="is-lit" points="0,100 22,50" />
+                {/* Edges turned away from it. */}
+                <polyline className="is-dim" points="100,0 50,50" />
+                <polyline className="is-dim" points="50,50 100,100" />
+                <polyline className="is-dim" points="100,100 78,50" />
               </svg>
-            </motion.div>
 
-            {/* Foil border printed across the finished envelope. It leaves
-                with the paper, so it shares the body's exit. */}
-            <motion.div
-              className="env__frame"
-              aria-hidden="true"
-              animate={
-                opening && !reduced
-                  ? { opacity: 0, y: 64 }
-                  : { opacity: 1, y: 0 }
-              }
-              transition={{ delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' }}
-            >
-              <span className="env__frame-corner env__frame-corner--tl" />
-              <span className="env__frame-corner env__frame-corner--tr" />
-              <span className="env__frame-corner env__frame-corner--bl" />
-              <span className="env__frame-corner env__frame-corner--br" />
+              {/* Key light, the bulge of the card inside, and the cut edge
+                  around the whole enclosure. */}
+              <span className="env__light" />
             </motion.div>
 
             {/* Belly band — the device that marks a real invitation suite.
@@ -297,26 +295,21 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                   animate={
                     opening && !reduced
                       ? { scale: [1, 0.94, 0.88], rotate: [0, -3, -9] }
-                      : reduced
-                        ? { scale: 1 }
-                        : { scale: [1, 1.035, 1] }
+                      : { scale: 1, rotate: 0 }
                   }
                   transition={
                     opening && !reduced
                       ? { duration: 0.55, times: [0, 0.3, 1], ease: 'easeIn' }
-                      : { duration: 3.2, repeat: reduced ? 0 : Infinity, ease: 'easeInOut' }
+                      : { duration: 0.4, ease: 'easeOut' }
                   }
                 >
-                  <span className="env__seal-bead" aria-hidden="true" />
+                  <span className="env__seal-wax" aria-hidden="true" />
+                  <span className="env__seal-die" aria-hidden="true" />
                   <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
                 </motion.div>
               </div>
             </motion.div>
-
-            {/* Light travelling across the stock. Sits above every layer,
-                so it catches the paper, the foil and the wax together. */}
-            <span className="env__sheen" aria-hidden="true" />
-          </motion.div>
+          </div>
           </div>
 
           <div className="gate__caption">
