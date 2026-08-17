@@ -324,10 +324,10 @@
   filter: drop-shadow(0 7px 13px rgba(0, 0, 0, 0.42));
 }
 
-/* The underside is lined in deep emerald. Rather than lean on
-   backface-visibility — unreliable once a face carries a filter and a
-   clip-path — the two faces swap at the exact frame the flap passes
-   edge-on, where neither has any width on screen.
+/* The underside is lined in ivory, so the dark flap turns over onto light.
+   Rather than lean on backface-visibility — unreliable once a face carries
+   a filter and a clip-path — the two faces swap at the exact frame the flap
+   passes edge-on, where neither has any width on screen.
    The gradient runs dark-to-light because the flip inverts it: the fold
    ends up shaded and the raised tip catches the light. */
 .env__flap-liner {
