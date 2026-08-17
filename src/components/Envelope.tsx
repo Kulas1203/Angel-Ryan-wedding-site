@@ -9,11 +9,13 @@ const CURTAIN_EASE = [0.76, 0, 0.24, 1] as const
 
 // Beats of the opening sequence, in seconds from the moment the seal is
 // pressed. Every element below reads its delay from one of these.
-const FLAP_AT = 0.16
-const FLAP_DUR = 0.9
-const LETTER_AT = 0.8
-const PAPER_OUT_AT = 1.55
-const CURTAIN_AT = 1.9
+const BAND_AT = 0.04
+const BAND_DUR = 0.78
+const FLAP_AT = 0.42
+const FLAP_DUR = 0.85
+const LETTER_AT = 0.95
+const PAPER_OUT_AT = 1.7
+const CURTAIN_AT = 2.05
 const CURTAIN_DUR = 1.15
 
 // The fraction of the flap's swing at which it crosses 90° — edge-on to the
@@ -129,6 +131,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                 : { duration: 1.25, ease: EASE_OUT },
           }}
         >
+          <div className="env-tilt">
           <motion.div
             className="env"
             animate={
@@ -144,9 +147,13 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           >
             <span className="env__shadow" aria-hidden="true" />
 
-            {/* Hinged at the top edge; swings back and lies behind the body. */}
+            {/* Only the flap needs 3D, so it gets its own perspective stage.
+                Everything else stays in a flat context where z-index is
+                reliable — inside preserve-3d the browser sorts by position
+                in space and the card punched through the envelope. */}
+            <div className={`env__flap-stage ${flapBehind ? 'is-open' : ''}`}>
             <motion.div
-              className={`env__flap ${flapBehind ? 'is-open' : ''}`}
+              className="env__flap"
               animate={
                 opening && !reduced
                   ? { rotateX: [0, -14, -180], opacity: 0, y: 64 }
@@ -184,9 +191,10 @@ export function Envelope({ onReveal }: EnvelopeProps) {
                 </defs>
                 <polygon points="1,1 99,1 50,98.5" stroke="url(#foil-flap)" />
               </svg>
-              {/* The couple's crest, blind-debossed into the flap. */}
+              {/* The couple's crest, struck in foil on the flap. */}
               <span className="env__crest" />
             </motion.div>
+            </div>
 
             {/* Sits behind the envelope body, so it reads as tucked inside. */}
             <motion.div
@@ -267,31 +275,49 @@ export function Envelope({ onReveal }: EnvelopeProps) {
               <span className="env__frame-corner env__frame-corner--br" />
             </motion.div>
 
-            <div className="env__seal-pos">
-              <motion.div
-                className="env__seal"
-                animate={
-                  opening && !reduced
-                    ? { scale: [1, 0.9, 0.62], rotate: [0, -4, -19], y: [0, 2, 40], opacity: [1, 1, 0] }
-                    : reduced
-                      ? { scale: 1 }
-                      : { scale: [1, 1.035, 1] }
-                }
-                transition={
-                  opening && !reduced
-                    ? { duration: 0.6, times: [0, 0.22, 1], ease: 'easeIn' }
-                    : { duration: 3.2, repeat: reduced ? 0 : Infinity, ease: 'easeInOut' }
-                }
-              >
-                <span className="env__seal-bead" aria-hidden="true" />
-                <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
-              </motion.div>
-            </div>
+            {/* Belly band — the device that marks a real invitation suite.
+                It holds the flap shut, carries the wax, and slips off
+                downward as one piece when the invitation is opened. */}
+            <motion.div
+              className="env__band"
+              animate={
+                opening && !reduced
+                  ? { y: '150%', rotate: -1.6, opacity: 0 }
+                  : { y: '0%', rotate: 0, opacity: 1 }
+              }
+              transition={{
+                y: { delay: BAND_AT, duration: BAND_DUR, ease: [0.5, 0, 0.35, 1] },
+                rotate: { delay: BAND_AT, duration: BAND_DUR, ease: 'easeIn' },
+                opacity: { delay: BAND_AT + BAND_DUR * 0.45, duration: 0.42, ease: 'easeIn' },
+              }}
+            >
+              <div className="env__seal-pos">
+                <motion.div
+                  className="env__seal"
+                  animate={
+                    opening && !reduced
+                      ? { scale: [1, 0.94, 0.88], rotate: [0, -3, -9] }
+                      : reduced
+                        ? { scale: 1 }
+                        : { scale: [1, 1.035, 1] }
+                  }
+                  transition={
+                    opening && !reduced
+                      ? { duration: 0.55, times: [0, 0.3, 1], ease: 'easeIn' }
+                      : { duration: 3.2, repeat: reduced ? 0 : Infinity, ease: 'easeInOut' }
+                  }
+                >
+                  <span className="env__seal-bead" aria-hidden="true" />
+                  <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
+                </motion.div>
+              </div>
+            </motion.div>
 
             {/* Light travelling across the stock. Sits above every layer,
                 so it catches the paper, the foil and the wax together. */}
             <span className="env__sheen" aria-hidden="true" />
           </motion.div>
+          </div>
 
           <div className="gate__caption">
             <motion.p

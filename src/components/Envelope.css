@@ -211,25 +211,36 @@
   position: relative;
   width: min(560px, 84vw);
   aspect-ratio: 1.42 / 1;
+  /* Flat on purpose: only the flap turns in depth, and it carries its own
+     perspective stage. Making the whole envelope preserve-3d put every
+     layer into depth-sorting, where z-index stops deciding the order. */
+  transform-style: flat;
+}
+
+/* The envelope rests on a surface rather than facing the viewer flat-on.
+   A head-on rectangle reads as a decal no matter how it is finished; a few
+   degrees of recession is what makes it an object with weight. */
+.env-tilt {
+  transform: rotateX(15deg);
   transform-style: preserve-3d;
 }
 
 /* Contact shadow — grounds the envelope instead of letting it float. */
 .env__shadow {
   position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: -8%;
-  height: 14%;
+  left: 1%;
+  right: 1%;
+  bottom: -11%;
+  height: 20%;
   z-index: 0;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 0, 0.62) 0%,
-    rgba(0, 0, 0, 0.28) 45%,
-    transparent 72%
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.32) 42%,
+    transparent 74%
   );
-  filter: blur(9px);
+  filter: blur(14px);
   pointer-events: none;
 }
 
@@ -293,21 +304,29 @@
   clip-path: polygon(0% 100%, 50% 38%, 100% 100%);
 }
 
-/* Flap — hinged along the envelope's top edge. */
-.env__flap {
+/* Flap stage — holds the flap's footprint, its perspective, and its place
+   in the stack. */
+.env__flap-stage {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 60%;
   z-index: 4;
-  transform-origin: top center;
-  transform-style: preserve-3d;
+  perspective: 900px;
 }
 
 /* Swung past vertical, the flap belongs behind the card. */
-.env__flap.is-open {
+.env__flap-stage.is-open {
   z-index: 0;
+}
+
+/* Flap — hinged along the envelope's top edge. */
+.env__flap {
+  position: absolute;
+  inset: 0;
+  transform-origin: top center;
+  transform-style: preserve-3d;
 }
 
 .env__flap-face,
@@ -586,14 +605,51 @@
   padding-left: 0.26em;
 }
 
+/* ── Belly band ──────────────────────────────────────────────────
+
+   A vellum wrap holding the flap shut, with the wax pressed on top. It sits
+   centred over the flap's tip — which is exactly what it would be doing on
+   a real suite — and overhangs the edges so it reads as wrapped around. */
+.env__band {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  top: 38.5%;
+  height: 23%;
+  z-index: 6;
+  background: linear-gradient(
+    180deg,
+    #ece5d1 0%,
+    #fbf8ec 34%,
+    #fdfcf5 52%,
+    #f0ead8 82%,
+    #ded6bf 100%
+  );
+  border-top: 1px solid rgba(203, 171, 110, 0.75);
+  border-bottom: 1px solid rgba(203, 171, 110, 0.75);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.42),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Inner foil rules, the way a printed band is ruled. */
+.env__band::before {
+  content: '';
+  position: absolute;
+  inset: 4px 0;
+  border-top: 1px solid rgba(203, 171, 110, 0.35);
+  border-bottom: 1px solid rgba(203, 171, 110, 0.35);
+  pointer-events: none;
+}
+
 /* ── Wax seal ────────────────────────────────────────────────── */
 
 /* The wrapper owns the centring so Motion is free to drive the transform. */
 .env__seal-pos {
   position: absolute;
-  top: 60%;
+  top: 50%;
   left: 50%;
-  z-index: 6;
+  z-index: 2;
   transform: translate(-50%, -50%);
 }
 
