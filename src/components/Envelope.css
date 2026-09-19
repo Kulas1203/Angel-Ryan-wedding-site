@@ -409,3 +409,43 @@
     transform: none !important;
   }
 }
+
+/* ── The scene ───────────────────────────────────────────────────
+   When the envelope is a real object rather than a stack of planes, the
+   canvas is the whole gate. The ground behind it is CSS rather than
+   geometry, so there is something to look at in the moment before the
+   renderer has its first frame. */
+
+.gate--scene {
+  background: radial-gradient(120% 90% at 50% 46%, #b8a390 0%, #8e7a67 58%, #5f5145 100%);
+}
+
+.gate__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The last of the light, carried past the canvas so the hand-off to the hero
+   is a wash rather than a cut. */
+.gate__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 62%,
+    #fffdf6 0%,
+    #fff5d9 32%,
+    rgba(255, 226, 164, 0.86) 58%,
+    rgba(240, 196, 126, 0.5) 78%,
+    rgba(214, 160, 96, 0.2) 100%
+  );
+}
+
+.gate--scene .gate__hint {
+  color: rgba(255, 244, 228, 0.9);
+  text-shadow: 0 1px 6px rgba(48, 34, 22, 0.55);
+}
