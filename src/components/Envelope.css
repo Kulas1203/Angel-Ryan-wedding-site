@@ -1,903 +1,411 @@
-/* ── The sealed-invitation gate ──────────────────────────────────
-   A dark ground carries the envelope under a pool of warm light;
-   the two panels part like curtains once the card is drawn out.
-
-   Everything below is lit by a single key from the upper left. That one
-   decision drives the gradient angles, the side each shadow falls on, and
-   which cut edges of paper catch light — it is what separates a photograph
-   of an envelope from a drawing of one. */
+/* ── The sealed envelope ─────────────────────────────────────────
+   The invitation opens close in on the paper — near enough that the stock
+   is the page, not an object sitting on one. Everything is lit by a single
+   warm key from the upper left, which decides every gradient angle, which
+   side each shadow falls on, and which cut edges catch light. */
 
 .gate {
   position: fixed;
   inset: 0;
   z-index: 95;
-  display: grid;
-  place-items: center;
+  overflow: hidden;
+  /* The ground the envelope is shown against on wide screens; on portrait
+     the paper covers it entirely. */
+  background: radial-gradient(120% 90% at 50% 46%, #b8a390 0%, #8e7a67 58%, #5f5145 100%);
 
-  /* Antique foil — the luxury note that ties emerald to rustic brown. */
-  --foil-hi: #f4e5bd;
-  --foil: #cbab6e;
-  --foil-lo: #8d6d3c;
+  /* Antique gold foil, shared by the seal and the flower's struck stem. */
+  --foil-hi: #fbeecb;
+  --foil: #c9a06a;
+  --foil-lo: #8a6338;
 }
 
-/* Once the seal is pressed, nothing here should intercept a click. */
 .gate--opening {
   pointer-events: none;
 }
 
-.gate__panel {
+.gate__push {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 50.5%; /* slight overlap hides any subpixel seam */
-  z-index: 1;
+  inset: 0;
+  transform-origin: 50% 46%;
+  perspective: 1400px;
+  will-change: transform;
+}
+
+/* Wider than the viewport on purpose: the flap's top corners fall outside
+   the frame, so the fold lines enter from off-screen and the V reads open
+   and wide instead of as a narrow wedge. */
+.gate__env {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -29%;
+  right: -29%;
   overflow: hidden;
 }
 
-/* The shared .grain utility declares position: relative, which would fight
-   these absolutely positioned panels — so the film grain is inlined here. */
-.gate__panel::after {
-  content: '';
+/* Once the frame is wider than it is tall, hold the envelope to a portrait
+   panel. The fold then keeps roughly the half-across-to-one-down it has on
+   a phone instead of flattening out toward the horizontal. */
+@media (min-aspect-ratio: 11 / 10) {
+  .gate__env {
+    left: 50%;
+    right: auto;
+    width: 68vh;
+    translate: -50% 0;
+    box-shadow:
+      0 2px 4px rgba(40, 28, 18, 0.4),
+      0 24px 50px rgba(40, 28, 18, 0.45),
+      0 60px 120px rgba(40, 28, 18, 0.4);
+  }
+}
+
+.gate__light {
   position: absolute;
   inset: 0;
+  z-index: 5;
   pointer-events: none;
-  opacity: 0.06;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
-
-/* Both gradients run near-black at the outer edge, so the closed pair reads
-   as one deeply vignetted ground with no visible join. */
-.gate__panel--top {
-  top: 0;
-  background: linear-gradient(180deg, #04070a 0%, #0b1114 62%, #121a1c 100%);
-}
-
-.gate__panel--bottom {
-  bottom: 0;
-  background: linear-gradient(0deg, #04070a 0%, #0b1114 62%, #121a1c 100%);
-}
-
-/* An engraved border around the whole view, the way a formal invitation
-   is ruled. It frames the composition and is the single biggest step from
-   "an envelope on a dark page" to "a presentation". */
-.gate__frame {
-  position: absolute;
-  inset: clamp(13px, 2.3vw, 32px);
-  z-index: 3;
-  border: 1px solid rgba(203, 171, 110, 0.34);
-  pointer-events: none;
-}
-
-.gate__frame::after {
-  content: '';
-  position: absolute;
-  inset: clamp(5px, 0.7vw, 9px);
-  border: 1px solid rgba(203, 171, 110, 0.15);
-}
-
-.gate__frame-corner {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  rotate: 45deg;
-  background: var(--foil);
-  opacity: 0.7;
-  box-shadow: 0 0 7px rgba(203, 171, 110, 0.5);
-}
-
-.gate__frame-corner--tl {
-  top: -4px;
-  left: -4px;
-}
-.gate__frame-corner--tr {
-  top: -4px;
-  right: -4px;
-}
-.gate__frame-corner--bl {
-  bottom: -4px;
-  left: -4px;
-}
-.gate__frame-corner--br {
-  bottom: -4px;
-  right: -4px;
-}
-
-.gate__stage {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  perspective: 1500px;
-}
-
-/* Two pools of light: a broad sage ambience and a tighter warm core, both
-   thrown from the upper left so the envelope sits inside a lit falloff
-   rather than on an evenly bright disc. */
-.gate__glow {
-  position: absolute;
-  width: min(1000px, 160vw);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  /* Every stop runs all the way to transparent at the edge. A pool that
-     ends short leaves a visible disc against a near-black ground, which is
-     worse than no light at all. */
-  /* Long, eased tails on both pools. A linear alpha ramp that terminates
-     part-way leaves a Mach band exactly where it stops, which against a
-     near-black ground shows up as a hard arc across the frame. */
   background:
-    radial-gradient(
-      circle at 38% 32%,
-      rgba(246, 230, 186, 0.15) 0%,
-      rgba(246, 230, 186, 0.085) 22%,
-      rgba(246, 230, 186, 0.038) 42%,
-      rgba(246, 230, 186, 0.012) 62%,
-      rgba(246, 230, 186, 0.003) 80%,
-      transparent 100%
-    ),
-    radial-gradient(
-      circle at 44% 38%,
-      rgba(122, 168, 140, 0.13) 0%,
-      rgba(122, 168, 140, 0.07) 26%,
-      rgba(122, 168, 140, 0.03) 46%,
-      rgba(122, 168, 140, 0.01) 66%,
-      rgba(122, 168, 140, 0.0025) 84%,
-      transparent 100%
-    );
-  pointer-events: none;
-}
-
-/* The surface the envelope is lying on. Just enough of a lit plane under the
-   card to imply a table — without it the envelope floats in a void, which is
-   the first thing that reads as unreal. */
-.gate__surface {
-  position: absolute;
-  width: min(1250px, 165vw);
-  height: min(360px, 46vh);
-  top: 52%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at 46% 40%,
-    rgba(158, 186, 166, 0.065) 0%,
-    rgba(126, 156, 136, 0.032) 28%,
-    rgba(100, 128, 110, 0.014) 48%,
-    rgba(78, 100, 86, 0.005) 70%,
-    rgba(70, 92, 78, 0.0012) 86%,
-    transparent 100%
-  );
-  filter: blur(40px);
-  pointer-events: none;
-}
-
-.gate__enter {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(2.2rem, 5vw, 3.2rem);
-  transform-style: preserve-3d;
+    radial-gradient(52% 38% at 50% 70%, rgba(255, 232, 188, 0.3) 0%, rgba(255, 230, 182, 0.09) 44%, transparent 74%),
+    linear-gradient(150deg, rgba(255, 249, 234, 0.12) 0%, transparent 42%),
+    radial-gradient(130% 96% at 46% 46%, transparent 40%, rgba(58, 40, 26, 0.3) 100%);
 }
 
 .gate__hit {
   position: absolute;
   inset: 0;
-  z-index: 8;
+  z-index: 9;
   background: none;
   cursor: pointer;
 }
 
-/* ── Caption ─────────────────────────────────────────────────── */
-
-.gate__caption {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.1rem;
-  text-align: center;
-}
-
-/* Struck in foil rather than flat ivory. */
-.gate__script {
-  font-family: var(--script);
-  font-size: clamp(2.4rem, 7.5vw, 3.6rem);
-  line-height: 1.15;
-  padding-bottom: 0.08em; /* clearance for the descenders */
-  background: linear-gradient(
-    174deg,
-    var(--foil-hi) 0%,
-    var(--foil) 38%,
-    #a8854a 62%,
-    var(--foil-hi) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Hairline rules flanking a small foil lozenge. */
-.gate__ornament {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.gate__ornament-line {
-  width: clamp(38px, 9vw, 62px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(203, 171, 110, 0.85));
-}
-
-.gate__ornament-line:last-child {
-  background: linear-gradient(90deg, rgba(203, 171, 110, 0.85), transparent);
-}
-
-.gate__ornament-dot {
-  width: 5px;
-  height: 5px;
-  rotate: 45deg;
-  background: var(--foil);
-  box-shadow: 0 0 8px rgba(203, 171, 110, 0.55);
-}
-
-.gate__hint {
-  font-family: var(--sans);
-  font-size: 0.64rem;
-  font-weight: 400;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  color: rgba(215, 226, 205, 0.72);
-  padding-left: 0.5em; /* balance the trailing letter-space */
-}
-
-/* ── The envelope ────────────────────────────────────────────── */
-
-.env {
-  position: relative;
-  /* Published once so the seal and its monogram can be sized against the
-     envelope itself. Sizing them in vw instead made the wax a fifth of the
-     card on a desktop and a quarter of it on a phone. */
-  --env-w: min(560px, 84vw);
-  width: var(--env-w);
-  aspect-ratio: 1.42 / 1;
-  /* Flat on purpose: only the flap turns in depth, and it carries its own
-     perspective stage. Making the whole envelope preserve-3d put every
-     layer into depth-sorting, where z-index stops deciding the order. */
-  transform-style: flat;
-}
-
-/* The envelope rests on a surface rather than facing the viewer flat-on.
-   A head-on rectangle reads as a decal no matter how it is finished; a few
-   degrees of recession is what makes it an object with weight. The small
-   roll on Z is the other half of it — nothing set down by hand lands
-   perfectly square to the camera. */
-.env-tilt {
-  transform: rotateX(15deg) rotateZ(-1.1deg);
-  transform-style: preserve-3d;
-}
-
-/* Contact shadow. Two parts: a tight, dark core right where the paper meets
-   the surface, and a wide soft falloff. Both sit slightly right of centre,
-   away from the key light. */
-.env__shadow {
+/* ── The envelope's inside ───────────────────────────────────────
+   Only ever seen through the opening. It is the same stock in shadow until
+   the flap lifts, and then it is nothing but light. */
+.gate__inside {
   position: absolute;
-  left: 2%;
-  right: -1%;
-  bottom: -9%;
-  height: 17%;
+  inset: 0;
   z-index: 0;
-  border-radius: 50%;
+  display: block;
   background:
-    radial-gradient(ellipse at 52% 34%, rgba(0, 0, 0, 0.72) 0%, transparent 58%),
-    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 76%);
-  filter: blur(11px);
-  pointer-events: none;
+    radial-gradient(110% 86% at 50% 74%, #f0cd92 0%, #cfa268 34%, #9d7648 70%, #6d5335 100%);
 }
 
-/* Body — the back of the envelope, and the ground the folded flaps sit on.
-   It is almost entirely covered by them; what shows through is the shadow
-   in the gaps. */
-.env__body {
+.gate__bloom {
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: 3px;
-  overflow: hidden;
-  background: linear-gradient(160deg, #1c4c3f 0%, #143c32 60%, #0d2b25 100%);
-  box-shadow:
-    0 2px 3px rgba(6, 11, 8, 0.5),
-    0 14px 26px rgba(0, 0, 0, 0.42),
-    0 40px 70px rgba(0, 0, 0, 0.4);
-}
-
-/* ── The four folded panels ──────────────────────────────────────
-
-   A real envelope back is not a printed rectangle: two side flaps fold in,
-   the bottom flap folds up over them, and the pointed top flap closes over
-   everything. Each panel is a separate sheet with its own shading and its
-   own shadow onto the one below — those overlaps are what the eye reads as
-   folded paper. The geometry is chosen so the panels fully cover each other
-   with no gap at the centre. */
-.env__panel {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-/* Folded in from the left, so it faces a little toward the key light.
-   Each panel carries two shadows: a near-black one-pixel core where the cut
-   edge meets the sheet below, and a soft ambient falloff. Without the tight
-   core the folds read as tone changes rather than as separate sheets. */
-.env__panel--left {
-  z-index: 1;
-  /* The apexes are deliberately a fraction off centre and off each other.
-     Folds made by a machine and closed by hand never land on an exact
-     midpoint, and perfect symmetry is the last thing that keeps this
-     reading as a diagram. */
-  clip-path: polygon(0% 0%, 49.2% 50.4%, 0% 100%);
-  background: linear-gradient(102deg, #3a7c5f 0%, #2b664f 46%, #225747 100%);
-  filter:
-    drop-shadow(1px 1px 0.5px rgba(2, 7, 4, 0.7))
-    drop-shadow(3px 3px 6px rgba(2, 7, 4, 0.5));
-}
-
-/* Folded in from the right, turned away from the light. */
-.env__panel--right {
-  z-index: 1;
-  clip-path: polygon(100% 0%, 50.6% 49.6%, 100% 100%);
-  background: linear-gradient(258deg, #235444 0%, #1a4438 56%, #143a32 100%);
-  filter:
-    drop-shadow(-1px 1px 0.5px rgba(2, 7, 4, 0.6))
-    drop-shadow(-2px 3px 6px rgba(2, 7, 4, 0.45));
-}
-
-/* Folded up last of the three, so it lies over both side flaps and casts
-   the most pronounced shadow. */
-.env__panel--bottom {
-  z-index: 2;
-  clip-path: polygon(0% 100%, 100% 100%, 77.4% 49.4%, 21.6% 50.2%);
-  background: linear-gradient(
-    2deg,
-    #1f5044 0%,
-    #29644d 28%,
-    #245c49 66%,
-    #1d4a40 100%
+  z-index: 8;
+  left: 50%;
+  top: 72%;
+  width: 78vmin;
+  aspect-ratio: 1;
+  margin: -39vmin 0 0 -39vmin;
+  border-radius: 50%;
+  transform-origin: center;
+  will-change: transform, opacity;
+  background: radial-gradient(
+    circle,
+    #fffdf6 0%,
+    #fff6dd 22%,
+    rgba(255, 228, 168, 0.85) 42%,
+    rgba(248, 196, 118, 0.42) 62%,
+    rgba(214, 152, 78, 0.12) 80%,
+    transparent 100%
   );
-  filter:
-    drop-shadow(1px -1px 0.5px rgba(2, 7, 4, 0.72))
-    drop-shadow(2px -3px 7px rgba(2, 7, 4, 0.52));
 }
 
-/* Paper fibre, shared by every panel and by the flap. */
-.env__panel::before,
-.env__flap-face::before,
-.env__flap-liner::before {
+/* ── The lower walls ─────────────────────────────────────────── */
+
+.gate__wall {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Left and right walls meet under the flap's point. Their diagonals are the
+   folds the flap closes onto. */
+.gate__wall--left {
+  clip-path: polygon(0% 0%, 50.3% 75.8%, 0% 100%);
+  background: linear-gradient(100deg, #dacbbd 0%, #cfbfb0 46%, #c3b2a2 100%);
+  filter: drop-shadow(1px 0 0.5px rgba(74, 56, 40, 0.34));
+}
+
+.gate__wall--right {
+  clip-path: polygon(100% 0%, 49.7% 76.3%, 100% 100%);
+  background: linear-gradient(260deg, #cdbdaf 0%, #c0af9f 52%, #b3a191 100%);
+  filter: drop-shadow(-1px 0 0.5px rgba(74, 56, 40, 0.3));
+}
+
+/* The bottom flap, folded up over both of them. */
+.gate__wall--foot {
+  z-index: 2;
+  /* The top corners have to sit ON the side walls' diagonals, or the strip
+     between the walls' meeting point and this flap is covered by nothing and
+     the envelope's dark interior shows through below the seal. */
+  clip-path: polygon(0% 100%, 100% 100%, 76% 78%, 24% 78.4%);
+  background: linear-gradient(2deg, #c2b2a3 0%, #cdbdaf 34%, #c6b6a8 72%, #bbab9c 100%);
+  filter: drop-shadow(0 -1px 0.5px rgba(74, 56, 40, 0.3))
+    drop-shadow(0 -3px 7px rgba(74, 56, 40, 0.18));
+}
+
+/* Paper, shared by every plane. A generated grain sheet rather than browser
+   turbulence: fibre laid in a direction, tooth between the strands, and the
+   slow cockle drying leaves behind. Two copies of the tile — one at fibre
+   scale, one stretched across the plane — so the large shapes never repeat. */
+.gate__wall::after,
+.gate__flap-face::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.2;
   mix-blend-mode: overlay;
-  /* A generated sheet of paper rather than browser turbulence: fibre laid in
-     a direction, tooth between the strands, and the slow cockle drying
-     leaves behind. feTurbulence is isotropic, which is precisely why it
-     reads as digital grain instead of a surface.
-     Two copies of the same tile — one at fibre scale, one stretched across
-     the whole panel — so the large shapes never repeat within one envelope. */
   background-image:
     url('/images/paper-grain.png'),
     url('/images/paper-grain.png');
-  background-size: 300px 300px, 100% 100%;
+  background-size: 520px 520px, 100% 100%;
   background-position: 0 0, center;
   clip-path: inherit;
 }
 
-/* Cut edges. Where one fold lies over another the exposed edge of the stock
-   catches a thread of light along the side facing the key — the counterpart
-   to the shadow each panel drops on the other side. */
-.env__seams {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
+/* ── The flap ────────────────────────────────────────────────── */
 
-.env__seams polyline {
-  fill: none;
-  stroke-width: 1;
-  /* Keeps the edge hairline-thin despite the non-uniform viewBox scale. */
-  vector-effect: non-scaling-stroke;
-}
-
-/* Edges turned toward the light. Kept faint on purpose: the shadow each
-   panel drops is what separates the folds, and a bright line along every
-   seam is exactly what makes an envelope look drawn rather than folded. */
-.env__seams .is-lit {
-  stroke: rgba(184, 226, 198, 0.12);
-}
-
-/* Edges turned away from it — barely there. */
-.env__seams .is-dim {
-  stroke: rgba(160, 206, 176, 0.05);
-}
-
-/* The card inside pressing against the stock, plus the key light and the
-   cut edge around the whole envelope. Sits over every panel. */
-.env__light {
+.gate__flap {
   position: absolute;
   inset: 0;
   z-index: 4;
-  border-radius: 3px;
-  pointer-events: none;
-  background:
-    /* the enclosure bulging where the card sits */
-    radial-gradient(72% 58% at 44% 42%, rgba(255, 255, 255, 0.075), transparent 72%),
-    /* key light from upper left */
-    linear-gradient(
-      146deg,
-      rgba(255, 252, 236, 0.17) 0%,
-      rgba(255, 252, 236, 0.05) 26%,
-      transparent 48%
-    ),
-    /* falloff into the shadow side — the range between these two is what
-       stops the stock reading as one flat fill of green */
-    linear-gradient(
-      146deg,
-      transparent 44%,
-      rgba(3, 14, 18, 0.15) 68%,
-      rgba(2, 10, 16, 0.44) 100%
-    ),
-    /* the corners rolling away from the lens */
-    radial-gradient(128% 108% at 40% 34%, transparent 52%, rgba(2, 11, 16, 0.36) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(206, 240, 216, 0.24),
-    inset 1px 0 0 rgba(206, 240, 216, 0.11),
-    inset -1px 0 0 rgba(0, 0, 0, 0.45),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-}
-
-/* The cut edge of the stock. Tipped back fifteen degrees, the near edge of a
-   real envelope turns toward the lens and shows a sliver of its own thickness
-   — the enclosure plus the card inside it — catching bounce off the surface
-   below. Two millimetres of paper, and its absence is what leaves the whole
-   thing reading as an image of an envelope rather than one. */
-.env__edge {
-  position: absolute;
-  left: 0.4%;
-  right: 0.4%;
-  bottom: -0.62%;
-  height: 0.95%;
-  z-index: 3;
-  border-radius: 0 0 3px 3px;
-  background: linear-gradient(
-    92deg,
-    #539273 0%,
-    #478269 22%,
-    #356a55 58%,
-    #275446 84%,
-    #1d453c 100%
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(0, 0, 0, 0.5),
-    inset 0 -1px 0 rgba(2, 10, 8, 0.6);
-  pointer-events: none;
-}
-
-/* Flap stage — holds the flap's footprint, its perspective, and its place
-   in the stack. */
-.env__flap-stage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60%;
-  z-index: 4;
-  perspective: 900px;
-}
-
-/* Swung past vertical, the flap belongs behind the card. */
-.env__flap-stage.is-open {
-  z-index: 0;
-}
-
-/* Flap — hinged along the envelope's top edge. */
-.env__flap {
-  position: absolute;
-  inset: 0;
-  transform-origin: top center;
+  transform-origin: 50% 0%;
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
-.env__flap-face,
-.env__flap-liner {
+.gate__flap-face {
   position: absolute;
   inset: 0;
-  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
-}
-
-/* Lit from the upper left like everything else, and dropping a real shadow
-   down the right-hand side of its own V. */
-.env__flap-face {
-  background: linear-gradient(
-    150deg,
-    #458a6c 0%,
-    #367a64 26%,
-    #2b664f 58%,
-    #215142 86%,
-    #1a4239 100%
-  );
-  /* The topmost sheet, so it drops the hardest shadow of the lot. */
-  filter:
-    drop-shadow(1px 1.5px 0.5px rgba(1, 6, 4, 0.75))
-    drop-shadow(4px 7px 10px rgba(1, 6, 4, 0.55));
-}
-
-/* The reverse of the same sheet, which is what you actually see once the
-   flap has turned over: the back of the stock, cooler and flatter than the
-   finished face, and now angled away from the key.
-   Rather than lean on backface-visibility — unreliable once a face carries
-   a filter and a clip-path — the two faces swap at the exact frame the flap
-   passes edge-on, where neither has any width on screen.
-   The gradient runs dark-to-light because the flip inverts it: the fold
-   ends up shaded and the raised tip catches the light. */
-.env__flap-liner {
-  opacity: 0;
-  background: linear-gradient(
-    180deg,
-    #17403a 0%,
-    #1d4a41 34%,
-    #245849 68%,
-    #2c6553 100%
-  );
-}
-
-.env__flap-stage.is-open .env__flap-face {
-  opacity: 0;
-}
-
-.env__flap-stage.is-open .env__flap-liner {
-  opacity: 1;
-}
-
-/* The flap's own cut edge, drawn above both faces so it survives the turn. */
-.env__flap-edge {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.env__flap-edge polyline {
-  fill: none;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-/* The couple's crest, foil-stamped on the flap. Their artwork drives a mask
-   over a gold wash, so the line art itself becomes the foil; the paired
-   shadows above and below give the stamp its depth in the stock. */
-.env__crest {
-  position: absolute;
-  top: 7%;
-  left: 50%;
-  translate: -50% 0;
-  width: 20%;
-  aspect-ratio: 1;
-  z-index: 3;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 76%);
   background: linear-gradient(
     154deg,
-    var(--foil-hi) 0%,
-    var(--foil) 40%,
-    #9d7b42 68%,
-    #e6d3a6 100%
+    #ded1c5 0%,
+    #d8cabd 26%,
+    #d0c1b3 54%,
+    #c6b6a7 80%,
+    #bcab9c 100%
   );
-  -webkit-mask-image: url('/images/monogram-ivory.webp');
-  mask-image: url('/images/monogram-ivory.webp');
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  opacity: 0.88;
+  /* The topmost sheet, so it drops the hardest shadow of the lot: a tight
+     core where the cut edge meets the wall, and a soft ambient falloff. */
   filter:
-    drop-shadow(0 1px 1px rgba(8, 26, 16, 0.6))
-    drop-shadow(0 -0.5px 0.5px rgba(255, 246, 214, 0.3));
-  pointer-events: none;
+    drop-shadow(0 1px 0.4px rgba(58, 40, 26, 0.72))
+    drop-shadow(1px 4px 7px rgba(58, 40, 26, 0.45))
+    drop-shadow(3px 14px 26px rgba(58, 40, 26, 0.3));
 }
 
-.env__flap-stage.is-open .env__crest {
-  opacity: 0;
-}
-
-/* Card — tucked behind the body until it is drawn out. */
-.env__letter {
-  position: absolute;
-  z-index: 1;
-  left: 5%;
-  right: 5%;
-  bottom: 4%;
-  height: 92%;
-  border-radius: 3px;
-  background:
-    radial-gradient(110% 80% at 38% 0%, rgba(255, 255, 255, 0.9), transparent 64%),
-    linear-gradient(158deg, #fffefa 0%, #faf7ec 60%, #efe9d6 100%);
-  box-shadow:
-    0 -2px 12px rgba(6, 11, 8, 0.18),
-    0 22px 44px rgba(0, 0, 0, 0.36);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  /* Only the top ~62% of the card clears the envelope, so the type stacks
-     from the top edge down and never strays out of the visible band. */
-  padding: 7% 8% 8%;
-  text-align: center;
-  overflow: hidden;
-}
-
-/* The card is ivory, so its fibre darkens rather than lightens. */
-.env__letter::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 3px;
-  opacity: 0.2;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  background-image:
-    url('/images/paper-grain.png'),
-    url('/images/paper-grain.png');
-  background-size: 280px 280px, 100% 100%;
-  background-position: 0 0, center;
-}
-
-/* Engraved double rule, the way good stationery is bordered. */
-.env__letter::after {
-  content: '';
-  position: absolute;
-  inset: 4%;
-  border: 1px solid rgba(203, 171, 110, 0.62);
-  outline: 1px solid rgba(203, 171, 110, 0.24);
-  outline-offset: 3px;
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-.env__eyebrow {
-  font-family: var(--sans);
-  font-size: clamp(0.42rem, 1.45vw, 0.58rem);
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: #9a7742;
-  padding-left: 0.34em;
-}
-
-.env__names {
-  font-family: var(--script);
-  font-size: clamp(1.7rem, 7.6vw, 2.9rem);
-  line-height: 1.05;
-  color: var(--ink);
-}
-
-.env__rule {
-  width: 38px;
-  height: 1px;
-  margin-block: 0.15rem;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(203, 171, 110, 0.9),
-    transparent
-  );
-}
-
-.env__date {
-  font-family: var(--serif);
-  font-size: clamp(0.72rem, 2.8vw, 1.1rem);
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-}
-
-.env__venue {
-  font-family: var(--sans);
-  font-size: clamp(0.38rem, 1.3vw, 0.52rem);
-  line-height: 1.5;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--stone);
-  padding-left: 0.26em;
-}
-
-/* ── Belly band ──────────────────────────────────────────────────
-
-   A vellum wrap holding the flap shut, with the wax pressed on top. It sits
-   centred over the flap's tip — which is exactly what it would be doing on
-   a real suite — and darkens toward each end, where the paper turns around
-   the edge of the envelope and out of the light. */
-.env__band {
-  position: absolute;
-  left: -0.4%;
-  right: -0.4%;
-  top: 38.5%;
-  height: 22%;
-  z-index: 6;
-  background:
-    /* the roll-off at both ends, where the band turns around the edge of the
-       envelope and out of the light */
-    linear-gradient(
-      90deg,
-      rgba(34, 26, 12, 0.62) 0%,
-      rgba(72, 58, 32, 0.34) 2.6%,
-      rgba(120, 102, 66, 0.12) 6%,
-      transparent 11%,
-      transparent 89%,
-      rgba(96, 80, 48, 0.2) 94.5%,
-      rgba(56, 44, 24, 0.46) 97.6%,
-      rgba(26, 20, 9, 0.7) 100%
-    ),
-    /* the same key light that falls on everything else */
-    linear-gradient(144deg, rgba(255, 250, 228, 0.16) 0%, transparent 40%),
-    /* the cylinder of paper crossing the envelope. The peak is deliberately
-       short of white and set off-centre: a broad bright ramp turns paper into
-       satin, and uncoated stock has no specular to speak of */
-    linear-gradient(
-      180deg,
-      #a99d80 0%,
-      #c7bd9f 8%,
-      #ded6be 22%,
-      #ebe4d1 40%,
-      #e6ded0 55%,
-      #d5cbb0 74%,
-      #bcb193 90%,
-      #9c9176 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 252, 240, 0.42),
-    inset 0 -1px 0 rgba(84, 71, 45, 0.6),
-    0 1px 1px rgba(0, 0, 0, 0.55),
-    0 5px 9px rgba(0, 0, 0, 0.45),
-    0 14px 24px rgba(0, 0, 0, 0.35);
-}
-
-/* Fibre on the band, so it is the same material as everything else. */
-.env__band::after {
-  content: '';
+/* The exposed edge of the stock along the flap's two free sides. The left
+   faces the key and reads brightest; the right is turned away. */
+.gate__flap-edge {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.17;
-  mix-blend-mode: multiply;
-  background-image:
-    url('/images/paper-grain.png'),
-    url('/images/paper-grain.png');
-  background-size: 260px 260px, 100% 100%;
-  background-position: 40px 0, center;
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 0.5px), rgba(255, 249, 238, 0.55) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom left, transparent calc(50% - 0.5px), rgba(255, 245, 232, 0.2) 50%, transparent calc(50% + 0.5px));
+  clip-path: polygon(0% 0%, 100% 0%, 50% 76%);
+  opacity: 0.55;
+}
+
+/* ── The blind-embossed daisy ───────────────────────────────────
+
+   Blind embossing carries no ink: the flower is the same paper as the flap,
+   and the whole image is the shadow its raised edge casts plus the light its
+   facing side catches. So every fill here is the stock, and the relief comes
+   from paired light/dark offsets — a dark one down-right, a light one
+   up-left, matching the key. */
+
+.gate__flower {
+  position: absolute;
+  left: 50%;
+  bottom: 24%; /* the stem ends on the seal, which sits at 76% */
+  width: min(64vmin, 430px);
+  translate: -50% 0;
+  aspect-ratio: 200 / 260;
+  pointer-events: none;
+  /* Blind embossing is only ever two things: the shadow the raised edge
+     throws away from the light, and the sliver the facing side catches.
+     Both offsets follow the key from the upper left. */
+  filter:
+    drop-shadow(0.7px 1.2px 0.8px rgba(86, 62, 40, 0.5))
+    drop-shadow(-0.6px -0.9px 0.6px rgba(255, 252, 243, 0.6));
+}
+
+.relief {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The petals are the paper, a shade off the flap so the edges declare
+   themselves without turning into line art. */
+.relief__petal path {
+  stroke: rgba(140, 112, 84, 0.16);
+  stroke-width: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.relief__petal--back path {
+  fill: #d2c1ab;
+}
+
+.relief__petal--front path {
+  fill: #e0d3c0;
+}
+
+.relief__blade path {
+  fill: #7d8462;
+  stroke: rgba(70, 76, 52, 0.5);
+  stroke-width: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.relief__disc {
+  fill: #c39f70;
+}
+
+.relief__floret circle {
+  fill: rgba(108, 74, 40, 0.68);
+}
+
+/* Stem, midribs and veins are the one part struck in foil, the way a pressed
+   flower is finished on good stationery. */
+.relief__foil path {
+  fill: none;
+  stroke-linecap: round;
+  stroke: #c9a06a;
+}
+
+/* A thread of light down the lit side of the stem and ribs. */
+.relief__foil--stem path,
+.relief__foil--rib path {
+  filter: drop-shadow(-0.5px -0.5px 0.3px rgba(255, 244, 214, 0.9));
+}
+
+.relief__foil--stem path {
+  stroke-width: 3.8;
+}
+
+.relief__foil--rib path {
+  stroke-width: 1.2;
+}
+
+.relief__foil--vein path {
+  stroke-width: 0.5;
+  opacity: 0.8;
 }
 
 /* ── Wax seal ────────────────────────────────────────────────── */
 
-/* The wrapper owns the centring so Motion is free to drive the transform. */
-.env__seal-pos {
+.gate__seal-pos {
   position: absolute;
-  top: 50%;
   left: 50%;
-  z-index: 2;
-  width: calc(var(--env-w) * 0.21);
+  top: 76%;
+  z-index: 6;
+  width: min(26vmin, 148px);
   aspect-ratio: 1;
-  transform: translate(-50%, -50%);
+  translate: -50% -50%;
+  will-change: transform, opacity;
 }
 
-.env__seal {
+.gate__seal {
   position: relative;
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
-  rotate: -7deg;
-  filter: drop-shadow(2px 4px 5px rgba(0, 0, 0, 0.55))
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+  rotate: -5deg;
+  filter:
+    drop-shadow(1px 3px 4px rgba(58, 36, 18, 0.5))
+    drop-shadow(0 1px 1px rgba(58, 36, 18, 0.42))
+    drop-shadow(0 0 16px rgba(255, 206, 128, 0.45));
 }
 
-/* The wax itself. The outline is a near-round blob with a few lobes where
-   the drop ran further and a ragged set edge — a perfect circle with an
-   even crimped rim is what makes a seal read as a stamped button.
-   The fill is a flat wash rather than a radial falloff, because a radial
-   gradient reads as a polished sphere, which is exactly what wax is not. */
-.env__seal-wax {
+/* The rim: wax that squeezed out from under the die and set proud. Its
+   outline is a near-round blob with a few lobes where the drop ran further —
+   a perfect circle with an even crimped edge is what makes a seal read as a
+   stamped button rather than poured wax. */
+.gate__seal-rim {
   position: absolute;
   inset: 0;
-  clip-path: polygon(
-    94.5% 50.0%, 93.9% 54.6%, 93.1% 59.2%, 91.7% 63.6%, 90.6% 68.1%,
-    88.4% 72.2%, 86.6% 76.6%, 84.2% 80.8%, 81.2% 84.7%, 77.9% 88.4%,
-    74.3% 92.1%, 70.1% 95.0%, 65.2% 96.8%, 60.2% 97.9%, 55.1% 98.8%,
-    50.0% 98.0%, 45.0% 97.3%, 40.4% 95.4%, 35.7% 94.0%, 31.5% 91.5%,
-    27.4% 89.1%, 23.6% 86.4%, 19.9% 83.4%, 16.9% 79.8%, 14.2% 76.0%,
-    12.0% 71.9%, 10.0% 67.8%, 8.0% 63.7%, 6.3% 59.3%, 6.0% 54.6%,
-    4.2% 50.0%, 3.8% 45.1%, 3.3% 40.1%, 4.4% 35.2%, 5.7% 30.3%,
-    7.9% 25.7%, 11.3% 21.9%, 14.9% 18.4%, 18.8% 15.3%, 22.9% 12.6%,
-    27.3% 10.6%, 31.5% 8.4%, 35.9% 6.7%, 40.6% 6.0%, 45.2% 4.7%,
-    50.0% 3.8%, 54.9% 3.6%, 59.8% 4.1%, 64.7% 4.7%, 69.7% 5.8%,
-    73.9% 8.5%, 77.9% 11.5%, 81.6% 15.0%, 85.0% 18.5%, 87.6% 22.6%,
-    89.7% 27.1%, 91.7% 31.4%, 92.7% 36.1%, 93.9% 40.7%, 95.0% 45.3%
-  );
+  border-radius: 47% 53% 50% 50% / 52% 48% 52% 48%;
+  /* A flat linear wash, mottled — a circular falloff would read as a sphere,
+     which is exactly what wax is not. */
   background-image:
-    /* micro-relief: the pitted surface poured wax sets with */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23w)' opacity='0.62'/%3E%3C/svg%3E"),
-    /* coarse mottling: where the wax pooled thicker */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.09' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23m)' opacity='0.4'/%3E%3C/svg%3E"),
-    /* the shadow side, away from the key */
-    radial-gradient(52% 54% at 74% 80%, rgba(24, 8, 0, 0.4), transparent 76%),
-    /* the lit side */
-    radial-gradient(50% 46% at 28% 24%, rgba(255, 226, 176, 0.24), transparent 76%),
-    linear-gradient(150deg, #a8703f 0%, #8f5c33 46%, #6d4425 78%, #573520 100%);
-  background-size: 96px 96px, 150px 150px, auto, auto, auto;
-  background-blend-mode: overlay, soft-light, normal, normal, normal;
-}
-
-/* The thin, translucent lip where the wax spread out from under the die and
-   set thinner than the middle. */
-.env__seal-wax::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    closest-side,
-    transparent 78%,
-    rgba(196, 138, 84, 0.34) 92%,
-    rgba(214, 158, 102, 0.22) 100%
-  );
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-/* The die's impression: a shallow bevelled well pressed into the wax, dark
-   along the top wall and catching light along the bottom — the inverse of a
-   raised disc, which is what makes it read as pressed in rather than stuck
-   on. */
-.env__seal-die {
-  position: absolute;
-  inset: 12%;
-  border-radius: 48% 52% 51% 49% / 51% 48% 52% 49%;
-  background: linear-gradient(150deg, rgba(50, 24, 6, 0.2), transparent 52%);
+    url('/images/paper-grain.png'),
+    linear-gradient(150deg, #dcae69 0%, #c3924f 34%, #a4713a 68%, #83582b 100%);
+  background-size: 120px 120px, auto;
+  background-blend-mode: soft-light, normal;
   box-shadow:
-    inset 0 3px 5px rgba(38, 16, 2, 0.55),
-    inset 0 -3px 4px rgba(255, 208, 148, 0.16),
-    0 1px 0 rgba(255, 214, 158, 0.14);
+    inset 2px 2px 4px rgba(255, 243, 214, 0.5),
+    inset -2px -3px 6px rgba(56, 32, 10, 0.55),
+    inset 0 0 0 1px rgba(120, 78, 32, 0.34);
+}
+
+/* The die's impression: a shallow well pressed into the wax, dark along the
+   top wall and catching light along the bottom — the inverse of a raised
+   disc, which is what makes it read as struck rather than stuck on. */
+.gate__seal-field {
+  position: absolute;
+  inset: 9.5%;
+  border-radius: 49% 51% 50% 50% / 51% 49% 51% 49%;
+  /* The well the die left: lit from the lower edge, shaded under the upper
+     wall. That inversion is what makes it read as pressed in. */
+  background: linear-gradient(162deg, #d6a25a 0%, #e8bd74 42%, #f2d495 78%, #f7e2ad 100%);
+  /* One crisp shadow under the upper wall and one thin lift along the lower
+     lip. Bevelling both sides evenly is what built a dome. */
+  box-shadow:
+    inset 0 3px 4px rgba(84, 49, 16, 0.5),
+    inset 0 -1px 0 rgba(255, 246, 219, 0.6);
+}
+
+/* The petal ring cut into the die, sitting proud of the well floor. */
+.gate__seal-die {
+  position: absolute;
+  inset: 9.5%;
+  width: 81%;
+  height: 81%;
   pointer-events: none;
 }
 
-/* Monogram, debossed. It is the wax itself pushed down, so it is lit the
-   same way as the well around it — dark rim above, warm lift below — rather
-   than being painted on in gold. */
-.env__seal-mark {
-  position: relative;
-  font-family: var(--script);
-  font-size: calc(var(--env-w) * 0.062);
-  line-height: 1;
-  transform: translateY(-0.04em);
-  color: #7a4d2b;
-  text-shadow:
-    0 1.5px 1px rgba(255, 216, 164, 0.4),
-    0 -1px 1.5px rgba(44, 19, 3, 0.72),
-    0 0 4px rgba(44, 19, 3, 0.3);
+.gate__seal-petal ellipse {
+  fill: rgba(255, 249, 223, 0.55);
+  stroke: rgba(126, 80, 30, 0.6);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
-/* Card — the bottom flap's shaded V has been replaced by real panels, so
-   nothing else is needed here. */
+.gate__seal-eye {
+  fill: rgba(255, 244, 206, 0.52);
+  stroke: rgba(122, 78, 30, 0.6);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Cue ─────────────────────────────────────────────────────── */
+
+.gate__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(2.2rem, 7vh, 4.5rem);
+  z-index: 7;
+  translate: -50% 0;
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.52em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(88, 66, 46, 0.85);
+  padding-left: 0.52em; /* balance the trailing letter-space */
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .env-tilt {
-    transform: rotateX(9deg) rotateZ(-1.1deg);
+  .gate__push {
+    transform: none !important;
   }
 }

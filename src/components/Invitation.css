@@ -1,19 +1,75 @@
 .invitation {
-  background: var(--alabaster);
+  position: relative;
+  background:
+    radial-gradient(120% 70% at 50% 18%, rgba(255, 255, 255, 0.85), transparent 62%),
+    linear-gradient(180deg, #eef1e7 0%, #e7ebdf 58%, #e1e6d8 100%);
   border-bottom: 1px solid var(--line);
 }
 
 .invitation__card {
-  max-width: 680px;
+  position: relative;
+  max-width: 660px;
   margin-inline: auto;
-  border: 1px solid rgba(156, 176, 140, 0.55);
-  padding: clamp(0.5rem, 1.5vw, 0.75rem);
-  background: var(--alabaster);
+  padding: clamp(2.6rem, 6vw, 4rem) clamp(1.4rem, 4vw, 2.6rem);
+  background:
+    radial-gradient(90% 60% at 50% 4%, rgba(255, 255, 255, 0.9), transparent 62%),
+    linear-gradient(168deg, #fffdf7 0%, #fcf7ea 56%, #f6efdd 100%);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 2px rgba(58, 62, 44, 0.12),
+    0 14px 30px rgba(58, 62, 44, 0.12),
+    0 40px 80px rgba(58, 62, 44, 0.12);
 }
 
+/* The same stock as the envelope, so the suite is one material. */
+.invitation__card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image:
+    url('/images/paper-grain.png'),
+    url('/images/paper-grain.png');
+  background-size: 300px 300px, 100% 100%;
+  background-position: 0 0, center;
+}
+
+.invitation__arch {
+  position: absolute;
+  inset: clamp(0.8rem, 2.2vw, 1.4rem);
+  pointer-events: none;
+}
+
+.invitation__arch svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.invitation__arch svg path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.invitation__arch-outer {
+  stroke: rgba(176, 142, 82, 0.85);
+  stroke-width: 1;
+}
+
+.invitation__arch-inner {
+  stroke: rgba(176, 142, 82, 0.34);
+  stroke-width: 1;
+}
+
+
 .invitation__card-inner {
-  border: 1px solid rgba(156, 176, 140, 0.35);
-  padding: clamp(2.8rem, 7vw, 4.5rem) clamp(1.6rem, 5vw, 3.5rem);
+  position: relative;
+  /* Keeps the setting clear of the arch where it curves in. */
+  padding: clamp(1.4rem, 4vw, 2.4rem) clamp(1.6rem, 6vw, 4.2rem);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -38,9 +94,10 @@
 .invitation__names {
   font-family: var(--script);
   font-weight: 400;
-  font-size: clamp(3.6rem, 9vw, 5.4rem);
-  line-height: 1;
+  font-size: clamp(2.9rem, 7.6vw, 4.6rem);
+  line-height: 1.02;
   margin-bottom: 0.7rem;
+  max-width: 100%;
 }
 
 .invitation__names span {
@@ -60,10 +117,28 @@
   max-width: 42ch;
 }
 
-.invitation__leaf {
-  color: var(--sage);
-  font-size: 1.5rem;
-  margin-block: 1.2rem 0.9rem;
+.invitation__ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-block: 1.4rem 1.1rem;
+}
+
+.invitation__ornament-rule {
+  width: clamp(34px, 7vw, 58px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(176, 142, 82, 0.9));
+}
+
+.invitation__ornament-rule:last-child {
+  background: linear-gradient(90deg, rgba(176, 142, 82, 0.9), transparent);
+}
+
+.invitation__ornament-dot {
+  width: 6px;
+  height: 6px;
+  rotate: 45deg;
+  background: linear-gradient(150deg, #f0dcae, #b08e52);
 }
 
 .invitation__date {
@@ -80,11 +155,21 @@
 }
 
 .invitation__time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
   font-size: 0.74rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--stone);
   margin-top: 0.5rem;
+}
+
+.invitation__time-rule {
+  width: clamp(18px, 4vw, 32px);
+  height: 1px;
+  background: rgba(176, 142, 82, 0.55);
 }
 
 .invitation__divider {
@@ -129,4 +214,27 @@
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--stone);
+}
+
+/* On a narrow card the arch's springing line cuts in far enough to cross the
+   setting. Pull the rule out toward the card's edge and bring the text in,
+   so the two never meet. */
+@media (max-width: 640px) {
+  .invitation__arch {
+    inset: 0.4rem;
+  }
+
+  .invitation__card-inner {
+    padding-inline: 2.2rem;
+  }
+
+  .invitation__body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .invitation__hashtag {
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+  }
 }

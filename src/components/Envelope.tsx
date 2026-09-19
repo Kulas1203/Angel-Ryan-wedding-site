@@ -1,44 +1,38 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import { couple, invitation } from '../data/content'
+import { DaisyRelief } from './DaisyRelief'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import './Envelope.css'
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
-const CURTAIN_EASE = [0.76, 0, 0.24, 1] as const
 
-// Beats of the opening sequence, in seconds from the moment the seal is
-// pressed. Every element below reads its delay from one of these.
-const BAND_AT = 0.04
-const BAND_DUR = 0.78
-const FLAP_AT = 0.42
-const FLAP_DUR = 0.85
-const LETTER_AT = 0.95
-const PAPER_OUT_AT = 1.7
-const CURTAIN_AT = 2.05
-const CURTAIN_DUR = 1.15
-
-// The fraction of the flap's swing at which it crosses 90° — edge-on to the
-// viewer. That frame is where it stops covering the envelope and starts
-// lying behind it, and where the ivory face gives way to the emerald liner.
-const FLAP_BEHIND_MS = (FLAP_AT + FLAP_DUR * 0.555) * 1000
-const GATE_END_MS = (CURTAIN_AT + CURTAIN_DUR + 0.1) * 1000
-const REDUCED_END_MS = 460
+// Beats of the opening, in seconds from the tap. The envelope fills the
+// frame, so there is nowhere for a card to be drawn out to — instead the
+// flap lifts and the light that was shut inside floods forward and takes
+// over the screen.
+const SEAL_AT = 0.12
+const SEAL_DUR = 0.66
+const FLAP_AT = 0.34
+const FLAP_DUR = 1.05
+const BLOOM_AT = 0.62
+const PUSH_AT = 0.3
+const REVEAL_AT = 1.85
+const GATE_END_MS = 2700
+const REDUCED_END_MS = 520
 
 interface EnvelopeProps {
-  /** Fires as the gate opens, cueing the hero to begin its choreography. */
+  /** Fires as the light takes the frame, cueing the hero to begin. */
   onReveal: () => void
 }
 
 /**
- * The site opens as a sealed invitation. Tap the envelope and the wax seal
- * breaks, the flap swings back in 3D, the card rises out, and the ground
- * parts like curtains onto the hero.
+ * The site opens inside a sealed envelope — close enough that the paper is
+ * the page. Press the seal and the flap lifts, the warmth behind it blooms
+ * forward, and the invitation is on the other side of the light.
  */
 export function Envelope({ onReveal }: EnvelopeProps) {
   const reduced = useReducedMotion()
   const [opening, setOpening] = useState(false)
-  const [flapBehind, setFlapBehind] = useState(false)
   const [gone, setGone] = useState(false)
 
   // Kept in a ref so a fresh inline callback from App never restarts the
@@ -66,8 +60,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
       reveal()
       timers.push(window.setTimeout(() => setGone(true), REDUCED_END_MS))
     } else {
-      timers.push(window.setTimeout(() => setFlapBehind(true), FLAP_BEHIND_MS))
-      timers.push(window.setTimeout(reveal, CURTAIN_AT * 1000))
+      timers.push(window.setTimeout(reveal, REVEAL_AT * 1000))
       timers.push(window.setTimeout(() => setGone(true), GATE_END_MS))
     }
 
@@ -78,278 +71,140 @@ export function Envelope({ onReveal }: EnvelopeProps) {
 
   // Reduced motion keeps the envelope — it is content, not decoration — but
   // trades the whole sequence for a plain fade.
-  const fadeOut = reduced && opening
-  const curtain = opening && !reduced
+  const run = opening && !reduced
 
   return (
-    <div className={`gate ${opening ? 'gate--opening' : ''}`}>
+    <motion.div
+      className={`gate ${opening ? 'gate--opening' : ''}`}
+      animate={{ opacity: opening && reduced ? 0 : 1 }}
+      transition={{ duration: 0.45, ease: 'easeIn' }}
+    >
+      {/* The camera eases in as the flap gives, so the paper grows past the
+          frame and the viewer ends up inside the envelope rather than
+          watching it from across a room. */}
       <motion.div
-        className="gate__panel gate__panel--top"
-        animate={{ y: curtain ? '-100%' : '0%', opacity: fadeOut ? 0 : 1 }}
-        transition={{ delay: curtain ? CURTAIN_AT : 0, duration: fadeOut ? 0.4 : CURTAIN_DUR, ease: CURTAIN_EASE }}
-      />
-      <motion.div
-        className="gate__panel gate__panel--bottom"
-        animate={{ y: curtain ? '100%' : '0%', opacity: fadeOut ? 0 : 1 }}
-        transition={{ delay: curtain ? CURTAIN_AT : 0, duration: fadeOut ? 0.4 : CURTAIN_DUR, ease: CURTAIN_EASE }}
-      />
-
-      {/* Engraved rule around the whole view. */}
-      <motion.div
-        className="gate__frame"
-        aria-hidden="true"
-        animate={{ opacity: opening ? 0 : 1 }}
-        transition={{ duration: 0.6, ease: 'easeIn' }}
+        className="gate__push"
+        initial={reduced ? false : { scale: 1.06, opacity: 0 }}
+        animate={{ scale: run ? 1.42 : 1, opacity: 1 }}
+        transition={{
+          scale: run
+            ? { delay: PUSH_AT, duration: 2.1, ease: [0.3, 0, 0.2, 1] }
+            : { duration: 1.6, ease: EASE_OUT },
+          opacity: { duration: 1.1, ease: 'easeOut' },
+        }}
       >
-        <span className="gate__frame-corner gate__frame-corner--tl" />
-        <span className="gate__frame-corner gate__frame-corner--tr" />
-        <span className="gate__frame-corner gate__frame-corner--bl" />
-        <span className="gate__frame-corner gate__frame-corner--br" />
-      </motion.div>
+        {/* On a portrait screen the envelope runs wider than the frame, so
+            the fold lines enter from off-screen and the paper is the page.
+            On a landscape one it becomes a portrait panel on a warm ground —
+            an envelope stretched to a 16:9 width would have a fold so
+            shallow it stops reading as an envelope at all. */}
+        <div className="gate__env">
+          {/* The inside: warmer, deeper stock, seen only through the opening
+              once the flap lifts. */}
+          <span className="gate__inside" aria-hidden="true" />
+          {/* The two lower walls, turned a little away from the key so the
+              flap reads as lying on top of them. */}
+          <span className="gate__wall gate__wall--left" aria-hidden="true" />
+          <span className="gate__wall gate__wall--right" aria-hidden="true" />
+          <span className="gate__wall gate__wall--foot" aria-hidden="true" />
 
-      <div className="gate__stage">
-        <div className="gate__glow" />
-        {/* The lit plane the envelope is lying on. */}
-        <div className="gate__surface" />
-
-        <motion.div
-          className="gate__enter"
-          initial={reduced ? false : { opacity: 0, y: 44, scale: 0.9 }}
-          animate={{
-            opacity: fadeOut ? 0 : 1,
-            // The whole arrangement settles downward as the card is drawn
-            // up, so a tall card still clears the envelope without running
-            // off the top of the screen. Viewport units keep the trade
-            // proportional on any display.
-            y: opening && !reduced ? '16vh' : 0,
-            scale: 1,
-          }}
-          transition={{
-            opacity: { duration: fadeOut ? 0.4 : 1.25, ease: EASE_OUT },
-            scale: { duration: 1.25, ease: EASE_OUT },
-            y:
-              opening && !reduced
-                ? { delay: LETTER_AT, duration: 1.15, ease: EASE_OUT }
-                : { duration: 1.25, ease: EASE_OUT },
-          }}
-        >
-          <div className="env-tilt">
-          {/* No idle float: the envelope is lying on a surface with a contact
-              shadow under it, and a resting object that drifts is the first
-              thing to give the illusion away. */}
-          <div className="env">
-            <span className="env__shadow" aria-hidden="true" />
-            {/* The near edge of the stock, turned toward the lens by the tilt. */}
-            <span className="env__edge" aria-hidden="true" />
-
-            {/* Only the flap needs 3D, so it gets its own perspective stage.
-                Everything else stays in a flat context where z-index is
-                reliable — inside preserve-3d the browser sorts by position
-                in space and the card punched through the envelope. */}
-            <div className={`env__flap-stage ${flapBehind ? 'is-open' : ''}`}>
-            <motion.div
-              className="env__flap"
-              animate={
-                opening && !reduced
-                  ? { rotateX: [0, -14, -180], opacity: 0, y: 64 }
-                  : { rotateX: 0, opacity: 1, y: 0 }
-              }
-              transition={{
-                rotateX: {
-                  delay: FLAP_AT,
-                  duration: FLAP_DUR,
-                  times: [0, 0.16, 1],
-                  ease: [0.5, 0, 0.25, 1],
-                },
-                opacity: { delay: PAPER_OUT_AT + 0.15, duration: 0.55, ease: 'easeIn' },
-                y: { delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' },
-              }}
-            >
-              <span className="env__flap-face" />
-              <span className="env__flap-liner" />
-              {/* The cut edge of the stock along the flap's free sides. The
-                  left one faces the key light and reads brightest; the right
-                  is turned away. It rides above both faces so it survives
-                  the turn, and non-scaling-stroke keeps it hairline-thin
-                  even though the viewBox is stretched to the flap. */}
-              <svg
-                className="env__flap-edge"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <polyline
-                  points="0.5,0.5 50,99"
-                  stroke="rgba(184,224,198,0.28)"
-                  fill="none"
-                  strokeWidth="1"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <polyline
-                  points="99.5,0.5 50,99"
-                  stroke="rgba(150,196,168,0.15)"
-                  fill="none"
-                  strokeWidth="1"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-              {/* The couple's crest, foil-stamped on the flap. */}
-              <span className="env__crest" />
-            </motion.div>
+        {/* The pointed flap. Hinged along the top edge, it lifts away from the
+            viewer — the way a real one does — rather than folding toward the
+            camera, which would sweep it across the lens. */}
+          <motion.div
+            className="gate__flap"
+            animate={run ? { rotateX: -64, y: '-5%', opacity: 0.15 } : { rotateX: 0, y: '0%', opacity: 1 }}
+            transition={{
+              rotateX: { delay: FLAP_AT, duration: FLAP_DUR, ease: [0.42, 0, 0.2, 1] },
+              y: { delay: FLAP_AT, duration: FLAP_DUR, ease: [0.42, 0, 0.2, 1] },
+              opacity: { delay: BLOOM_AT + 0.5, duration: 0.8, ease: 'easeIn' },
+            }}
+          >
+            <span className="gate__flap-face" aria-hidden="true" />
+            <span className="gate__flap-edge" aria-hidden="true" />
+            <div className="gate__flower">
+              <DaisyRelief />
             </div>
+          </motion.div>
 
-            {/* Sits behind the envelope body, so it reads as tucked inside. */}
-            <motion.div
-              className="env__letter"
-              animate={
-                opening && !reduced
-                  ? {
-                      y: ['0%', '-66%', '-66%', '-72%'],
-                      scale: [1, 1, 1, 1.28],
-                      opacity: [1, 1, 1, 0],
-                      filter: [
-                        'blur(0px)',
-                        'blur(0px)',
-                        'blur(0px)',
-                        'blur(14px)',
-                      ],
-                    }
-                  : { y: '0%' }
-              }
-              transition={{
-                delay: LETTER_AT,
-                duration: 1.75,
-                times: [0, 0.5, 0.58, 1],
-                ease: ['easeOut', 'linear', 'easeIn'],
-              }}
-            >
-              <p className="env__eyebrow">{invitation.opening}</p>
-              <p className="env__names">{couple.names}</p>
-              <span className="env__rule" />
-              <p className="env__date">{couple.dateLabel}</p>
-              <p className="env__venue">
-                {invitation.venue} · {invitation.city}
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="env__body"
-              animate={
-                opening && !reduced
-                  ? { opacity: 0, y: 64, rotateX: 14 }
-                  : { opacity: 1, y: 0, rotateX: 0 }
-              }
-              transition={{ delay: PAPER_OUT_AT, duration: 0.8, ease: 'easeIn' }}
-            >
-              {/* The back of a real envelope is four folded panels, not a
-                  printed rectangle: the two side flaps turn in, the bottom
-                  flap folds up over them, and the pointed top flap closes
-                  over the lot. Each drops a shadow on the one beneath, and
-                  those overlaps are what the eye reads as paper. */}
-              <span className="env__panel env__panel--left" />
-              <span className="env__panel env__panel--right" />
-              <span className="env__panel env__panel--bottom" />
-
-              {/* The cut edge of the stock along each fold. */}
-              <svg
-                className="env__seams"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                {/* Edges turned toward the key light. */}
-                <polyline className="is-lit" points="0,0 50,50" />
-                <polyline className="is-lit" points="50,50 0,100" />
-                <polyline className="is-lit" points="22,50 78,50" />
-                <polyline className="is-lit" points="0,100 22,50" />
-                {/* Edges turned away from it. */}
-                <polyline className="is-dim" points="100,0 50,50" />
-                <polyline className="is-dim" points="50,50 100,100" />
-                <polyline className="is-dim" points="100,100 78,50" />
+          {/* Wax, struck with the couple's mark inside a ring of petals. It
+              gives first: the light catches it, then it loosens off the paper. */}
+          <motion.div
+            className="gate__seal-pos"
+            animate={
+              run
+                ? { scale: 0.84, y: '46%', rotate: -11, opacity: 0 }
+                : { scale: 1, y: '0%', rotate: 0, opacity: 1 }
+            }
+            transition={{ delay: SEAL_AT, duration: SEAL_DUR, ease: 'easeIn' }}
+          >
+            <div className="gate__seal">
+              <span className="gate__seal-rim" aria-hidden="true" />
+              <span className="gate__seal-field" aria-hidden="true" />
+              {/* The die's flower, struck into the well — the same bloom that
+                  is embossed on the flap above, pressed small. */}
+              <svg className="gate__seal-die" viewBox="0 0 100 100" aria-hidden="true">
+                <g className="gate__seal-petal">
+                  {Array.from({ length: 18 }, (_, i) => (
+                    <ellipse
+                      key={i}
+                      cx="50"
+                      cy="27"
+                      rx="3.7"
+                      ry="17"
+                      transform={`rotate(${i * 20} 50 50)`}
+                    />
+                  ))}
+                </g>
+                <circle className="gate__seal-eye" cx="50" cy="50" r="8.4" />
               </svg>
+            </div>
+          </motion.div>
 
-              {/* Key light, the bulge of the card inside, and the cut edge
-                  around the whole enclosure. */}
-              <span className="env__light" />
-            </motion.div>
+          <span className="gate__light" aria-hidden="true" />
+        </div>
 
-            {/* Belly band — the device that marks a real invitation suite.
-                It holds the flap shut, carries the wax, and slips off
-                downward as one piece when the invitation is opened. */}
-            <motion.div
-              className="env__band"
-              animate={
-                opening && !reduced
-                  ? { y: '150%', rotate: -1.6, opacity: 0 }
-                  : { y: '0%', rotate: 0, opacity: 1 }
-              }
-              transition={{
-                y: { delay: BAND_AT, duration: BAND_DUR, ease: [0.5, 0, 0.35, 1] },
-                rotate: { delay: BAND_AT, duration: BAND_DUR, ease: 'easeIn' },
-                opacity: { delay: BAND_AT + BAND_DUR * 0.45, duration: 0.42, ease: 'easeIn' },
-              }}
-            >
-              <div className="env__seal-pos">
-                <motion.div
-                  className="env__seal"
-                  animate={
-                    opening && !reduced
-                      ? { scale: [1, 0.94, 0.88], rotate: [0, -3, -9] }
-                      : { scale: 1, rotate: 0 }
-                  }
-                  transition={
-                    opening && !reduced
-                      ? { duration: 0.55, times: [0, 0.3, 1], ease: 'easeIn' }
-                      : { duration: 0.4, ease: 'easeOut' }
-                  }
-                >
-                  <span className="env__seal-wax" aria-hidden="true" />
-                  <span className="env__seal-die" aria-hidden="true" />
-                  <span className="env__seal-mark">R&nbsp;&amp;&nbsp;A</span>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-          </div>
 
-          <div className="gate__caption">
-            <motion.p
-              className="gate__script"
-              animate={{ opacity: opening ? 0 : 1, y: opening ? 10 : 0 }}
-              transition={{ duration: 0.45, ease: 'easeIn' }}
-            >
-              You’re Invited
-            </motion.p>
-            <motion.span
-              className="gate__ornament"
-              aria-hidden="true"
-              animate={{ opacity: opening ? 0 : 1 }}
-              transition={{ duration: 0.4, ease: 'easeIn' }}
-            >
-              <span className="gate__ornament-line" />
-              <span className="gate__ornament-dot" />
-              <span className="gate__ornament-line" />
-            </motion.span>
-            <motion.p
-              className="gate__hint"
-              animate={
-                opening
-                  ? { opacity: 0 }
-                  : reduced
-                    ? { opacity: 0.8 }
-                    : { opacity: [0.45, 1, 0.45] }
-              }
-              transition={
-                opening
-                  ? { duration: 0.3, ease: 'easeIn' }
-                  : { duration: 2.8, delay: 1.4, repeat: reduced ? 0 : Infinity, ease: 'easeInOut' }
-              }
-            >
-              Tap to open
-            </motion.p>
-          </div>
-        </motion.div>
-      </div>
+        {/* The light that was shut inside. It sits above every layer, so it
+            floods the frame rather than being clipped to the opening. */}
+        <motion.div
+          className="gate__bloom"
+          animate={
+            run
+              ? { opacity: [0, 0.5, 1, 1], scale: [0.3, 0.85, 2.4, 6] }
+              : { opacity: 0, scale: 0.3 }
+          }
+          transition={{
+            delay: BLOOM_AT,
+            duration: 1.8,
+            times: [0, 0.24, 0.64, 1],
+            ease: ['easeOut', 'easeIn', 'easeIn'],
+          }}
+        />
+
+        <motion.p
+          className="gate__hint"
+          animate={
+            opening
+              ? { opacity: 0, y: 6 }
+              : reduced
+                ? { opacity: 0.85 }
+                : { opacity: [0.4, 0.95, 0.4] }
+          }
+          transition={
+            opening
+              ? { duration: 0.3, ease: 'easeIn' }
+              : {
+                  duration: 3,
+                  delay: 1.6,
+                  repeat: reduced ? 0 : Infinity,
+                  ease: 'easeInOut',
+                }
+          }
+        >
+          Tap to open
+        </motion.p>
+      </motion.div>
 
       {!opening && (
         <button
@@ -359,6 +214,6 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           autoFocus
         />
       )}
-    </div>
+    </motion.div>
   )
 }

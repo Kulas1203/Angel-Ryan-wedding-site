@@ -1,5 +1,10 @@
 .story {
   background: var(--ivory);
+  /* The timeline entries slide in from the side, so while they are still
+     below the fold they sit outside the viewport and give the whole page a
+     sideways scrollbar on a phone. `clip` contains that without turning the
+     section into a scroll container the way `hidden` would. */
+  overflow-x: clip;
 }
 
 .story__quote {
@@ -59,6 +64,7 @@
 }
 
 .story__text {
+  min-width: 0;
   grid-column: 1;
   grid-row: 1;
   text-align: right;
@@ -101,7 +107,7 @@
 }
 
 .story__body {
-  max-width: 42ch;
+  max-width: min(42ch, 100%);
   color: var(--ink-soft);
   font-size: 1rem;
 }
@@ -124,6 +130,7 @@
 }
 
 .story__media {
+  min-width: 0;
   grid-column: 3;
   grid-row: 1;
 }
@@ -134,7 +141,7 @@
 
 .story__media img {
   width: 100%;
-  max-width: 420px;
+  max-width: min(420px, 100%);
   aspect-ratio: 4 / 5;
   object-fit: cover;
 }

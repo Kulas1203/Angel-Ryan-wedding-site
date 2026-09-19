@@ -1,0 +1,148 @@
+/**
+ * The daisy blind-embossed into the envelope flap.
+ *
+ * The art is generated (see the project's design notes) rather than drawn by
+ * hand: petals carry per-petal jitter in length, width and angle, and the
+ * florets sit on a sunflower spiral, because a ring of identical petals reads
+ * as a clip-art asterisk and never as a pressed flower.
+ *
+ * Nothing here is coloured. Blind embossing has no ink — the image is made
+ * entirely of the shadow the raised edge casts and the light its facing side
+ * catches, so every fill is the paper itself and the relief comes from the
+ * paired light/dark offsets applied in CSS.
+ */
+export function DaisyRelief() {
+  return (
+    <svg
+      className="relief"
+      viewBox="0 0 200 260"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      {/* Stem and leaves sit under the bloom, as they would on the press. */}
+      <g className="relief__blade">
+        <path d="M99 198Q85.5 166.2 46 168Q64.8 202.8 99 198Z" />
+        <path d="M100 192Q135.8 194.6 155 158Q113.7 158.8 100 192Z" />
+      </g>
+      <g className="relief__foil relief__foil--stem">
+        <path d="M100 138C100 172 97 198 99 246" />
+      </g>
+      <g className="relief__foil relief__foil--rib">
+        <path d="M99 198L46 168" />
+        <path d="M100 192L155 158" />
+      </g>
+      <g className="relief__foil relief__foil--vein">
+        <path d="M90.2 193.0Q90.1 189.5 89.5 185.6 M90.2 193.0Q87.1 194.7 83.5 196.2 M81.3 188.0Q82.3 182.5 82.8 176.7 M81.3 188.0Q77.1 191.7 72.4 195.1 M72.5 183.0Q73.9 176.8 74.8 170.3 M72.5 183.0Q67.9 187.4 62.8 191.5 M63.7 178.0Q64.7 172.5 65.2 166.7 M63.7 178.0Q59.5 181.7 54.8 185.1 M54.8 173.0Q54.7 169.5 54.1 165.6 M54.8 173.0Q51.7 174.7 48.1 176.2" />
+        <path d="M109.2 186.3Q112.4 187.9 116.2 189.1 M109.2 186.3Q109.2 182.7 109.8 178.8 M118.3 180.7Q122.8 184.1 127.7 187.3 M118.3 180.7Q117.2 175.2 116.6 169.3 M127.5 175.0Q132.4 179.2 137.8 183.0 M127.5 175.0Q125.9 168.8 124.9 162.3 M136.7 169.3Q141.1 172.8 146.1 175.9 M136.7 169.3Q135.5 163.8 135.0 158.0 M145.8 163.7Q149.1 165.2 152.9 166.5 M145.8 163.7Q145.9 160.1 146.5 156.1" />
+      </g>
+
+      {/* Two rings of petals: the back ring longer and deeper in shadow, the
+          front ring shorter and catching the key. */}
+      <g className="relief__petal relief__petal--back">
+        <path d="M114.3 77.8Q134.3 85.1 161.6 77.3Q134.1 70.1 114.3 77.8Z" />
+        <path d="M114.3 81.2Q131.7 93.2 159.7 91.4Q135.1 77.8 114.3 81.2Z" />
+        <path d="M112.4 85.7Q124.3 102.1 150.4 109.2Q132.5 89.0 112.4 85.7Z" />
+        <path d="M110.4 88.8Q118.3 108.4 142.9 122.2Q129.8 97.3 110.4 88.8Z" />
+        <path d="M107.3 91.6Q109.1 112.9 129.6 132.7Q124.2 104.8 107.3 91.6Z" />
+        <path d="M104.2 92.2Q102.0 113.4 117.6 137.0Q117.7 108.7 104.2 92.2Z" />
+        <path d="M99.8 92.4Q91.6 110.8 99.2 136.6Q107.5 111.1 99.8 92.4Z" />
+        <path d="M95.5 92.4Q83.2 108.2 82.3 134.9Q96.8 112.4 95.5 92.4Z" />
+        <path d="M93.0 90.6Q76.8 104.8 69.4 132.8Q89.3 111.8 93.0 90.6Z" />
+        <path d="M89.6 88.3Q71.3 94.9 59.8 117.8Q82.8 106.5 89.6 88.3Z" />
+        <path d="M87.1 85.7Q67.7 87.6 51.2 107.3Q76.3 101.9 87.1 85.7Z" />
+        <path d="M84.8 81.6Q63.9 78.8 39.0 92.3Q67.2 93.3 84.8 81.6Z" />
+        <path d="M84.6 77.4Q66.6 68.9 41.2 75.9Q66.1 84.6 84.6 77.4Z" />
+        <path d="M85.3 73.9Q69.3 61.5 42.4 61.8Q65.2 76.1 85.3 73.9Z" />
+        <path d="M87.4 70.7Q73.9 54.8 46.9 47.3Q66.9 67.0 87.4 70.7Z" />
+        <path d="M90.1 67.5Q82.1 48.3 58.2 34.0Q71.3 58.6 90.1 67.5Z" />
+        <path d="M92.3 65.6Q89.6 45.9 69.6 28.6Q76.0 54.2 92.3 65.6Z" />
+        <path d="M95.8 64.3Q98.2 43.6 82.7 20.7Q82.4 48.4 95.8 64.3Z" />
+        <path d="M99.7 62.7Q106.8 44.9 99.0 20.8Q92.1 45.2 99.7 62.7Z" />
+        <path d="M103.2 63.9Q115.2 47.6 113.1 20.8Q99.6 44.0 103.2 63.9Z" />
+        <path d="M107.0 65.3Q122.8 52.7 128.4 26.4Q109.3 45.2 107.0 65.3Z" />
+        <path d="M109.7 67.4Q128.7 58.3 141.1 33.1Q117.1 47.6 109.7 67.4Z" />
+        <path d="M112.6 70.5Q132.1 68.2 149.2 48.6Q123.8 54.4 112.6 70.5Z" />
+        <path d="M113.9 74.1Q135.5 75.5 160.7 60.9Q131.6 61.6 113.9 74.1Z" />
+      </g>
+      <g className="relief__petal relief__petal--front">
+        <path d="M112.3 80.5Q125.6 92.6 148.4 88.0Q129.3 74.8 112.3 80.5Z" />
+        <path d="M111.0 84.8Q119.8 100.2 142.6 104.3Q128.8 85.7 111.0 84.8Z" />
+        <path d="M108.6 87.1Q111.8 103.4 131.7 111.4Q124.8 91.1 108.6 87.1Z" />
+        <path d="M105.1 90.3Q103.8 107.1 118.8 123.3Q117.9 101.2 105.1 90.3Z" />
+        <path d="M101.7 90.3Q96.5 107.0 106.7 127.6Q111.1 105.0 101.7 90.3Z" />
+        <path d="M97.0 91.3Q85.4 104.3 88.9 126.6Q101.8 108.0 97.0 91.3Z" />
+        <path d="M93.6 88.8Q79.2 98.6 74.4 121.0Q91.8 106.1 93.6 88.8Z" />
+        <path d="M89.1 85.9Q71.5 88.1 59.1 107.5Q81.5 101.9 89.1 85.9Z" />
+        <path d="M87.3 81.9Q69.8 79.1 51.2 93.1Q74.5 94.2 87.3 81.9Z" />
+        <path d="M86.8 77.3Q73.6 68.6 54.3 75.6Q72.7 84.6 86.8 77.3Z" />
+        <path d="M87.4 74.0Q76.7 62.3 56.2 64.2Q71.9 77.5 87.4 74.0Z" />
+        <path d="M90.6 69.8Q83.3 53.7 61.7 44.6Q73.6 64.8 90.6 69.8Z" />
+        <path d="M93.3 66.9Q92.6 49.7 74.9 36.1Q78.6 58.2 93.3 66.9Z" />
+        <path d="M96.0 65.0Q99.6 47.8 85.2 30.2Q83.3 52.9 96.0 65.0Z" />
+        <path d="M100.4 65.1Q109.8 51.8 101.3 32.8Q91.7 51.3 100.4 65.1Z" />
+        <path d="M105.3 66.3Q118.9 55.6 120.1 33.0Q104.1 49.0 105.3 66.3Z" />
+        <path d="M108.9 67.8Q124.4 61.9 131.9 41.4Q112.6 51.6 108.9 67.8Z" />
+        <path d="M111.0 71.2Q128.1 71.0 140.6 52.8Q118.7 55.9 111.0 71.2Z" />
+        <path d="M113.2 75.1Q128.8 79.8 146.3 67.9Q125.4 64.4 113.2 75.1Z" />
+      </g>
+
+      <circle className="relief__disc" cx="100" cy="78" r="14.2" />
+      <g className="relief__floret">
+        <circle cx="101.3" cy="78.0" r="1.53" />
+        <circle cx="98.4" cy="79.5" r="1.48" />
+        <circle cx="100.2" cy="75.2" r="1.44" />
+        <circle cx="102.0" cy="80.7" r="1.41" />
+        <circle cx="96.2" cy="77.3" r="1.38" />
+        <circle cx="103.6" cy="75.7" r="1.36" />
+        <circle cx="98.8" cy="82.4" r="1.34" />
+        <circle cx="97.7" cy="73.6" r="1.32" />
+        <circle cx="104.9" cy="79.8" r="1.3" />
+        <circle cx="94.9" cy="80.1" r="1.29" />
+        <circle cx="102.5" cy="72.7" r="1.27" />
+        <circle cx="101.8" cy="83.8" r="1.25" />
+        <circle cx="94.5" cy="74.8" r="1.24" />
+        <circle cx="106.4" cy="76.6" r="1.23" />
+        <circle cx="96.1" cy="83.6" r="1.21" />
+        <circle cx="99.1" cy="71.0" r="1.2" />
+        <circle cx="105.6" cy="82.7" r="1.19" />
+        <circle cx="92.5" cy="78.3" r="1.17" />
+        <circle cx="105.5" cy="72.6" r="1.16" />
+        <circle cx="99.6" cy="85.9" r="1.15" />
+        <circle cx="94.8" cy="71.8" r="1.14" />
+        <circle cx="108.3" cy="79.1" r="1.13" />
+        <circle cx="93.0" cy="82.9" r="1.12" />
+        <circle cx="101.9" cy="69.5" r="1.11" />
+        <circle cx="104.4" cy="85.7" r="1.09" />
+        <circle cx="91.4" cy="75.2" r="1.08" />
+        <circle cx="108.4" cy="74.1" r="1.07" />
+        <circle cx="96.4" cy="86.7" r="1.06" />
+        <circle cx="96.8" cy="69.0" r="1.06" />
+        <circle cx="108.6" cy="82.5" r="1.05" />
+        <circle cx="90.4" cy="80.5" r="1.04" />
+        <circle cx="105.5" cy="69.5" r="1.03" />
+        <circle cx="101.7" cy="88.1" r="1.02" />
+        <circle cx="91.8" cy="71.6" r="1.01" />
+        <circle cx="110.5" cy="77.1" r="1.0" />
+        <circle cx="92.7" cy="85.9" r="0.99" />
+        <circle cx="100.1" cy="67.1" r="0.98" />
+        <circle cx="107.4" cy="86.1" r="0.97" />
+        <circle cx="88.9" cy="77.0" r="0.97" />
+        <circle cx="109.0" cy="71.2" r="0.96" />
+        <circle cx="98.0" cy="89.2" r="0.95" />
+        <circle cx="93.8" cy="68.2" r="0.94" />
+        <circle cx="111.3" cy="81.1" r="0.93" />
+        <circle cx="89.5" cy="83.4" r="0.93" />
+        <circle cx="104.2" cy="66.8" r="0.92" />
+        <circle cx="104.6" cy="89.2" r="0.91" />
+        <circle cx="88.9" cy="72.8" r="0.9" />
+        <circle cx="111.8" cy="74.4" r="0.9" />
+        <circle cx="93.7" cy="88.8" r="0.89" />
+        <circle cx="97.3" cy="65.6" r="0.88" />
+        <circle cx="110.4" cy="85.4" r="0.87" />
+        <circle cx="87.2" cy="79.6" r="0.87" />
+        <circle cx="108.4" cy="68.1" r="0.86" />
+        <circle cx="100.5" cy="91.1" r="0.85" />
+      </g>
+    </svg>
+  )
+}
