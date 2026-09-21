@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { DAISY_BUMP_URL } from './daisyBump'
 
 /**
@@ -25,8 +26,8 @@ const MOUTH_MID_Y = 0.26
 const MOUTH_SIDE_Y = H / 2
 const POCKET_Z = -0.055 // how deep the envelope is
 
-const PAPER = 0xe6d8c6
-const PAPER_BACK = 0xdac9b5
+const PAPER = 0xd2bda2
+const PAPER_BACK = 0xc6b096
 
 export interface EnvelopeScene {
   open(): void
@@ -67,7 +68,10 @@ function shapeFrom(pts: [number, number][]) {
 function sheet(pts: [number, number][], depth = T) {
   const geo = new THREE.ExtrudeGeometry(shapeFrom(pts), {
     depth,
-    bevelEnabled: false,
+    bevelEnabled: true,
+    bevelSize: 0.0016,
+    bevelThickness: 0.0016,
+    bevelSegments: 2,
     curveSegments: 6,
   })
   boxUVs(geo)
@@ -189,11 +193,20 @@ export function createEnvelopeScene(
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.97
+  renderer.toneMappingExposure = 0.86
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
   const scene = new THREE.Scene()
+
+  // Without this every material falls back to flat diffuse shading, however
+  // its roughness is set — there is simply nothing for it to reflect. A small
+  // room, prefiltered, gives the stock something to pick up along its folds
+  // and edges, and is most of what separates paper from clay.
+  const pmrem = new THREE.PMREMGenerator(renderer)
+  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04)
+  scene.environment = envRT.texture
+  scene.environmentIntensity = 0.32
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40)
 
   // ── Textures ──────────────────────────────────────────────────
@@ -212,34 +225,53 @@ export function createEnvelopeScene(
   daisy.repeat.set(1 / dW, 1 / dH)
   daisy.offset.set(-(1 - dW) / 2 / dW, -0.1 / dH)
 
-  const paperMat = new THREE.MeshStandardMaterial({
+  const paperMat = new THREE.MeshPhysicalMaterial({
     color: PAPER,
-    roughness: 0.94,
+    roughness: 0.62,
     metalness: 0,
+    sheen: 1,
+    sheenRoughness: 0.72,
+    sheenColor: new THREE.Color(0xfff2dd),
+    specularIntensity: 0.35,
     bumpMap: grain,
-    bumpScale: 0.7,
+    bumpScale: 0.55,
     side: THREE.DoubleSide,
   })
-  const backMat = new THREE.MeshStandardMaterial({
+  const backMat = new THREE.MeshPhysicalMaterial({
     color: PAPER_BACK,
-    roughness: 0.96,
+    roughness: 0.66,
     metalness: 0,
+    sheen: 1,
+    sheenRoughness: 0.72,
+    sheenColor: new THREE.Color(0xfff2dd),
+    specularIntensity: 0.35,
     bumpMap: grain,
-    bumpScale: 0.6,
+    bumpScale: 0.5,
     side: THREE.DoubleSide,
   })
   // The flap carries the flower as well as the tooth of the stock.
-  const flapMat = new THREE.MeshStandardMaterial({
+  const flapMat = new THREE.MeshPhysicalMaterial({
     color: PAPER,
-    roughness: 0.93,
+    roughness: 0.6,
     metalness: 0,
+    sheen: 1,
+    sheenRoughness: 0.72,
+    sheenColor: new THREE.Color(0xfff2dd),
+    specularIntensity: 0.35,
     bumpMap: daisy,
     bumpScale: 5.5,
     side: THREE.DoubleSide,
   })
 
+  // Two nested groups: the outer one holds the resting attitude and the
+  // drift, the inner one is the envelope's own space so the opening maths
+  // stays in plain XY.
+  const pose = new THREE.Group()
+  pose.rotation.set(-0.055, -0.105, 0.02)
+  scene.add(pose)
+
   const envelope = new THREE.Group()
-  scene.add(envelope)
+  pose.add(envelope)
 
   // ── The envelope as a pocket ──────────────────────────────────
   // An envelope is not a slab. It is two walls with a gap between them, and
@@ -250,17 +282,26 @@ export function createEnvelopeScene(
   //   near wall  the side flaps and bottom flap, glued into a pocket
   //   flap       hinged at the top edge, lying over the mouth when shut
 
+  // Inset from the outer silhouette on purpose. Its only job is to be the
+  // surface seen through the throat, and once the envelope is turned at all
+  // a full-size inner wall projects out past the near one and shows up as a
+  // wedge of envelope interior along the outside edge.
+  const FW = W * 0.9
+  const FH = H * 0.9
   const far = new THREE.Mesh(
     sheet([
-      [-W / 2, -H / 2],
-      [W / 2, -H / 2],
-      [W / 2, H / 2],
-      [-W / 2, H / 2],
+      [-FW / 2, -FH / 2],
+      [FW / 2, -FH / 2],
+      [FW / 2, FH / 2],
+      [-FW / 2, FH / 2],
     ]),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshPhysicalMaterial({
       color: 0x8c775f,
-      roughness: 0.99,
+      roughness: 0.78,
       metalness: 0,
+      sheen: 0.6,
+      sheenRoughness: 0.8,
+      sheenColor: new THREE.Color(0xffe9c8),
       bumpMap: grain,
       bumpScale: 0.5,
       side: THREE.DoubleSide,
@@ -287,13 +328,19 @@ export function createEnvelopeScene(
   envelope.add(near)
 
   // The side flaps' inner edges, which give the back its two diagonals.
+  const tint = (mat: THREE.MeshPhysicalMaterial, hex: number) => {
+    const m = mat.clone()
+    m.color = new THREE.Color(hex)
+    return m
+  }
+
   const sideL = new THREE.Mesh(
     sheet([
       [-W / 2, MOUTH_SIDE_Y],
       [-0.008, TIP_Y - 0.03],
       [-W / 2, -H / 2],
     ]),
-    paperMat,
+    tint(paperMat, 0xd7c3a8),
   )
   sideL.position.z = T
   sideL.castShadow = true
@@ -306,7 +353,7 @@ export function createEnvelopeScene(
       [0.01, TIP_Y - 0.036],
       [W / 2, -H / 2],
     ]),
-    paperMat,
+    tint(paperMat, 0xc9b399),
   )
   sideR.position.z = T
   sideR.castShadow = true
@@ -321,7 +368,7 @@ export function createEnvelopeScene(
       [W * 0.3, TIP_Y - 0.06],
       [-W * 0.3, TIP_Y - 0.066],
     ]),
-    paperMat,
+    tint(paperMat, 0xccb69c),
   )
   bottom.position.z = T * 2
   bottom.castShadow = true
@@ -350,10 +397,12 @@ export function createEnvelopeScene(
   hinge.add(flap)
 
   // ── Wax ───────────────────────────────────────────────────────
-  const waxMat = new THREE.MeshStandardMaterial({
-    color: 0xb08a55,
-    roughness: 0.48,
-    metalness: 0.22,
+  const waxMat = new THREE.MeshPhysicalMaterial({
+    color: 0xa8763c,
+    roughness: 0.34,
+    metalness: 0.35,
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.45,
     bumpMap: waxDieTexture(),
     bumpScale: 2.6,
   })
@@ -385,7 +434,7 @@ export function createEnvelopeScene(
 
   // ── Light ─────────────────────────────────────────────────────
   // One warm key from the upper left decides every shadow in the frame.
-  const key = new THREE.DirectionalLight(0xfff0d8, 2.5)
+  const key = new THREE.DirectionalLight(0xfff0d8, 1.55)
   key.position.set(-1.7, 2.1, 2.6)
   key.castShadow = true
   key.shadow.mapSize.set(768, 768)
@@ -399,11 +448,18 @@ export function createEnvelopeScene(
   key.shadow.radius = 3
   scene.add(key)
 
-  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.35)
+  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.16)
   fill.position.set(2.2, -0.6, 1.4)
   scene.add(fill)
 
-  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x4a3c30, 0.55))
+  // Separates the silhouette from the ground behind it. Without a rim the
+  // envelope's outline dissolves into the backdrop and it stops being an
+  // object sitting in front of something.
+  const rim = new THREE.DirectionalLight(0xffe2b4, 0.95)
+  rim.position.set(1.6, 1.4, -2.2)
+  scene.add(rim)
+
+  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x4a3c30, 0.16))
 
   // The light shut inside the envelope. Dark until the flap gives.
   const inside = new THREE.PointLight(0xffcf8c, 0, 2.2, 2)
@@ -415,14 +471,14 @@ export function createEnvelopeScene(
   // width hard — which is exactly the close-in framing the whole thing is
   // built around — and on a landscape one it leaves the surface visible
   // around it.
-  const LOOK_Y = 0.093
+  const LOOK_Y = 0.075
   let baseZ = 3
   function frame() {
     const w = canvas.clientWidth || window.innerWidth
     const h = canvas.clientHeight || window.innerHeight
     renderer.setSize(w, h, false)
     camera.aspect = w / h
-    const coverH = H * 0.82
+    const coverH = H * 0.74
     baseZ = coverH / 2 / Math.tan((camera.fov * Math.PI) / 360)
     camera.position.set(0, LOOK_Y, baseZ * zoom)
     camera.lookAt(0, LOOK_Y, 0)
@@ -458,8 +514,18 @@ export function createEnvelopeScene(
     raf = requestAnimationFrame(tick)
     const dt = Math.min(clock.getDelta(), 0.05)
 
-    px += (tx - px) * Math.min(1, dt * 3)
-    py += (ty - py) * Math.min(1, dt * 3)
+    px += (tx - px) * Math.min(1, dt * 2.6)
+    py += (ty - py) * Math.min(1, dt * 2.6)
+
+    // Left alone it keeps moving, slowly and off-rhythm on each axis so the
+    // loop never announces itself. This is most of what makes the thing feel
+    // held rather than printed.
+    const now = performance.now() / 1000
+    const idle = opening ? 0 : 1
+    pose.rotation.x = -0.055 + (py * 0.1 + Math.sin(now * 0.41) * 0.022) * idle
+    pose.rotation.y = -0.105 + (px * 0.22 + Math.sin(now * 0.29 + 1.3) * 0.03) * idle
+    pose.rotation.z = 0.02 + Math.sin(now * 0.23 + 2.1) * 0.012 * idle
+    pose.position.y = Math.sin(now * 0.35) * 0.012 * idle
 
     if (opening) {
       const t = (performance.now() - t0) / 1000
@@ -481,6 +547,14 @@ export function createEnvelopeScene(
       // And the light that was shut inside comes up.
       inside.intensity = clamp01((t - 0.5) / 0.9) * 3.4
 
+      // The pose comes square as it opens: a tilted envelope is a nice
+      // object to look at, but a crooked doorway to walk through.
+      const settle = ease(clamp01((t - 0.2) / 1.1))
+      pose.rotation.x = -0.055 * (1 - settle)
+      pose.rotation.y = -0.105 * (1 - settle)
+      pose.rotation.z = 0.02 * (1 - settle)
+      pose.position.y = 0
+
       // The camera gives ground first, so the flap is actually watched
       // opening, and only then dives through the mouth. Pushing in from the
       // start would hold the fold above the top of the frame the whole way.
@@ -498,11 +572,10 @@ export function createEnvelopeScene(
       }
     }
 
-    // Parallax is held back once the sequence is running — two motions
-    // fighting over the camera reads as drift, not depth.
-    const damp = opening ? 0 : 1
-    camera.position.x = px * 0.07 * damp
-    camera.position.y = LOOK_Y - py * 0.05 * damp
+    // The pose carries the parallax now, so the camera only ever dollies.
+    // Moving both at once reads as drift rather than depth.
+    camera.position.x = 0
+    camera.position.y = LOOK_Y
     camera.position.z = baseZ * zoom
     camera.lookAt(0, LOOK_Y, 0)
 
