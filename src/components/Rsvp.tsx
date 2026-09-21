@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { MagneticButton } from './MagneticButton'
-import { couple } from '../data/content'
+import { couple, rsvp as rsvpInfo } from '../data/content'
 import './Rsvp.css'
 
 type Status = 'idle' | 'submitting' | 'success' | 'error'
@@ -58,6 +58,7 @@ export function Rsvp({ open, onClose }: RsvpProps) {
           from_name: 'Wedding Website',
           name: data.get('name'),
           email: data.get('email'),
+          phone: data.get('phone') || '—',
           attending:
             data.get('attending') === 'yes' ? 'Joyfully accepts' : 'Regretfully declines',
           guests: data.get('guests') ?? '—',
@@ -169,6 +170,23 @@ export function Rsvp({ open, onClose }: RsvpProps) {
                     <input type="email" name="email" required autoComplete="email" placeholder="you@example.com" />
                   </label>
 
+                  <label className="rsvp__field">
+                    <span>
+                      Mobile number
+                      {attending === 'no' && (
+                        <em className="rsvp__optional"> (optional)</em>
+                      )}
+                    </span>
+                    <input
+                      type="tel"
+                      name="phone"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required={attending === 'yes'}
+                      placeholder="0917 123 4567"
+                    />
+                  </label>
+
                   <fieldset className="rsvp__attend">
                     <legend>Will you be attending?</legend>
                     <div className="rsvp__attend-options">
@@ -224,6 +242,8 @@ export function Rsvp({ open, onClose }: RsvpProps) {
                       'Send reply'
                     )}
                   </MagneticButton>
+
+                  <p className="rsvp__deadline">{rsvpInfo.note}</p>
 
                   {status === 'error' && (
                     <p className="rsvp__error" role="alert">

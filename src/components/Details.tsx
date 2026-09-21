@@ -1,4 +1,5 @@
-import { details, dressCode, couple } from '../data/content'
+import { details, dressCode, couple, venue } from '../data/content'
+import { downloadWeddingIcs } from '../lib/calendar'
 import { Reveal, StaggerText } from './Reveal'
 import './Details.css'
 
@@ -35,6 +36,33 @@ export function Details() {
             </Reveal>
           ))}
         </div>
+
+        {/* Both halves of the day are at the same address, so the two things
+            a guest actually needs from this section sit once, under the pair,
+            rather than twice over. */}
+        <Reveal delay={0.3}>
+          <div className="details__actions">
+            <a
+              className="details__action"
+              href={venue.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" />
+                <circle cx="12" cy="10" r="2.6" />
+              </svg>
+              Get directions
+            </a>
+            <button className="details__action" onClick={downloadWeddingIcs}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15" rx="2.2" />
+                <path d="M3.5 10h17M8 3.5v3M16 3.5v3" />
+              </svg>
+              Add to calendar
+            </button>
+          </div>
+        </Reveal>
 
         <Reveal delay={0.2}>
           <div className="details__attire">

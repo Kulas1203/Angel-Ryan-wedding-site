@@ -1,4 +1,38 @@
-export const WEDDING_DATE = new Date('2026-10-29T15:00:00')
+// Three in the afternoon in Butuan City. The offset is explicit on purpose:
+// without it the browser reads the string in its own timezone, so a guest
+// watching from abroad gets a countdown to three o'clock where they are
+// standing rather than to the ceremony.
+export const WEDDING_DATE = new Date('2026-10-29T15:00:00+08:00')
+
+/** Everything the "Add to calendar" button needs. */
+export const calendarEvent = {
+  title: 'Ryan & Angel’s Wedding',
+  start: WEDDING_DATE,
+  // Ceremony at three, dinner and dancing after; five hours covers the day.
+  end: new Date('2026-10-29T20:00:00+08:00'),
+  location: 'Pavillion Watergate, Butuan City, Philippines',
+  description:
+    'Together with their families, Ryan & Angel invite you to celebrate their wedding. Ceremony at three o’clock, with dinner and dancing to follow at the same venue.',
+  url: 'https://ryan-angel-wedding.vercel.app/',
+  uid: 'ryan-angel-wedding-2026-10-29@ryan-angel-wedding.vercel.app',
+}
+
+export const venue = {
+  name: 'Pavillion Watergate',
+  city: 'Butuan City',
+  // A search link rather than a dropped pin: it resolves in the Maps app on
+  // a phone and on the web, and does not depend on coordinates that have not
+  // been confirmed.
+  mapsUrl:
+    'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent('Pavillion Watergate, Butuan City, Philippines'),
+}
+
+export const rsvp = {
+  deadlineLabel: 'the twenty-ninth of August',
+  deadlineShort: 'August 29, 2026',
+  note: 'Kindly reply by August 29, 2026 so we can plan the day around you.',
+}
 
 export const couple = {
   names: 'Ryan & Angel',

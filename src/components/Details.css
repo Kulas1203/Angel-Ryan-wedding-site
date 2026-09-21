@@ -78,6 +78,59 @@
   margin-inline: auto;
 }
 
+.details__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.7rem, 2vw, 1.1rem);
+  margin-top: clamp(2.2rem, 5vw, 3.2rem);
+}
+
+.details__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--alabaster);
+  border: 1px solid rgba(250, 253, 246, 0.28);
+  border-radius: 999px;
+  /* Tall enough to be a comfortable tap target on a phone. */
+  padding: 0.95rem 1.7rem;
+  min-height: 46px;
+  transition:
+    border-color 0.4s ease,
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+.details__action:hover {
+  border-color: var(--sage);
+  background: rgba(156, 176, 140, 0.16);
+}
+
+.details__action svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  fill: none;
+  stroke: var(--sage);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 420px) {
+  .details__action {
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    padding-inline: 1.3rem;
+  }
+}
+
 .details__attire {
   margin-top: clamp(4rem, 8vw, 6rem);
   text-align: center;

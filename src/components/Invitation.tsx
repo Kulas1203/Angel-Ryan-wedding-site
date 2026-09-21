@@ -1,4 +1,4 @@
-import { couple, invitation } from '../data/content'
+import { couple, invitation, rsvp } from '../data/content'
 import { MagneticButton } from './MagneticButton'
 import { Reveal, StaggerText } from './Reveal'
 import './Invitation.css'
@@ -89,6 +89,9 @@ export function Invitation({ onRsvp }: InvitationProps) {
               <MagneticButton className="invitation__cta" onClick={onRsvp}>
                 Kindly RSVP
               </MagneticButton>
+              <p className="invitation__deadline">
+                Kindly reply by {rsvp.deadlineShort}
+              </p>
               <p className="invitation__hashtag">{couple.hashtag}</p>
             </div>
           </div>

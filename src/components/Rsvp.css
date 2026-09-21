@@ -91,6 +91,21 @@
   color: rgba(139, 133, 122, 0.6);
 }
 
+.rsvp__optional {
+  font-style: normal;
+  letter-spacing: 0.18em;
+  color: rgba(126, 136, 119, 0.8);
+}
+
+.rsvp__deadline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 40ch;
+}
+
 .rsvp__attend {
   border: none;
   display: flex;
