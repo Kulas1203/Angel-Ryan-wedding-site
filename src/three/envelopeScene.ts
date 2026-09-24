@@ -1,32 +1,50 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { drawSealSprig, drawSprig } from './botanical'
 
 /**
- * The sealed envelope, as an actual object in a lit scene.
+ * The sealed envelope: the photograph itself, mapped onto geometry that can
+ * open.
  *
- * The flap is hinged geometry that turns on its fold, the daisy is a height
- * field the key light rakes across, and the wax is a bevelled solid. None of
- * it is painted: move the camera and every highlight and shadow moves with
- * it, which is the part a stack of CSS gradients can never do.
+ * The stock, the printed gold, the wax and every highlight on them are the
+ * supplied image — nothing here redraws any of it. What the scene adds is the
+ * one thing a photograph cannot do: the flap is its own mesh on a hinge, the
+ * seal is its own sprite, and the card slides out from behind the paper.
  *
- * Units are envelope widths. The paper is 1.45 x 1.0 with a 0.62 flap, which
- * is roughly a squat invitation envelope.
+ * Sealed, the flap samples exactly the pixels it covers, so its outline is
+ * invisible and the frame is the image. The parts the photograph cannot show
+ * — the inside of the envelope, and the paper beneath the wax — are the only
+ * places anything is invented, and both are hidden until the seal breaks.
+ *
+ * Units are envelope widths, taken from the image.
  */
 
-const W = 1.45
+// The envelope's rectangle inside the photograph, in its own pixels, and the
+// landmarks measured off it.
+const ART = {
+  url: '/images/envelope.webp',
+  x: 160,
+  y: 113,
+  w: 1218,
+  h: 799,
+  /** The flap's point, as a fraction of the envelope's height. */
+  flapDrop: 0.6997,
+  /** Its rounded shoulders, as a fraction of the width. */
+  shoulder: 0.072,
+  /** The wax, centred on the flap's point. */
+  sealX: 768,
+  sealY: 573,
+  sealR: 105,
+  /** The ground it was photographed on. */
+  ground: '#dcd5cc',
+}
+
+const W = ART.w / ART.h
 const H = 1.0
 const T = 0.006 // paper thickness
-const FLAP_DROP = 0.62 * H // how far the pointed flap reaches down
+const FLAP_DROP = ART.flapDrop * H
 const FLAP_HINGE_Y = H / 2
-const TIP_Y = FLAP_HINGE_Y - FLAP_DROP
-// The mouth of the pocket: a shallow V, low at the centre. The flap's tip
-// reaches below it, which is what holds a card in.
 
-const CARD_W = W * 0.93
-const CARD_H = H * 0.88
-
-const PAPER_HEX = '#87977a'
+const CARD_W = W * 0.9
+const CARD_H = H * 0.86
 
 export interface EnvelopeScene {
   open(): void
@@ -34,10 +52,28 @@ export interface EnvelopeScene {
 }
 
 interface Options {
+  /** Called once the photograph has loaded and the first frame is drawn. */
+  onReady?: () => void
   /** Called once the light has taken the frame. */
   onRevealed?: () => void
   /** Called when the whole sequence is finished and the canvas can go. */
   onFinished?: () => void
+}
+
+/**
+ * Maps a geometry onto the photograph by where it sits on the envelope, not
+ * by its own extent. Two meshes that overlap in envelope space therefore
+ * sample the same pixels — which is what lets the closed flap vanish into the
+ * paper behind it.
+ */
+function artUVs(geo: THREE.BufferGeometry, offsetY = 0) {
+  const pos = geo.attributes.position
+  const uv = new Float32Array(pos.count * 2)
+  for (let i = 0; i < pos.count; i++) {
+    uv[i * 2] = (pos.getX(i) + W / 2) / W
+    uv[i * 2 + 1] = (pos.getY(i) + offsetY + H / 2) / H
+  }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
 }
 
 /** Maps a geometry's UVs onto its own bounding box, 0..1 in both axes. */
@@ -129,108 +165,108 @@ function sheet(pts: [number, number][], depth = T) {
 }
 
 /**
- * The wax: a near-round blob with a few lobes where the drop ran further and
- * a ragged set edge, bevelled so the lip catches light. A perfect cylinder
- * reads as a stamped button rather than something poured.
- */
-function waxShape(r = 0.066) {
-  const pts: [number, number][] = []
-  let seed = 7723
-  const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
-  const harm = [2, 3, 5].map((k) => ({ k, amp: (rnd() * 0.02 + 0.012) * (3 / k), ph: rnd() * Math.PI * 2 }))
-  const lobes = [
-    { at: 0.16, amp: 0.045, w: 0.07 },
-    { at: 0.55, amp: 0.058, w: 0.055 },
-    { at: 0.81, amp: 0.034, w: 0.085 },
-  ]
-  for (let i = 0; i < 64; i++) {
-    const t = i / 64
-    const a = t * Math.PI * 2
-    let rr = 1
-    for (const h of harm) rr += h.amp * Math.sin(h.k * a + h.ph)
-    for (const l of lobes) {
-      let d = Math.abs(t - l.at)
-      d = Math.min(d, 1 - d)
-      rr += l.amp * Math.exp(-((d / l.w) ** 2))
-    }
-    rr += (rnd() - 0.5) * 0.02
-    pts.push([Math.cos(a) * r * rr, Math.sin(a) * r * rr])
-  }
-  return shapeFrom(pts)
-}
-
-/** A canvas of the bare stock, ready to be printed on. */
-function stock(w: number, h: number) {
-  const c = document.createElement('canvas')
-  c.width = w
-  c.height = h
-  const ctx = c.getContext('2d')!
-  ctx.fillStyle = PAPER_HEX
-  ctx.fillRect(0, 0, w, h)
-  return { c, ctx }
-}
-
-function canvasTex(c: HTMLCanvasElement) {
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
-  t.anisotropy = 8
-  return t
-}
-
-/**
- * The flap's face: the stock with one sprig inside the upper-left shoulder.
+ * Cuts the photograph into the pieces the scene needs.
  *
- * The canvas is laid across the flap's bounding box, and CanvasTexture flips
- * on load, so the top of the canvas is the top of the flap and the art can be
- * placed by eye.
+ * Three things come out of it:
+ *
+ *   paper   the envelope, with the wax painted out — the flap and the body
+ *           both sample this, so while the flap is shut it is invisible
+ *   seal    the wax on its own, with a soft round alpha, free to lift away
+ *   mouth   the inside, which the photograph cannot show and which is
+ *           therefore the one invented surface, hidden until the flap moves
+ *
+ * Painting the wax out matters: it straddles the flap's point and the body,
+ * so left in the texture it would tear in half the moment the flap turned.
+ * The patch is a radial smear from a ring of real pixels just outside the
+ * wax, which on paper this even is indistinguishable from the stock.
  */
-function flapFace() {
-  const w = 1400
-  const h = Math.round(w * (FLAP_DROP / W))
-  const { c, ctx } = stock(w, h)
-  drawSprig(ctx, w * 0.135, h * 0.3, w * 0.185, -0.3, 91)
-  return canvasTex(c)
-}
+function cutArt(img: HTMLImageElement) {
+  const { x, y, w, h, sealX, sealY, sealR } = ART
 
-/** The body, with the larger sprig low on the right where the flap's edge
-    leaves the stock bare. */
-function frontFace() {
-  const w = 1400
-  const h = Math.round(w * (H / W))
-  const { c, ctx } = stock(w, h)
+  const paper = document.createElement('canvas')
+  paper.width = w
+  paper.height = h
+  const pc = paper.getContext('2d')!
+  pc.drawImage(img, x, y, w, h, 0, 0, w, h)
 
-  // This is the back of the envelope — it has to be, or there would be no
-  // flap to open — so the two side flaps folded in underneath show as faint
-  // creases converging below the seal. Each is drawn as a shadow with a lit
-  // side beside it, because that is all a crease in paper is.
-  ctx.lineWidth = Math.max(1.5, w * 0.0014)
-  const crease = (x0: number, y0: number, x1: number, y1: number) => {
-    ctx.strokeStyle = 'rgba(58, 70, 50, 0.16)'
-    ctx.beginPath()
-    ctx.moveTo(x0, y0)
-    ctx.lineTo(x1, y1)
-    ctx.stroke()
-    ctx.strokeStyle = 'rgba(232, 240, 220, 0.16)'
-    ctx.beginPath()
-    ctx.moveTo(x0, y0 + ctx.lineWidth)
-    ctx.lineTo(x1, y1 + ctx.lineWidth)
-    ctx.stroke()
+  // The wax, lifted before it is painted over. It is taken with room around
+  // it, because the wax casts a shadow onto the paper and the shadow has to
+  // travel with it — left behind, it would sit there as a grey ring after the
+  // seal had gone.
+  const KEEP = sealR * 1.34 // how much of the photograph goes with the wax
+  const PATCH = sealR * 1.3 // how much of the paper is repainted
+  const RING = sealR * 1.5 // where the paper is sampled from
+  const sd = Math.ceil(KEEP * 2)
+  const seal = document.createElement('canvas')
+  seal.width = seal.height = sd
+  const sc = seal.getContext('2d')!
+  sc.drawImage(img, sealX - sd / 2, sealY - sd / 2, sd, sd, 0, 0, sd, sd)
+  sc.globalCompositeOperation = 'destination-in'
+  const fade = sc.createRadialGradient(sd / 2, sd / 2, PATCH, sd / 2, sd / 2, KEEP)
+  fade.addColorStop(0, 'rgba(0,0,0,1)')
+  fade.addColorStop(1, 'rgba(0,0,0,0)')
+  sc.fillStyle = fade
+  sc.fillRect(0, 0, sd, sd)
+
+  // Now the patch. Sample a ring of paper outside the wax and sweep each
+  // sample inward; then blur what that produced and lay it back inside a
+  // feathered circle. The smear alone leaves spokes — the paper around the
+  // wax is not one flat colour — and the blur is what turns them back into
+  // stock, which under a seal is all this ever needs to be.
+  const cx = sealX - x
+  const cy = sealY - y
+  const spokes = 720
+  const patch = document.createElement('canvas')
+  patch.width = patch.height = Math.ceil(PATCH * 2)
+  const qc = patch.getContext('2d')!
+  qc.translate(PATCH, PATCH)
+  for (let i = 0; i < spokes; i++) {
+    const a = (i / spokes) * Math.PI * 2
+    const ux = Math.cos(a)
+    const uy = Math.sin(a)
+    const sx2 = Math.max(0, Math.min(w - 1, Math.round(cx + ux * RING)))
+    const sy2 = Math.max(0, Math.min(h - 1, Math.round(cy + uy * RING)))
+    const d = pc.getImageData(sx2, sy2, 1, 1).data
+    qc.strokeStyle = `rgb(${d[0]},${d[1]},${d[2]})`
+    qc.lineWidth = (Math.PI * 2 * PATCH) / spokes + 3
+    qc.lineCap = 'round'
+    qc.beginPath()
+    qc.moveTo(ux * PATCH, uy * PATCH)
+    qc.lineTo(-ux * 2, -uy * 2)
+    qc.stroke()
   }
-  crease(0, h * 0.29, w * 0.5, h * 0.82)
-  crease(w, h * 0.29, w * 0.5, h * 0.82)
+  qc.setTransform(1, 0, 0, 1, 0, 0)
+  qc.globalCompositeOperation = 'destination-in'
+  const soft = qc.createRadialGradient(PATCH, PATCH, PATCH * 0.62, PATCH, PATCH, PATCH)
+  soft.addColorStop(0, 'rgba(0,0,0,1)')
+  soft.addColorStop(1, 'rgba(0,0,0,0)')
+  qc.fillStyle = soft
+  qc.fillRect(0, 0, PATCH * 2, PATCH * 2)
+  pc.save()
+  pc.filter = `blur(${Math.round(sealR * 0.2)}px)`
+  pc.drawImage(patch, cx - PATCH, cy - PATCH)
+  pc.restore()
 
-  drawSprig(ctx, w * 0.945, h * 0.95, w * 0.2, -2.05, 17)
-  return canvasTex(c)
-}
+  // The inside of the envelope: the same stock, in shadow, darkest at the
+  // fold where the least light reaches.
+  const mouth = document.createElement('canvas')
+  mouth.width = 64
+  mouth.height = 256
+  const mc = mouth.getContext('2d')!
+  const g = mc.createLinearGradient(0, 0, 0, 256)
+  g.addColorStop(0, '#3c4835')
+  g.addColorStop(0.45, '#4e5c45')
+  g.addColorStop(1, '#67765b')
+  mc.fillStyle = g
+  mc.fillRect(0, 0, 64, 256)
 
-/** The small gold sprig struck into the middle of the wax. */
-function sealEmblemTexture() {
-  const s = 320
-  const c = document.createElement('canvas')
-  c.width = c.height = s
-  const ctx = c.getContext('2d')!
-  drawSealSprig(ctx, s * 0.5, s * 0.87, s * 0.74)
-  return canvasTex(c)
+  const tex = (c: HTMLCanvasElement) => {
+    const t = new THREE.CanvasTexture(c)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.anisotropy = 8
+    return t
+  }
+  return { paper: tex(paper), seal: tex(seal), mouth: tex(mouth) }
 }
 
 /** The invitation's printed face, so the card that rises out says something. */
@@ -305,59 +341,22 @@ export function createEnvelopeScene(
   })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.outputColorSpace = THREE.SRGBColorSpace
-  renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.92
+  // No tone mapping and no relighting. The photograph already carries its own
+  // light, and any second pass over it would be a second opinion about how
+  // the paper looked — the colour on screen is the colour in the file.
+  renderer.toneMapping = THREE.NoToneMapping
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
   const scene = new THREE.Scene()
-
-  // Without this every material falls back to flat diffuse shading, however
-  // its roughness is set — there is simply nothing for it to reflect. A small
-  // room, prefiltered, gives the stock something to pick up along its folds
-  // and edges, and is most of what separates paper from clay.
-  const pmrem = new THREE.PMREMGenerator(renderer)
-  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04)
-  scene.environment = envRT.texture
-  scene.environmentIntensity = 0.3
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40)
 
-  // ── Textures ──────────────────────────────────────────────────
-  const loader = new THREE.TextureLoader()
-  const grain = loader.load('/images/paper-grain.png')
-  grain.wrapS = grain.wrapT = THREE.RepeatWrapping
-  grain.repeat.set(3, 2)
-  grain.colorSpace = THREE.NoColorSpace
-
-  const printed = { flap: flapFace(), front: frontFace() }
-
-  const paperMat = new THREE.MeshPhysicalMaterial({
-    map: printed.front,
-    color: 0xffffff,
-    roughness: 0.62,
-    metalness: 0,
-    sheen: 0.35,
-    sheenRoughness: 0.85,
-    sheenColor: new THREE.Color(0xf6ecd8),
-    specularIntensity: 0.22,
-    bumpMap: grain,
-    bumpScale: 0.55,
-    side: THREE.DoubleSide,
-  })
-  // The flap carries its own sprig, so it needs its own map.
-  const flapMat = new THREE.MeshPhysicalMaterial({
-    map: printed.flap,
-    color: 0xffffff,
-    roughness: 0.6,
-    metalness: 0,
-    sheen: 0.35,
-    sheenRoughness: 0.85,
-    sheenColor: new THREE.Color(0xf6ecd8),
-    specularIntensity: 0.22,
-    bumpMap: grain,
-    bumpScale: 0.5,
-    side: THREE.DoubleSide,
-  })
+  // ── The photograph, in pieces ─────────────────────────────────
+  // Unlit throughout, so every mesh shows its pixels exactly. Meshes still
+  // cast shadows: the shadow pass uses depth, not the surface material.
+  const paperMat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
+  const flapMat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
+  const mouthMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
 
   // Two nested groups: the outer one holds the resting attitude and the
   // drift, the inner one is the envelope's own space so the opening maths
@@ -389,108 +388,54 @@ export function createEnvelopeScene(
       [CARD_W / 2, CARD_H / 2],
       [-CARD_W / 2, CARD_H / 2],
     ]),
-    new THREE.MeshPhysicalMaterial({
-      color: 0xfbf7ec,
-      roughness: 0.7,
-      metalness: 0,
-      sheen: 0.8,
-      sheenRoughness: 0.7,
-      sheenColor: new THREE.Color(0xfffaf0),
-      map: cardFace(),
-      bumpMap: grain,
-      bumpScale: 0.35,
-      side: THREE.DoubleSide,
-    }),
+    new THREE.MeshBasicMaterial({ map: cardFace(), side: THREE.DoubleSide }),
   )
   card.position.z = -0.02
   card.castShadow = true
   envelope.add(card)
 
-  const front = new THREE.Mesh(
-    sheet([
-      [-W / 2, -H / 2],
-      [W / 2, -H / 2],
-      [W / 2, H / 2],
-      [-W / 2, H / 2],
-    ]),
-    paperMat,
-  )
+  const frontGeo = sheet([
+    [-W / 2, -H / 2],
+    [W / 2, -H / 2],
+    [W / 2, H / 2],
+    [-W / 2, H / 2],
+  ])
+  artUVs(frontGeo)
+  const front = new THREE.Mesh(frontGeo, paperMat)
   front.castShadow = true
-  front.receiveShadow = true
   envelope.add(front)
+
+  // The inside, over the area the flap covers. Transparent until the flap
+  // starts to turn, then it is what the photograph could not show.
+  const mouthGeo = extrude(flapShape(), 0.001)
+  const mouth = new THREE.Mesh(mouthGeo, mouthMat)
+  mouth.position.set(0, FLAP_HINGE_Y, T + 0.003)
+  envelope.add(mouth)
 
   // ── The pointed flap, on its hinge ────────────────────────────
   const hinge = new THREE.Group()
   hinge.position.set(0, FLAP_HINGE_Y, 0.012)
   envelope.add(hinge)
 
-  const flap = new THREE.Mesh(extrude(flapShape()), flapMat)
+  const flapGeo = extrude(flapShape())
+  // Offset by the hinge, because the flap's own coordinates start there.
+  artUVs(flapGeo, FLAP_HINGE_Y)
+  const flap = new THREE.Mesh(flapGeo, flapMat)
   flap.position.z = 0.01
   flap.castShadow = true
   flap.receiveShadow = true
   hinge.add(flap)
 
   // ── Wax ───────────────────────────────────────────────────────
-  const waxMat = new THREE.MeshPhysicalMaterial({
-    color: 0x4d6146,
-    roughness: 0.34,
-    metalness: 0.06,
-    clearcoat: 0.35,
-    clearcoatRoughness: 0.45,
-    bumpMap: grain,
-    bumpScale: 0.3,
-  })
-  const SEAL_R = 0.075
-  const waxGeo = new THREE.ExtrudeGeometry(waxShape(SEAL_R), {
-    depth: 0.012,
-    bevelEnabled: true,
-    bevelSize: 0.007,
-    bevelThickness: 0.006,
-    bevelSegments: 5,
-    curveSegments: 3,
-  })
-  boxUVs(waxGeo)
-
-  // The wax is one object that moves as one, so the disc, its bead and the
-  // emblem are parented together rather than having their transforms copied
-  // frame by frame.
-  const wax = new THREE.Group()
-  const waxDisc = new THREE.Mesh(waxGeo, waxMat)
-  waxDisc.castShadow = true
-  wax.add(waxDisc)
-
-  // The bead: wax that squeezed out under the die and set proud of the rim.
-  // It is the single feature that most distinguishes a struck seal from a
-  // printed dot, so it is real geometry rather than a highlight.
-  const bead = new THREE.Mesh(
-    new THREE.TorusGeometry(SEAL_R * 0.845, SEAL_R * 0.125, 12, 64),
-    waxMat,
-  )
-  bead.position.z = 0.019
-  bead.castShadow = true
-  wax.add(bead)
-
-  wax.position.set(0, TIP_Y + 0.008, 0.03)
-  wax.rotation.z = -0.09
+  // Lifted straight out of the photograph and given a plane of its own, so it
+  // can break away while the paper it was holding down stays put.
+  const SEAL_R = (ART.sealR * 1.34) / ART.h
+  const waxMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false })
+  const wax = new THREE.Mesh(new THREE.PlaneGeometry(SEAL_R * 2, SEAL_R * 2), waxMat)
+  const SEAL_X = ((ART.sealX - ART.x) / ART.w) * W - W / 2
+  const SEAL_Y = H / 2 - ((ART.sealY - ART.y) / ART.h) * H
+  wax.position.set(SEAL_X, SEAL_Y, 0.03)
   envelope.add(wax)
-
-  // The botanical emblem, in champagne gold. Its own mesh rather than more
-  // relief in the wax: the brief asks for gold on green, and a bump map can
-  // only ever give a lighter shade of whatever is underneath it.
-  const emblemMat = new THREE.MeshPhysicalMaterial({
-    map: sealEmblemTexture(),
-    transparent: true,
-    depthWrite: false,
-    roughness: 0.26,
-    metalness: 0.85,
-    clearcoat: 0.3,
-  })
-  const emblem = new THREE.Mesh(
-    new THREE.PlaneGeometry(SEAL_R * 1.4, SEAL_R * 1.4),
-    emblemMat,
-  )
-  emblem.position.z = 0.0205
-  wax.add(emblem)
 
   // ── The surface behind, so the envelope has something to sit on
   // and cast onto. On a phone the crop is tight enough that it never
@@ -510,12 +455,14 @@ export function createEnvelopeScene(
 
   // ── Light ─────────────────────────────────────────────────────
   // One warm key from the upper left decides every shadow in the frame.
-  const key = new THREE.DirectionalLight(0xfff3e0, 1.45)
+  // One light, and only so the envelope casts. Nothing in the scene is lit
+  // by it — the photograph brought its own.
+  const key = new THREE.DirectionalLight(0xffffff, 0)
   key.position.set(-0.8, 2.1, 3.4)
   key.castShadow = true
   key.shadow.mapSize.set(1024, 1024)
-  key.shadow.camera.near = 0.5
-  key.shadow.camera.far = 12
+  key.shadow.camera.near = 0.4
+  key.shadow.camera.far = 9
   key.shadow.camera.left = -2.4
   key.shadow.camera.right = 2.4
   key.shadow.camera.top = 2.4
@@ -523,24 +470,6 @@ export function createEnvelopeScene(
   key.shadow.bias = -0.0012
   key.shadow.radius = 7
   scene.add(key)
-
-  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.16)
-  fill.position.set(2.2, -0.6, 1.4)
-  scene.add(fill)
-
-  // Separates the silhouette from the ground behind it. Without a rim the
-  // envelope's outline dissolves into the backdrop and it stops being an
-  // object sitting in front of something.
-  const rim = new THREE.DirectionalLight(0xffe2b4, 0.5)
-  rim.position.set(1.6, 1.4, -2.2)
-  scene.add(rim)
-
-  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x4a3c30, 0.1))
-
-  // The light shut inside the envelope. Dark until the flap gives.
-  const inside = new THREE.PointLight(0xffcf8c, 0, 2.2, 2)
-  inside.position.set(0, 0.2, -0.05)
-  envelope.add(inside)
 
   // ── Framing ───────────────────────────────────────────────────
   // Fit by height, always. On a portrait screen that crops the envelope's
@@ -639,15 +568,12 @@ export function createEnvelopeScene(
 
       // The wax gives first, then falls away.
       const sealT = clamp01((t - 0.05) / 0.5)
-      wax.position.y = TIP_Y + 0.008 - ease(sealT) * 0.4
-      wax.position.z = 0.03 + ease(sealT) * 0.2
-      wax.rotation.z = -0.09 - ease(sealT) * 0.7
+      wax.position.y = SEAL_Y - ease(sealT) * 0.4
+      wax.position.z = 0.03 + ease(sealT) * 0.22
+      wax.rotation.z = -ease(sealT) * 0.7
       wax.rotation.x = ease(sealT) * 1.1
       const sealFade = 1 - clamp01((t - 0.36) / 0.34)
-      waxMat.transparent = true
-      emblemMat.transparent = true
       waxMat.opacity = sealFade
-      emblemMat.opacity = sealFade
       wax.visible = sealFade > 0.01
 
       // The flap lifts on its fold, stopping short of flat so it still shows
@@ -655,15 +581,24 @@ export function createEnvelopeScene(
       const f = clamp01((t - 0.3) / 0.9)
       hinge.rotation.x = easeInOut(f) * 1.92
 
-      // And the card rises out of the envelope.
-      // The card comes up through the mouth and forward, clearing the paper
-      // without climbing over the open flap behind it.
-      const c = clamp01((t - 0.72) / 1.05)
-      card.position.y = easeInOut(c) * 0.46
-      card.position.z = -0.02 + easeInOut(c) * 0.2
+      // Behind it, the inside comes up. It has to arrive before the flap has
+      // turned far enough to show what is under it, or the paper the flap was
+      // lying on is briefly its own photograph again.
+      mouthMat.opacity = clamp01((t - 0.3) / 0.22)
+      // And the flap's face goes into shade as it turns away from the light
+      // the photograph was lit by.
+      const shade = 1 - easeInOut(f) * 0.42
+      flapMat.color.setRGB(shade, shade, shade)
 
-      // The light shut inside comes up behind it.
-      inside.intensity = clamp01((t - 0.5) / 0.7) * 1.1
+      // And the card rises out of the envelope.
+      // The card rises without ever coming forward, so it stays inside the
+      // envelope: what shows is the part that has cleared the top edge, and
+      // the rest is behind the paper where it belongs. Bringing it toward the
+      // camera instead makes it cross in front of the envelope's own inside,
+      // and a card that floats over the pocket it is supposedly still in is
+      // the one thing that gives the whole illusion away.
+      const c = clamp01((t - 0.72) / 1.05)
+      card.position.y = easeInOut(c) * 0.62
 
       // The camera gives a little ground so the card has somewhere to go.
       zoom = 1 + ease(clamp01((t - 0.3) / 1.1)) * 0.42
@@ -688,6 +623,24 @@ export function createEnvelopeScene(
     renderer.render(scene, camera)
   }
 
+  // Nothing is shown until the photograph is here: an envelope that arrives
+  // as flat colour and then becomes a picture is worse than one that waits.
+  const img = new Image()
+  img.decoding = 'async'
+  img.onload = () => {
+    const art = cutArt(img)
+    paperMat.map = art.paper
+    flapMat.map = art.paper
+    mouthMat.map = art.mouth
+    waxMat.map = art.seal
+    paperMat.needsUpdate = true
+    flapMat.needsUpdate = true
+    mouthMat.needsUpdate = true
+    waxMat.needsUpdate = true
+    opts.onReady?.()
+  }
+  img.src = ART.url
+
   const onResize = () => frame()
   window.addEventListener('resize', onResize)
   frame()
@@ -710,7 +663,6 @@ export function createEnvelopeScene(
         if (Array.isArray(mat)) mat.forEach((x) => x.dispose())
         else mat?.dispose()
       })
-      grain.dispose()
       renderer.dispose()
     },
   }

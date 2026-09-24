@@ -20,6 +20,10 @@
   --foil-lo: #8f7331;
 }
 
+.gate--photo {
+  perspective: 1500px;
+}
+
 .gate--opening {
   pointer-events: none;
 }
@@ -36,42 +40,178 @@
    itself: about seven eighths of a phone's width, easing to under two thirds
    of a desktop's, and always capped so the full shape — flap point, fold
    lines and all four corners — stays inside the frame. */
+/* ── The envelope, as photographed ───────────────────────────────
+   Every piece below is the same image file the rendered gate maps onto its
+   geometry. The figures are the envelope's rectangle inside that file:
+   1218x799 starting at (160,113) of a 1536x1024 picture. Because the
+   envelope is all but centred in the frame, `center` places it, and the two
+   background-size percentages are the image over the envelope on each axis —
+   they differ because the envelope's rectangle is not the picture's shape. */
+
 .gate__env {
+  --sheet: url('/images/envelope.webp');
+  --zoom: 126.108% 128.160%; /* 1536/1218, 1024/799 */
+  /* The flap: shoulders rounded by cutting their corners, and a point at
+     70% of the height, both measured off the photograph. */
+  --flap: polygon(
+    7.2% 0%, 92.8% 0%, 97.5% 3.4%, 100% 11%,
+    50% 69.97%, 0% 11%, 2.5% 3.4%
+  );
+
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(87vw, 68vh * var(--env-ar));
-  aspect-ratio: var(--env-ar);
+  width: min(87vw, 62vh * 1.5244);
+  aspect-ratio: 1.5244;
   translate: -50% -50%;
-  overflow: hidden;
-  border-radius: 4px;
-  box-shadow:
-    0 2px 4px rgba(48, 54, 47, 0.2),
-    0 18px 40px rgba(48, 54, 47, 0.18),
-    0 48px 96px rgba(48, 54, 47, 0.14);
+  /* The card has to be able to rise past the top edge. */
+  overflow: visible;
+  filter:
+    drop-shadow(0 2px 4px rgba(48, 54, 47, 0.16))
+    drop-shadow(0 16px 34px rgba(48, 54, 47, 0.14));
 }
 
 @media (min-width: 768px) {
   .gate__env {
-    width: min(74vw, 68vh * var(--env-ar));
+    width: min(74vw, 62vh * 1.5244);
   }
 }
 
 @media (min-width: 1200px) {
   .gate__env {
-    width: min(64vw, 70vh * var(--env-ar));
+    width: min(64vw, 64vh * 1.5244);
   }
 }
 
-.gate__light {
+.gate__photo,
+.gate__photo-flap {
   position: absolute;
   inset: 0;
+  background: var(--sheet) center / var(--zoom) no-repeat;
+}
+
+.gate__photo {
+  z-index: 2;
+}
+
+/* The wax straddles the flap's point, so its lower crescent is printed on the
+   body and would stay behind after the seal had gone. This patch is the paper
+   from just outside it, and it sits under the flap and under the wax — so
+   while the envelope is shut nothing of it can be seen, and it is only ever
+   uncovered by the crescent it exists to hide. */
+.gate__wax-patch {
+  position: absolute;
+  z-index: 3;
+  left: 49.9%;
+  top: 57.6%;
+  width: 26%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  /* Sampled from the stock immediately outside the wax on its lower side,
+     which is the only side of it this ever has to stand in for. */
+  background: radial-gradient(
+    circle,
+    #747a61 0%,
+    #747a61 54%,
+    rgba(116, 122, 97, 0.7) 74%,
+    rgba(116, 122, 97, 0.22) 89%,
+    rgba(116, 122, 97, 0) 100%
+  );
+}
+
+/* The flap is a second copy of the photograph, clipped to the flap and
+   hinged on its fold. Shut, it lies exactly over the pixels it was cut from,
+   so its edges cannot be seen; turning, it takes them with it. */
+.gate__photo-flap {
   z-index: 5;
-  pointer-events: none;
-  background:
-    radial-gradient(52% 38% at 50% 70%, rgba(255, 244, 214, 0.12) 0%, rgba(255, 242, 208, 0.04) 44%, transparent 74%),
-    linear-gradient(150deg, rgba(255, 249, 234, 0.12) 0%, transparent 42%),
-    radial-gradient(130% 96% at 46% 46%, transparent 46%, rgba(48, 54, 47, 0.16) 100%);
+  clip-path: var(--flap);
+  transform-origin: 50% 0%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* What the photograph cannot show: the inside, uncovered as the flap leaves
+   it. The only invented surface here, and hidden until the seal breaks. */
+.gate__mouth {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  clip-path: var(--flap);
+  background: linear-gradient(180deg, #3c4835 0%, #4e5c45 45%, #67765b 100%);
+}
+
+/* The wax, cut out of the same photograph as a circle so it can break away
+   on its own. Its ::before is the whole envelope again, shifted so the seal
+   lands in the middle of the disc. */
+.gate__wax {
+  position: absolute;
+  z-index: 6;
+  left: 49.9%;
+  top: 57.6%;
+  width: 23.1%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.gate__wax::before {
+  content: '';
+  position: absolute;
+  left: -166%;
+  top: -113.6%;
+  width: 432.9%;
+  height: 283.97%;
+  background: var(--sheet) center / var(--zoom) no-repeat;
+}
+
+/* The invitation, behind the paper. It rises and nothing more: a card that
+   comes forward floats over the pocket it is supposedly still inside. */
+.gate__card {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 90%;
+  height: 86%;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5em;
+  padding-top: 7%;
+  text-align: center;
+  background: linear-gradient(176deg, #fdfaf2 0%, #f7f2e6 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 168, 92, 0.32),
+    0 -2px 10px rgba(48, 54, 47, 0.12);
+  will-change: transform;
+}
+
+.gate__card-eyebrow {
+  font-family: var(--sans);
+  font-size: clamp(0.5rem, 1.1vw, 0.68rem);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.gate__card-names {
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  color: var(--ink);
+}
+
+.gate__card-date {
+  font-family: var(--sans);
+  font-size: clamp(0.55rem, 1.3vw, 0.78rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .gate__hit {
@@ -80,252 +220,6 @@
   z-index: 9;
   background: none;
   cursor: pointer;
-}
-
-/* ── The envelope's inside ───────────────────────────────────────
-   Only ever seen through the opening. It is the same stock in shadow until
-   the flap lifts, and then it is nothing but light. */
-.gate__inside {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  background:
-    radial-gradient(110% 86% at 50% 74%, #f0cd92 0%, #cfa268 34%, #9d7648 70%, #6d5335 100%);
-}
-
-.gate__bloom {
-  position: absolute;
-  z-index: 8;
-  left: 50%;
-  top: 72%;
-  width: 78vmin;
-  aspect-ratio: 1;
-  margin: -39vmin 0 0 -39vmin;
-  border-radius: 50%;
-  transform-origin: center;
-  will-change: transform, opacity;
-  background: radial-gradient(
-    circle,
-    #fffdf6 0%,
-    #fff6dd 22%,
-    rgba(255, 228, 168, 0.85) 42%,
-    rgba(248, 196, 118, 0.42) 62%,
-    rgba(214, 152, 78, 0.12) 80%,
-    transparent 100%
-  );
-}
-
-/* ── The lower walls ─────────────────────────────────────────── */
-
-.gate__wall {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Left and right walls meet under the flap's point. Their diagonals are the
-   folds the flap closes onto. */
-.gate__wall--left {
-  clip-path: polygon(0% 0%, 50.3% 75.8%, 0% 100%);
-  background: linear-gradient(100deg, #9db18d 0%, #94a883 46%, #8a9e79 100%);
-  filter: drop-shadow(1px 0 0.5px rgba(48, 54, 47, 0.3));
-}
-
-.gate__wall--right {
-  clip-path: polygon(100% 0%, 49.7% 76.3%, 100% 100%);
-  background: linear-gradient(260deg, #93a784 0%, #899d7a 52%, #7e9270 100%);
-  filter: drop-shadow(-1px 0 0.5px rgba(48, 54, 47, 0.26));
-}
-
-/* The bottom flap, folded up over both of them. */
-.gate__wall--foot {
-  z-index: 2;
-  /* The top corners have to sit ON the side walls' diagonals, or the strip
-     between the walls' meeting point and this flap is covered by nothing and
-     the envelope's dark interior shows through below the seal. */
-  clip-path: polygon(0% 100%, 100% 100%, 76% 78%, 24% 78.4%);
-  background: linear-gradient(2deg, #8a9e79 0%, #94a883 34%, #8fa37e 72%, #85996f 100%);
-  filter: drop-shadow(0 -1px 0.5px rgba(48, 54, 47, 0.26))
-    drop-shadow(0 -3px 7px rgba(48, 54, 47, 0.16));
-}
-
-/* Paper, shared by every plane. A generated grain sheet rather than browser
-   turbulence: fibre laid in a direction, tooth between the strands, and the
-   slow cockle drying leaves behind. Two copies of the tile — one at fibre
-   scale, one stretched across the plane — so the large shapes never repeat. */
-.gate__wall::after,
-.gate__flap-face::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.2;
-  mix-blend-mode: overlay;
-  background-image:
-    url('/images/paper-grain.png'),
-    url('/images/paper-grain.png');
-  background-size: 520px 520px, 100% 100%;
-  background-position: 0 0, center;
-  clip-path: inherit;
-}
-
-/* ── The flap ────────────────────────────────────────────────── */
-
-.gate__flap {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  transform-origin: 50% 0%;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.gate__flap-face {
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(0% 0%, 100% 0%, 50% 76%);
-  background: linear-gradient(
-    154deg,
-    #adbba1 0%,
-    #a4b398 26%,
-    #9bab8e 54%,
-    #92a285 80%,
-    #88997b 100%
-  );
-  /* The topmost sheet, so it drops the hardest shadow of the lot: a tight
-     core where the cut edge meets the wall, and a soft ambient falloff. */
-  filter:
-    drop-shadow(0 1px 0.4px rgba(48, 54, 47, 0.5))
-    drop-shadow(1px 4px 7px rgba(48, 54, 47, 0.3))
-    drop-shadow(3px 14px 26px rgba(48, 54, 47, 0.2));
-}
-
-/* The exposed edge of the stock along the flap's two free sides. The left
-   faces the key and reads brightest; the right is turned away. */
-.gate__flap-edge {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(to bottom right, transparent calc(50% - 0.5px), rgba(255, 249, 238, 0.55) 50%, transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom left, transparent calc(50% - 0.5px), rgba(255, 245, 232, 0.2) 50%, transparent calc(50% + 0.5px));
-  clip-path: polygon(0% 0%, 100% 0%, 50% 76%);
-  opacity: 0.55;
-}
-
-/* ── The printed sprigs ─────────────────────────────────────────
-   The same gold line art the rendered envelope prints, drawn to a canvas.
-   Both are sized against the envelope, not the viewport, so they hold their
-   place on the paper at every width. */
-
-.gate__sprig {
-  position: absolute;
-  display: block;
-  width: 33%;
-  aspect-ratio: 1;
-  pointer-events: none;
-}
-
-.gate__sprig--flap {
-  left: 4%;
-  top: 3%;
-}
-
-/* On the body, below where the flap's right edge leaves the stock bare. */
-.gate__sprig--body {
-  z-index: 3;
-  right: 2%;
-  bottom: 2%;
-}
-
-/* ── Wax seal ────────────────────────────────────────────────── */
-
-.gate__seal-pos {
-  position: absolute;
-  left: 50%;
-  top: 76%;
-  z-index: 6;
-  width: 17%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  will-change: transform, opacity;
-}
-
-.gate__seal {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  rotate: -5deg;
-  filter:
-    drop-shadow(1px 3px 4px rgba(38, 46, 36, 0.48))
-    drop-shadow(0 1px 1px rgba(38, 46, 36, 0.4))
-    drop-shadow(0 0 16px rgba(201, 168, 92, 0.28));
-}
-
-/* The rim: wax that squeezed out from under the die and set proud. Its
-   outline is a near-round blob with a few lobes where the drop ran further —
-   a perfect circle with an even crimped edge is what makes a seal read as a
-   stamped button rather than poured wax. */
-.gate__seal-rim {
-  position: absolute;
-  inset: 0;
-  border-radius: 47% 53% 50% 50% / 52% 48% 52% 48%;
-  /* A flat linear wash, mottled — a circular falloff would read as a sphere,
-     which is exactly what wax is not. */
-  background-image:
-    url('/images/paper-grain.png'),
-    linear-gradient(150deg, #7f9271 0%, #6e8261 34%, #5c6f51 68%, #4a5b41 100%);
-  background-size: 120px 120px, auto;
-  background-blend-mode: soft-light, normal;
-  box-shadow:
-    inset 2px 2px 4px rgba(226, 236, 216, 0.4),
-    inset -2px -3px 6px rgba(30, 38, 28, 0.5),
-    inset 0 0 0 1px rgba(58, 72, 52, 0.34);
-}
-
-/* The die's impression: a shallow well pressed into the wax, dark along the
-   top wall and catching light along the bottom — the inverse of a raised
-   disc, which is what makes it read as struck rather than stuck on. */
-.gate__seal-field {
-  position: absolute;
-  inset: 9.5%;
-  border-radius: 49% 51% 50% 50% / 51% 49% 51% 49%;
-  /* The well the die left: lit from the lower edge, shaded under the upper
-     wall. That inversion is what makes it read as pressed in. */
-  background: linear-gradient(162deg, #5f7257 0%, #6f8366 42%, #82967a 78%, #90a488 100%);
-  /* One crisp shadow under the upper wall and one thin lift along the lower
-     lip. Bevelling both sides evenly is what built a dome. */
-  box-shadow:
-    inset 0 3px 4px rgba(28, 36, 26, 0.5),
-    inset 0 -1px 0 rgba(216, 228, 206, 0.5);
-}
-
-/* The petal ring cut into the die, sitting proud of the well floor. */
-.gate__seal-die {
-  position: absolute;
-  inset: 21%;
-  display: block;
-  width: 58%;
-  height: 58%;
-  pointer-events: none;
-}
-
-.gate__seal-petal ellipse {
-  fill: rgba(216, 186, 114, 0.82);
-  stroke: rgba(34, 44, 32, 0.5);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.gate__seal-eye {
-  fill: rgba(228, 201, 133, 0.85);
-  stroke: rgba(34, 44, 32, 0.5);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
 }
 
 /* ── Cue ─────────────────────────────────────────────────────── */
@@ -362,7 +256,7 @@
   background:
     radial-gradient(38% 30% at 16% 22%, rgba(135, 155, 122, 0.16), transparent 70%),
     radial-gradient(34% 28% at 86% 78%, rgba(135, 155, 122, 0.13), transparent 70%),
-    radial-gradient(circle at 50% 46%, #efe8dd 0%, #e6ded2 56%, #dbd2c5 100%);
+    radial-gradient(circle at 50% 44%, #e4ddd4 0%, #ded7ce 58%, #d2cabf 100%);
 }
 
 /* Paper tooth on the ground, so the page itself reads as stationery. */

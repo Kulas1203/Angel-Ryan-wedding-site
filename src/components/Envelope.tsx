@@ -78,9 +78,9 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           revealRef.current()
         },
         onFinished: () => setGone(true),
+        onReady: () => setReady(true),
       })
       sceneRef.current = scene
-      setReady(true)
     })
 
     return () => {

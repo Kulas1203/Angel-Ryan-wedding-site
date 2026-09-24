@@ -1,37 +1,36 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import { Sprig } from './Sprig'
 import { GateMasthead } from './GateMasthead'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import './Envelope.css'
 
-const EASE_OUT = [0.16, 1, 0.3, 1] as const
-
-// Beats of the opening, in seconds from the tap. The flap lifts, the camera
-// pushes in past the paper's edge, and the light that was shut inside floods
-// forward and takes over the screen.
-const SEAL_AT = 0.12
-const SEAL_DUR = 0.66
-const FLAP_AT = 0.34
-const FLAP_DUR = 1.05
-const BLOOM_AT = 0.62
-const PUSH_AT = 0.3
-const REVEAL_AT = 1.85
-const GATE_END_MS = 2700
+// Beats of the opening, in seconds from the tap.
+const FLAP_AT = 0.16
+const FLAP_DUR = 0.95
+const CARD_AT = 0.52
+const CARD_DUR = 1.0
+const REVEAL_AT = 1.6
+const GATE_END_MS = 2400
 const REDUCED_END_MS = 520
 
 interface EnvelopeFlatProps {
-  /** Fires as the light takes the frame, cueing the hero to begin. */
+  /** Fires as the envelope gives way, cueing the hero to begin. */
   onReveal: () => void
 }
 
 /**
- * The envelope drawn in CSS: folded planes, clip-paths and gradients.
+ * The envelope without WebGL: the same photograph, cut with clip-paths.
  *
- * This is what runs when the scene cannot — no WebGL, or the guest has asked
- * for reduced motion, where a camera move and a turning flap are exactly the
- * wrong thing to serve. It is a picture of the same envelope rather than the
- * object, and it stands in without comment.
+ * This runs when the scene cannot — no WebGL, or the guest has asked for
+ * reduced motion, where a camera move and a turning flap are exactly the
+ * wrong thing to serve. It is the same image file the rendered gate maps onto
+ * its geometry, so the envelope a guest sees here is not a second design that
+ * happens to be the same colour.
+ *
+ * The flap is a second copy of the photograph clipped to the flap's triangle
+ * and hinged on its fold, so while it is shut it lies exactly over the pixels
+ * it came from and cannot be told apart from the picture. Turning, it takes
+ * those pixels with it and the envelope's inside is what is left behind.
  */
 export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
   const reduced = useReducedMotion()
@@ -78,144 +77,70 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
 
   return (
     <motion.div
-      className={`gate ${opening ? 'gate--opening' : ''}`}
+      className={`gate gate--photo ${opening ? 'gate--opening' : ''}`}
       animate={{ opacity: opening && reduced ? 0 : 1 }}
       transition={{ duration: 0.45, ease: 'easeIn' }}
     >
       <GateMasthead ready={!gone} opening={opening} />
 
-      {/* The camera eases in as the flap gives, so the paper grows past the
-          frame and the viewer ends up inside the envelope rather than
-          watching it from across a room. */}
-      <motion.div
-        className="gate__push"
-        initial={reduced ? false : { scale: 1.06, opacity: 0 }}
-        animate={{ scale: run ? 1.42 : 1, opacity: 1 }}
-        transition={{
-          scale: run
-            ? { delay: PUSH_AT, duration: 2.1, ease: [0.3, 0, 0.2, 1] }
-            : { duration: 1.6, ease: EASE_OUT },
-          opacity: { duration: 1.1, ease: 'easeOut' },
-        }}
-      >
-        {/* On a portrait screen the envelope runs wider than the frame, so
-            the fold lines enter from off-screen and the paper is the page.
-            On a landscape one it becomes a portrait panel on a warm ground —
-            an envelope stretched to a 16:9 width would have a fold so
-            shallow it stops reading as an envelope at all. */}
-        <div className="gate__env">
-          {/* The inside: warmer, deeper stock, seen only through the opening
-              once the flap lifts. */}
-          <span className="gate__inside" aria-hidden="true" />
-          {/* The two lower walls, turned a little away from the key so the
-              flap reads as lying on top of them. */}
-          <span className="gate__wall gate__wall--left" aria-hidden="true" />
-          <span className="gate__wall gate__wall--right" aria-hidden="true" />
-          <span className="gate__wall gate__wall--foot" aria-hidden="true" />
-
-        {/* The pointed flap. Hinged along the top edge, it lifts away from the
-            viewer — the way a real one does — rather than folding toward the
-            camera, which would sweep it across the lens. */}
-          <motion.div
-            className="gate__flap"
-            animate={run ? { rotateX: -64, y: '-5%', opacity: 0.15 } : { rotateX: 0, y: '0%', opacity: 1 }}
-            transition={{
-              rotateX: { delay: FLAP_AT, duration: FLAP_DUR, ease: [0.42, 0, 0.2, 1] },
-              y: { delay: FLAP_AT, duration: FLAP_DUR, ease: [0.42, 0, 0.2, 1] },
-              opacity: { delay: BLOOM_AT + 0.5, duration: 0.8, ease: 'easeIn' },
-            }}
-          >
-            <span className="gate__flap-face" aria-hidden="true" />
-            <span className="gate__flap-edge" aria-hidden="true" />
-            {/* The printed sprig, inside the flap's upper-left shoulder. */}
-            <Sprig
-              className="gate__sprig gate__sprig--flap"
-              ox={0.12}
-              oy={0.3}
-              angle={-0.3}
-              seed={91}
-            />
-          </motion.div>
-
-          {/* Wax, struck with a single gold sprig. It gives first: the light
-              catches it, then it loosens off the paper. */}
-          <motion.div
-            className="gate__seal-pos"
-            animate={
-              run
-                ? { scale: 0.84, y: '46%', rotate: -11, opacity: 0 }
-                : { scale: 1, y: '0%', rotate: 0, opacity: 1 }
-            }
-            transition={{ delay: SEAL_AT, duration: SEAL_DUR, ease: 'easeIn' }}
-          >
-            <div className="gate__seal">
-              <span className="gate__seal-rim" aria-hidden="true" />
-              <span className="gate__seal-field" aria-hidden="true" />
-              {/* The die's own sprig, the same drawing pressed small. */}
-              <Sprig kind="seal" className="gate__seal-die" />
-            </div>
-          </motion.div>
-
-          <Sprig
-            className="gate__sprig gate__sprig--body"
-            ox={0.9}
-            oy={0.92}
-            angle={-2.05}
-            seed={17}
-          />
-
-          <span className="gate__light" aria-hidden="true" />
-        </div>
-
-
-        {/* The light that was shut inside. It sits above every layer, so it
-            floods the frame rather than being clipped to the opening. */}
+      <div className="gate__env">
+        {/* The card, behind the paper, rising until it clears the top edge.
+            It never comes forward: a card floating over the pocket it is
+            supposedly still inside gives the whole thing away. */}
         <motion.div
-          className="gate__bloom"
-          initial={{ opacity: 0, scale: 0.3 }}
-          animate={
-            run
-              ? { opacity: [0, 0.5, 1, 1], scale: [0.3, 0.85, 2.4, 6] }
-              : { opacity: 0, scale: 0.3 }
-          }
-          transition={{
-            delay: BLOOM_AT,
-            duration: 1.8,
-            times: [0, 0.24, 0.64, 1],
-            ease: ['easeOut', 'easeIn', 'easeIn'],
-          }}
+          className="gate__card"
+          animate={run ? { y: '-58%' } : { y: '0%' }}
+          transition={{ delay: CARD_AT, duration: CARD_DUR, ease: [0.3, 0, 0.2, 1] }}
+        >
+          <p className="gate__card-eyebrow">Together with their families</p>
+          <p className="gate__card-names">Ryan &amp; Angel</p>
+          <p className="gate__card-date">October 29, 2026</p>
+        </motion.div>
+
+        {/* The envelope's inside, uncovered as the flap turns off it. */}
+        <span className="gate__mouth" aria-hidden="true" />
+
+        {/* The body: the photograph, whole. */}
+        <span className="gate__photo" aria-hidden="true" />
+
+        {/* The flap: the same photograph, clipped to the flap and hinged on
+            its fold. */}
+        <motion.span
+          className="gate__photo-flap"
+          aria-hidden="true"
+          animate={run ? { rotateX: 128 } : { rotateX: 0 }}
+          transition={{ delay: FLAP_AT, duration: FLAP_DUR, ease: [0.42, 0, 0.2, 1] }}
         />
 
-        <motion.p
-          className="gate__hint"
-          animate={
-            opening
-              ? { opacity: 0, y: 6 }
-              : reduced
-                ? { opacity: 0.85 }
-                : { opacity: [0.4, 0.95, 0.4] }
-          }
-          transition={
-            opening
-              ? { duration: 0.3, ease: 'easeIn' }
-              : {
-                  duration: 3,
-                  delay: 1.6,
-                  repeat: reduced ? 0 : Infinity,
-                  ease: 'easeInOut',
-                }
-          }
-        >
-          Tap to open
-        </motion.p>
-      </motion.div>
+        {/* Paper under the wax, so no crescent of it is left behind. */}
+        <span className="gate__wax-patch" aria-hidden="true" />
+
+        {/* The wax, which gives before anything else moves. */}
+        <motion.span
+          className="gate__wax"
+          aria-hidden="true"
+          animate={run ? { y: '140%', rotate: -38, opacity: 0 } : { y: '0%', rotate: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: 'easeIn' }}
+        />
+      </div>
+
+      <motion.p
+        className="gate__hint"
+        animate={opening ? { opacity: 0, y: 6 } : { opacity: [0.45, 1, 0.45] }}
+        transition={
+          opening
+            ? { duration: 0.3, ease: 'easeIn' }
+            : { duration: 3, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        Tap to open
+      </motion.p>
 
       {!opening && (
         <button
           className="gate__hit"
           onClick={() => setOpening(true)}
           aria-label="Open the invitation"
-          autoFocus
         />
       )}
     </motion.div>
