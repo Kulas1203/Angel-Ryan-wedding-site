@@ -27,6 +27,20 @@
   --script: 'Alex Brush', 'Brush Script MT', cursive;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Invitation palette ──────────────────────────────────────
+     Added alongside the originals rather than replacing them. The
+     champagne gold sits at about 2.4:1 on ivory, which is fine for a rule
+     or a leaf and fails for anything anyone has to read, so text keeps the
+     older, darker tokens and these drive the envelope and the ornament. */
+  --sage-green: #879b7a;
+  --deep-sage: #65785d;
+  --light-sage: #a8b69d;
+  --warm-ivory: #f8f5ed;
+  --champagne: #c9a85c;
+  --champagne-soft: rgba(201, 168, 92, 0.42);
+  --soft-beige: #e9e2d5;
+  --paper-text: #30362f;
 }
 
 * {

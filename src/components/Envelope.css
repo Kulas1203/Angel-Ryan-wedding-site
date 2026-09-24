@@ -5,18 +5,19 @@
    side each shadow falls on, and which cut edges catch light. */
 
 .gate {
+  --env-ar: 1.45;
   position: fixed;
   inset: 0;
   z-index: 95;
   overflow: hidden;
   /* The ground the envelope is shown against on wide screens; on portrait
      the paper covers it entirely. */
-  background: radial-gradient(120% 90% at 50% 46%, #b8a390 0%, #8e7a67 58%, #5f5145 100%);
+  background: radial-gradient(120% 90% at 50% 46%, #fbf9f3 0%, #f4efe4 56%, #e7e0d1 100%);
 
   /* Antique gold foil, shared by the seal and the flower's struck stem. */
-  --foil-hi: #fbeecb;
-  --foil: #c9a06a;
-  --foil-lo: #8a6338;
+  --foil-hi: #f4e3b4;
+  --foil: #c9a85c;
+  --foil-lo: #8f7331;
 }
 
 .gate--opening {
@@ -31,31 +32,34 @@
   will-change: transform;
 }
 
-/* Wider than the viewport on purpose: the flap's top corners fall outside
-   the frame, so the fold lines enter from off-screen and the V reads open
-   and wide instead of as a narrow wedge. */
+/* One whole envelope on the ivory ground, sized the way the 3D gate sizes
+   itself: about seven eighths of a phone's width, easing to under two thirds
+   of a desktop's, and always capped so the full shape — flap point, fold
+   lines and all four corners — stays inside the frame. */
 .gate__env {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -29%;
-  right: -29%;
+  left: 50%;
+  top: 50%;
+  width: min(87vw, 68vh * var(--env-ar));
+  aspect-ratio: var(--env-ar);
+  translate: -50% -50%;
   overflow: hidden;
+  border-radius: 4px;
+  box-shadow:
+    0 2px 4px rgba(48, 54, 47, 0.2),
+    0 18px 40px rgba(48, 54, 47, 0.18),
+    0 48px 96px rgba(48, 54, 47, 0.14);
 }
 
-/* Once the frame is wider than it is tall, hold the envelope to a portrait
-   panel. The fold then keeps roughly the half-across-to-one-down it has on
-   a phone instead of flattening out toward the horizontal. */
-@media (min-aspect-ratio: 11 / 10) {
+@media (min-width: 768px) {
   .gate__env {
-    left: 50%;
-    right: auto;
-    width: 68vh;
-    translate: -50% 0;
-    box-shadow:
-      0 2px 4px rgba(40, 28, 18, 0.4),
-      0 24px 50px rgba(40, 28, 18, 0.45),
-      0 60px 120px rgba(40, 28, 18, 0.4);
+    width: min(74vw, 68vh * var(--env-ar));
+  }
+}
+
+@media (min-width: 1200px) {
+  .gate__env {
+    width: min(64vw, 70vh * var(--env-ar));
   }
 }
 
@@ -65,9 +69,9 @@
   z-index: 5;
   pointer-events: none;
   background:
-    radial-gradient(52% 38% at 50% 70%, rgba(255, 232, 188, 0.3) 0%, rgba(255, 230, 182, 0.09) 44%, transparent 74%),
+    radial-gradient(52% 38% at 50% 70%, rgba(255, 244, 214, 0.12) 0%, rgba(255, 242, 208, 0.04) 44%, transparent 74%),
     linear-gradient(150deg, rgba(255, 249, 234, 0.12) 0%, transparent 42%),
-    radial-gradient(130% 96% at 46% 46%, transparent 40%, rgba(58, 40, 26, 0.3) 100%);
+    radial-gradient(130% 96% at 46% 46%, transparent 46%, rgba(48, 54, 47, 0.16) 100%);
 }
 
 .gate__hit {
@@ -125,14 +129,14 @@
    folds the flap closes onto. */
 .gate__wall--left {
   clip-path: polygon(0% 0%, 50.3% 75.8%, 0% 100%);
-  background: linear-gradient(100deg, #dacbbd 0%, #cfbfb0 46%, #c3b2a2 100%);
-  filter: drop-shadow(1px 0 0.5px rgba(74, 56, 40, 0.34));
+  background: linear-gradient(100deg, #9db18d 0%, #94a883 46%, #8a9e79 100%);
+  filter: drop-shadow(1px 0 0.5px rgba(48, 54, 47, 0.3));
 }
 
 .gate__wall--right {
   clip-path: polygon(100% 0%, 49.7% 76.3%, 100% 100%);
-  background: linear-gradient(260deg, #cdbdaf 0%, #c0af9f 52%, #b3a191 100%);
-  filter: drop-shadow(-1px 0 0.5px rgba(74, 56, 40, 0.3));
+  background: linear-gradient(260deg, #93a784 0%, #899d7a 52%, #7e9270 100%);
+  filter: drop-shadow(-1px 0 0.5px rgba(48, 54, 47, 0.26));
 }
 
 /* The bottom flap, folded up over both of them. */
@@ -142,9 +146,9 @@
      between the walls' meeting point and this flap is covered by nothing and
      the envelope's dark interior shows through below the seal. */
   clip-path: polygon(0% 100%, 100% 100%, 76% 78%, 24% 78.4%);
-  background: linear-gradient(2deg, #c2b2a3 0%, #cdbdaf 34%, #c6b6a8 72%, #bbab9c 100%);
-  filter: drop-shadow(0 -1px 0.5px rgba(74, 56, 40, 0.3))
-    drop-shadow(0 -3px 7px rgba(74, 56, 40, 0.18));
+  background: linear-gradient(2deg, #8a9e79 0%, #94a883 34%, #8fa37e 72%, #85996f 100%);
+  filter: drop-shadow(0 -1px 0.5px rgba(48, 54, 47, 0.26))
+    drop-shadow(0 -3px 7px rgba(48, 54, 47, 0.16));
 }
 
 /* Paper, shared by every plane. A generated grain sheet rather than browser
@@ -184,18 +188,18 @@
   clip-path: polygon(0% 0%, 100% 0%, 50% 76%);
   background: linear-gradient(
     154deg,
-    #ded1c5 0%,
-    #d8cabd 26%,
-    #d0c1b3 54%,
-    #c6b6a7 80%,
-    #bcab9c 100%
+    #adbba1 0%,
+    #a4b398 26%,
+    #9bab8e 54%,
+    #92a285 80%,
+    #88997b 100%
   );
   /* The topmost sheet, so it drops the hardest shadow of the lot: a tight
      core where the cut edge meets the wall, and a soft ambient falloff. */
   filter:
-    drop-shadow(0 1px 0.4px rgba(58, 40, 26, 0.72))
-    drop-shadow(1px 4px 7px rgba(58, 40, 26, 0.45))
-    drop-shadow(3px 14px 26px rgba(58, 40, 26, 0.3));
+    drop-shadow(0 1px 0.4px rgba(48, 54, 47, 0.5))
+    drop-shadow(1px 4px 7px rgba(48, 54, 47, 0.3))
+    drop-shadow(3px 14px 26px rgba(48, 54, 47, 0.2));
 }
 
 /* The exposed edge of the stock along the flap's two free sides. The left
@@ -223,7 +227,7 @@
   position: absolute;
   left: 50%;
   bottom: 24%; /* the stem ends on the seal, which sits at 76% */
-  width: min(64vmin, 430px);
+  width: 31%;
   translate: -50% 0;
   aspect-ratio: 200 / 260;
   pointer-events: none;
@@ -231,7 +235,7 @@
      throws away from the light, and the sliver the facing side catches.
      Both offsets follow the key from the upper left. */
   filter:
-    drop-shadow(0.7px 1.2px 0.8px rgba(86, 62, 40, 0.5))
+    drop-shadow(0.7px 1.2px 0.8px rgba(48, 54, 47, 0.46))
     drop-shadow(-0.6px -0.9px 0.6px rgba(255, 252, 243, 0.6));
 }
 
@@ -244,32 +248,33 @@
 /* The petals are the paper, a shade off the flap so the edges declare
    themselves without turning into line art. */
 .relief__petal path {
-  stroke: rgba(140, 112, 84, 0.16);
+  stroke: rgba(48, 54, 47, 0.16);
   stroke-width: 0.4;
   vector-effect: non-scaling-stroke;
 }
 
 .relief__petal--back path {
-  fill: #d2c1ab;
+  fill: #96aa87;
 }
 
 .relief__petal--front path {
-  fill: #e0d3c0;
+  fill: #a6b997;
 }
 
 .relief__blade path {
-  fill: #7d8462;
-  stroke: rgba(70, 76, 52, 0.5);
+  fill: #6d8062;
+  stroke: rgba(48, 54, 47, 0.5);
   stroke-width: 0.4;
   vector-effect: non-scaling-stroke;
 }
 
+/* The disc is the one place the paper lifts far enough to catch the foil. */
 .relief__disc {
-  fill: #c39f70;
+  fill: #9dab82;
 }
 
 .relief__floret circle {
-  fill: rgba(108, 74, 40, 0.68);
+  fill: rgba(56, 66, 52, 0.6);
 }
 
 /* Stem, midribs and veins are the one part struck in foil, the way a pressed
@@ -277,13 +282,13 @@
 .relief__foil path {
   fill: none;
   stroke-linecap: round;
-  stroke: #c9a06a;
+  stroke: var(--foil);
 }
 
 /* A thread of light down the lit side of the stem and ribs. */
 .relief__foil--stem path,
 .relief__foil--rib path {
-  filter: drop-shadow(-0.5px -0.5px 0.3px rgba(255, 244, 214, 0.9));
+  filter: drop-shadow(-0.5px -0.5px 0.3px rgba(252, 246, 226, 0.9));
 }
 
 .relief__foil--stem path {
@@ -306,7 +311,7 @@
   left: 50%;
   top: 76%;
   z-index: 6;
-  width: min(26vmin, 148px);
+  width: 17%;
   aspect-ratio: 1;
   translate: -50% -50%;
   will-change: transform, opacity;
@@ -320,9 +325,9 @@
   height: 100%;
   rotate: -5deg;
   filter:
-    drop-shadow(1px 3px 4px rgba(58, 36, 18, 0.5))
-    drop-shadow(0 1px 1px rgba(58, 36, 18, 0.42))
-    drop-shadow(0 0 16px rgba(255, 206, 128, 0.45));
+    drop-shadow(1px 3px 4px rgba(38, 46, 36, 0.48))
+    drop-shadow(0 1px 1px rgba(38, 46, 36, 0.4))
+    drop-shadow(0 0 16px rgba(201, 168, 92, 0.28));
 }
 
 /* The rim: wax that squeezed out from under the die and set proud. Its
@@ -337,13 +342,13 @@
      which is exactly what wax is not. */
   background-image:
     url('/images/paper-grain.png'),
-    linear-gradient(150deg, #dcae69 0%, #c3924f 34%, #a4713a 68%, #83582b 100%);
+    linear-gradient(150deg, #7f9271 0%, #6e8261 34%, #5c6f51 68%, #4a5b41 100%);
   background-size: 120px 120px, auto;
   background-blend-mode: soft-light, normal;
   box-shadow:
-    inset 2px 2px 4px rgba(255, 243, 214, 0.5),
-    inset -2px -3px 6px rgba(56, 32, 10, 0.55),
-    inset 0 0 0 1px rgba(120, 78, 32, 0.34);
+    inset 2px 2px 4px rgba(226, 236, 216, 0.4),
+    inset -2px -3px 6px rgba(30, 38, 28, 0.5),
+    inset 0 0 0 1px rgba(58, 72, 52, 0.34);
 }
 
 /* The die's impression: a shallow well pressed into the wax, dark along the
@@ -355,12 +360,12 @@
   border-radius: 49% 51% 50% 50% / 51% 49% 51% 49%;
   /* The well the die left: lit from the lower edge, shaded under the upper
      wall. That inversion is what makes it read as pressed in. */
-  background: linear-gradient(162deg, #d6a25a 0%, #e8bd74 42%, #f2d495 78%, #f7e2ad 100%);
+  background: linear-gradient(162deg, #5f7257 0%, #6f8366 42%, #82967a 78%, #90a488 100%);
   /* One crisp shadow under the upper wall and one thin lift along the lower
      lip. Bevelling both sides evenly is what built a dome. */
   box-shadow:
-    inset 0 3px 4px rgba(84, 49, 16, 0.5),
-    inset 0 -1px 0 rgba(255, 246, 219, 0.6);
+    inset 0 3px 4px rgba(28, 36, 26, 0.5),
+    inset 0 -1px 0 rgba(216, 228, 206, 0.5);
 }
 
 /* The petal ring cut into the die, sitting proud of the well floor. */
@@ -373,15 +378,15 @@
 }
 
 .gate__seal-petal ellipse {
-  fill: rgba(255, 249, 223, 0.55);
-  stroke: rgba(126, 80, 30, 0.6);
+  fill: rgba(216, 186, 114, 0.82);
+  stroke: rgba(34, 44, 32, 0.5);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .gate__seal-eye {
-  fill: rgba(255, 244, 206, 0.52);
-  stroke: rgba(122, 78, 30, 0.6);
+  fill: rgba(228, 201, 133, 0.85);
+  stroke: rgba(34, 44, 32, 0.5);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -417,7 +422,149 @@
    renderer has its first frame. */
 
 .gate--scene {
-  background: radial-gradient(120% 90% at 50% 46%, #b8a390 0%, #8e7a67 58%, #5f5145 100%);
+  background:
+    radial-gradient(38% 30% at 16% 22%, rgba(135, 155, 122, 0.16), transparent 70%),
+    radial-gradient(34% 28% at 86% 78%, rgba(135, 155, 122, 0.13), transparent 70%),
+    radial-gradient(circle at center, #faf8f1 0%, #f1ece1 100%);
+}
+
+/* Paper tooth on the ground, so the page itself reads as stationery. */
+.gate--scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.1;
+  mix-blend-mode: multiply;
+  background-image: url('/images/paper-grain.png');
+  background-size: 760px 760px;
+}
+
+/* ── Masthead ───────────────────────────────────────────────── */
+
+.gate__masthead {
+  position: absolute;
+  top: clamp(2.6rem, 8vh, 6rem);
+  left: 50%;
+  z-index: 7;
+  translate: -50% 0;
+  width: min(92vw, 40rem);
+  text-align: center;
+  pointer-events: none;
+}
+
+.gate__eyebrow {
+  font-family: var(--sans);
+  font-size: clamp(0.56rem, 1.8vw, 0.68rem);
+  font-weight: 400;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: #7c7a63;
+  padding-left: 0.44em; /* balance the trailing letter-space */
+}
+
+.gate__title {
+  margin-top: clamp(0.7rem, 2vw, 1.1rem);
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 6vw, 3.3rem);
+  line-height: 1.15;
+  letter-spacing: 0.012em;
+  color: var(--paper-text);
+}
+
+/* ── Champagne botanicals at the corners ────────────────────── */
+
+.corners {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.corners__sprig {
+  position: absolute;
+  width: clamp(72px, 13vw, 148px);
+  height: auto;
+  fill: none;
+  opacity: 0.55;
+}
+
+.corners__stem {
+  stroke: var(--champagne);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.corners__leaf {
+  fill: var(--champagne-soft);
+  stroke: var(--champagne);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.corners__sprig--tl { top: clamp(14px, 3vw, 34px); left: clamp(14px, 3vw, 34px); }
+.corners__sprig--tr { top: clamp(14px, 3vw, 34px); right: clamp(14px, 3vw, 34px); scale: -1 1; }
+.corners__sprig--bl { bottom: clamp(14px, 3vw, 34px); left: clamp(14px, 3vw, 34px); scale: 1 -1; }
+.corners__sprig--br { bottom: clamp(14px, 3vw, 34px); right: clamp(14px, 3vw, 34px); scale: -1 -1; }
+
+/* ── Gold lifting off the wax ───────────────────────────────── */
+
+.gate__sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.gate__spark {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6dc 0%, var(--champagne) 55%, transparent 100%);
+  opacity: 0;
+  animation: gate-spark 2.1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+/* Five drifts, dealt round the twenty motes, so no two leave together. */
+.gate__spark--0 { animation-delay: 0.16s; --dx: -34vmin; --dy: -30vmin; }
+.gate__spark--1 { animation-delay: 0.3s;  --dx: 26vmin;  --dy: -38vmin; }
+.gate__spark--2 { animation-delay: 0.44s; --dx: -14vmin; --dy: -46vmin; }
+.gate__spark--3 { animation-delay: 0.24s; --dx: 40vmin;  --dy: -22vmin; }
+.gate__spark--4 { animation-delay: 0.52s; --dx: 6vmin;   --dy: -34vmin; }
+
+.gate__spark:nth-child(4n) { width: 3px; height: 3px; }
+.gate__spark:nth-child(3n) { animation-duration: 2.6s; }
+.gate__spark:nth-child(5n) { animation-duration: 1.7s; }
+.gate__spark:nth-child(2n) { animation-delay: 0.62s; }
+
+@keyframes gate-spark {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  14% { opacity: 1; }
+  70% { opacity: 0.85; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0)), calc(-50% + var(--dy, -30vmin))) scale(1.1);
+  }
+}
+
+/* ── Focus ───────────────────────────────────────────────────
+   The hit area covers the whole gate, so the usual outline would ring the
+   viewport. A ring drawn inside it reads as the envelope being selected. */
+.gate__hit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--champagne);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate__spark {
+    display: none;
+  }
 }
 
 .gate__canvas {
@@ -435,17 +582,20 @@
   inset: 0;
   z-index: 8;
   pointer-events: none;
+  /* Warm ivory rather than gold. The brief asks for the background to
+     brighten, which is a different thing from a gold flash across the
+     frame — the gold belongs in the motes, where it is an accent. */
   background: radial-gradient(
-    circle at 50% 62%,
-    #fffdf6 0%,
-    #fff5d9 32%,
-    rgba(255, 226, 164, 0.86) 58%,
-    rgba(240, 196, 126, 0.5) 78%,
-    rgba(214, 160, 96, 0.2) 100%
+    circle at 50% 56%,
+    #fffefa 0%,
+    #fdfaf0 38%,
+    rgba(250, 245, 232, 0.94) 66%,
+    rgba(244, 238, 223, 0.86) 100%
   );
 }
 
 .gate--scene .gate__hint {
-  color: rgba(92, 68, 44, 0.9);
-  text-shadow: 0 1px 2px rgba(255, 248, 235, 0.5);
+  z-index: 7;
+  color: #6b6a55;
+  text-shadow: none;
 }

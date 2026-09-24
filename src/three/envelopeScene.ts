@@ -22,12 +22,11 @@ const FLAP_HINGE_Y = H / 2
 const TIP_Y = FLAP_HINGE_Y - FLAP_DROP
 // The mouth of the pocket: a shallow V, low at the centre. The flap's tip
 // reaches below it, which is what holds a card in.
-const MOUTH_MID_Y = 0.26
-const MOUTH_SIDE_Y = H / 2
-const POCKET_Z = -0.055 // how deep the envelope is
 
-const PAPER = 0xd2bda2
-const PAPER_BACK = 0xc6b096
+const CARD_W = W * 0.93
+const CARD_H = H * 0.88
+
+const PAPER = 0x9aae8b
 
 export interface EnvelopeScene {
   open(): void
@@ -83,7 +82,7 @@ function sheet(pts: [number, number][], depth = T) {
  * a ragged set edge, bevelled so the lip catches light. A perfect cylinder
  * reads as a stamped button rather than something poured.
  */
-function waxShape(r = 0.048) {
+function waxShape(r = 0.066) {
   const pts: [number, number][] = []
   let seed = 7723
   const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
@@ -107,6 +106,92 @@ function waxShape(r = 0.048) {
     pts.push([Math.cos(a) * r * rr, Math.sin(a) * r * rr])
   }
   return shapeFrom(pts)
+}
+
+/**
+ * The seal's emblem: a ring of leaves around a centre, echoing the sprigs at
+ * the corners of the page so the suite reads as one hand.
+ */
+function emblemShape(r: number) {
+  const s = new THREE.Shape()
+  const leaves = 8
+  for (let i = 0; i < leaves; i++) {
+    const a = (i / leaves) * Math.PI * 2
+    const ux = Math.cos(a)
+    const uy = Math.sin(a)
+    const nx = -uy
+    const ny = ux
+    const base = 0.34 * r
+    const tip = 1.55 * r
+    const half = 0.3 * r
+    s.moveTo(ux * base, uy * base)
+    s.quadraticCurveTo(
+      ux * tip * 0.55 + nx * half,
+      uy * tip * 0.55 + ny * half,
+      ux * tip,
+      uy * tip,
+    )
+    s.quadraticCurveTo(
+      ux * tip * 0.55 - nx * half,
+      uy * tip * 0.55 - ny * half,
+      ux * base,
+      uy * base,
+    )
+  }
+  s.moveTo(0.42 * r, 0)
+  s.absarc(0, 0, 0.42 * r, 0, Math.PI * 2, false)
+  return s
+}
+
+/** The invitation's printed face, so the card that rises out says something. */
+function cardFace() {
+  const w = 1024
+  const h = Math.round(w * (CARD_H / CARD_W))
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const g = c.getContext('2d')!
+  g.fillStyle = '#fbf7ec'
+  g.fillRect(0, 0, w, h)
+
+  // A champagne rule inside the trim, the way a card is bordered.
+  g.strokeStyle = 'rgba(201, 168, 92, 0.85)'
+  g.lineWidth = 3
+  g.strokeRect(w * 0.05, h * 0.07, w * 0.9, h * 0.86)
+  g.strokeStyle = 'rgba(201, 168, 92, 0.35)'
+  g.lineWidth = 2
+  g.strokeRect(w * 0.065, h * 0.092, w * 0.87, h * 0.816)
+
+  g.textAlign = 'center'
+  g.fillStyle = '#7c7a63'
+  g.font = `500 ${Math.round(h * 0.052)}px Jost, system-ui, sans-serif`
+  g.letterSpacing = `${Math.round(h * 0.024)}px`
+  g.fillText('TOGETHER WITH THEIR FAMILIES', w / 2, h * 0.26)
+
+  g.letterSpacing = '0px'
+  g.fillStyle = '#30362f'
+  g.font = `400 ${Math.round(h * 0.17)}px 'Cormorant Garamond', Georgia, serif`
+  g.fillText('Ryan & Angel', w / 2, h * 0.5)
+
+  g.strokeStyle = 'rgba(201, 168, 92, 0.8)'
+  g.lineWidth = 2
+  g.beginPath()
+  g.moveTo(w * 0.4, h * 0.585)
+  g.lineTo(w * 0.6, h * 0.585)
+  g.stroke()
+
+  g.fillStyle = '#65785d'
+  g.font = `500 ${Math.round(h * 0.062)}px Jost, system-ui, sans-serif`
+  g.letterSpacing = `${Math.round(h * 0.03)}px`
+  g.fillText('OCTOBER 29, 2026', w / 2, h * 0.7)
+  g.font = `400 ${Math.round(h * 0.046)}px Jost, system-ui, sans-serif`
+  g.fillStyle = '#7c7a63'
+  g.fillText('PAVILLION WATERGATE', w / 2, h * 0.8)
+
+  const tex = new THREE.CanvasTexture(c)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 4
+  return tex
 }
 
 /** The die's flower, as a height field drawn straight to a canvas. */
@@ -193,7 +278,7 @@ export function createEnvelopeScene(
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.86
+  renderer.toneMappingExposure = 1.06
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
@@ -206,7 +291,7 @@ export function createEnvelopeScene(
   const pmrem = new THREE.PMREMGenerator(renderer)
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04)
   scene.environment = envRT.texture
-  scene.environmentIntensity = 0.32
+  scene.environmentIntensity = 0.5
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40)
 
   // ── Textures ──────────────────────────────────────────────────
@@ -237,18 +322,6 @@ export function createEnvelopeScene(
     bumpScale: 0.55,
     side: THREE.DoubleSide,
   })
-  const backMat = new THREE.MeshPhysicalMaterial({
-    color: PAPER_BACK,
-    roughness: 0.66,
-    metalness: 0,
-    sheen: 1,
-    sheenRoughness: 0.72,
-    sheenColor: new THREE.Color(0xfff2dd),
-    specularIntensity: 0.35,
-    bumpMap: grain,
-    bumpScale: 0.5,
-    side: THREE.DoubleSide,
-  })
   // The flap carries the flower as well as the tooth of the stock.
   const flapMat = new THREE.MeshPhysicalMaterial({
     color: PAPER,
@@ -259,7 +332,7 @@ export function createEnvelopeScene(
     sheenColor: new THREE.Color(0xfff2dd),
     specularIntensity: 0.35,
     bumpMap: daisy,
-    bumpScale: 5.5,
+    bumpScale: 8,
     side: THREE.DoubleSide,
   })
 
@@ -273,134 +346,80 @@ export function createEnvelopeScene(
   const envelope = new THREE.Group()
   pose.add(envelope)
 
-  // ── The envelope as a pocket ──────────────────────────────────
-  // An envelope is not a slab. It is two walls with a gap between them, and
-  // opening the flap has to reveal that gap — otherwise the flap lifts off a
-  // solid sheet and the whole thing reads as a card with a triangle on it.
+  // ── The envelope, front on ─────────────────────────────────────
+  // Three sheets and nothing else:
   //
-  //   far wall   the other side of the envelope, seen through the mouth
-  //   near wall  the side flaps and bottom flap, glued into a pocket
-  //   flap       hinged at the top edge, lying over the mouth when shut
+  //   card   the invitation, behind the front and hidden by it
+  //   front  one plain panel, so there is no seam for the interior to
+  //          show through — every gap bug in this scene came from modelling
+  //          the folded back and then looking at it square on
+  //   flap   hinged at the top edge, lying over the front when shut
+  //
+  // The brief's own diagram is an outline, a flap and a seal, and the reveal
+  // it asks for is the card rising out. None of that needs the four-flap
+  // back, and the back was costing a class of bug it could not pay for.
 
-  // Inset from the outer silhouette on purpose. Its only job is to be the
-  // surface seen through the throat, and once the envelope is turned at all
-  // a full-size inner wall projects out past the near one and shows up as a
-  // wedge of envelope interior along the outside edge.
-  const FW = W * 0.9
-  const FH = H * 0.9
-  const far = new THREE.Mesh(
+  const card = new THREE.Mesh(
     sheet([
-      [-FW / 2, -FH / 2],
-      [FW / 2, -FH / 2],
-      [FW / 2, FH / 2],
-      [-FW / 2, FH / 2],
+      [-CARD_W / 2, -CARD_H / 2],
+      [CARD_W / 2, -CARD_H / 2],
+      [CARD_W / 2, CARD_H / 2],
+      [-CARD_W / 2, CARD_H / 2],
     ]),
     new THREE.MeshPhysicalMaterial({
-      color: 0x8c775f,
-      roughness: 0.78,
+      color: 0xfbf7ec,
+      roughness: 0.7,
       metalness: 0,
-      sheen: 0.6,
-      sheenRoughness: 0.8,
-      sheenColor: new THREE.Color(0xffe9c8),
+      sheen: 0.8,
+      sheenRoughness: 0.7,
+      sheenColor: new THREE.Color(0xfffaf0),
+      map: cardFace(),
       bumpMap: grain,
-      bumpScale: 0.5,
+      bumpScale: 0.35,
       side: THREE.DoubleSide,
     }),
   )
-  far.position.z = POCKET_Z
-  far.receiveShadow = true
-  scene.add(far)
+  card.position.z = -0.02
+  card.castShadow = true
+  envelope.add(card)
 
-  // The near wall's top edge is the mouth: a shallow V, low at the centre,
-  // which is where a card is pushed in.
-  const near = new THREE.Mesh(
+  const front = new THREE.Mesh(
     sheet([
       [-W / 2, -H / 2],
       [W / 2, -H / 2],
-      [W / 2, MOUTH_SIDE_Y],
-      [0.006, MOUTH_MID_Y],
-      [-W / 2, MOUTH_SIDE_Y],
+      [W / 2, H / 2],
+      [-W / 2, H / 2],
     ]),
-    backMat,
+    paperMat,
   )
-  near.castShadow = true
-  near.receiveShadow = true
-  envelope.add(near)
-
-  // The side flaps' inner edges, which give the back its two diagonals.
-  const tint = (mat: THREE.MeshPhysicalMaterial, hex: number) => {
-    const m = mat.clone()
-    m.color = new THREE.Color(hex)
-    return m
-  }
-
-  const sideL = new THREE.Mesh(
-    sheet([
-      [-W / 2, MOUTH_SIDE_Y],
-      [-0.008, TIP_Y - 0.03],
-      [-W / 2, -H / 2],
-    ]),
-    tint(paperMat, 0xd7c3a8),
-  )
-  sideL.position.z = T
-  sideL.castShadow = true
-  sideL.receiveShadow = true
-  envelope.add(sideL)
-
-  const sideR = new THREE.Mesh(
-    sheet([
-      [W / 2, MOUTH_SIDE_Y],
-      [0.01, TIP_Y - 0.036],
-      [W / 2, -H / 2],
-    ]),
-    tint(paperMat, 0xc9b399),
-  )
-  sideR.position.z = T
-  sideR.castShadow = true
-  sideR.receiveShadow = true
-  envelope.add(sideR)
-
-  // The bottom flap folds up last, over both of them.
-  const bottom = new THREE.Mesh(
-    sheet([
-      [-W / 2, -H / 2],
-      [W / 2, -H / 2],
-      [W * 0.3, TIP_Y - 0.06],
-      [-W * 0.3, TIP_Y - 0.066],
-    ]),
-    tint(paperMat, 0xccb69c),
-  )
-  bottom.position.z = T * 2
-  bottom.castShadow = true
-  bottom.receiveShadow = true
-  envelope.add(bottom)
+  front.castShadow = true
+  front.receiveShadow = true
+  envelope.add(front)
 
   // ── The pointed flap, on its hinge ────────────────────────────
-  // Built with the fold at y = 0 so the group simply turns on X. Rotating
-  // forward swings the tip up and back, which is the way a real flap opens.
   const hinge = new THREE.Group()
-  hinge.position.set(0, FLAP_HINGE_Y, 0.014)
+  hinge.position.set(0, FLAP_HINGE_Y, 0.012)
   envelope.add(hinge)
 
   const flap = new THREE.Mesh(
     sheet([
       [-W / 2, 0],
       [W / 2, 0],
-      [0.016, -FLAP_DROP],
-      [-0.016, -FLAP_DROP],
+      [0.014, -FLAP_DROP],
+      [-0.014, -FLAP_DROP],
     ]),
     flapMat,
   )
-  flap.position.z = 0.012
+  flap.position.z = 0.01
   flap.castShadow = true
   flap.receiveShadow = true
   hinge.add(flap)
 
   // ── Wax ───────────────────────────────────────────────────────
   const waxMat = new THREE.MeshPhysicalMaterial({
-    color: 0xa8763c,
+    color: 0x4d6146,
     roughness: 0.34,
-    metalness: 0.35,
+    metalness: 0.06,
     clearcoat: 0.35,
     clearcoatRoughness: 0.45,
     bumpMap: waxDieTexture(),
@@ -416,36 +435,65 @@ export function createEnvelopeScene(
   })
   boxUVs(waxGeo)
   const wax = new THREE.Mesh(waxGeo, waxMat)
-  wax.position.set(0, TIP_Y + 0.008, 0.032)
+  wax.position.set(0, TIP_Y + 0.008, 0.03)
   wax.rotation.z = -0.09
   wax.castShadow = true
   envelope.add(wax)
 
+  // The botanical emblem, in champagne gold. Its own mesh rather than more
+  // relief in the wax: the brief asks for gold on green, and a bump map can
+  // only ever give a lighter shade of whatever is underneath it.
+  const emblemMat = new THREE.MeshPhysicalMaterial({
+    color: 0xd9bb72,
+    roughness: 0.22,
+    metalness: 0.9,
+    clearcoat: 0.3,
+  })
+  const emblem = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(emblemShape(0.042), {
+      depth: 0.004,
+      bevelEnabled: true,
+      bevelSize: 0.0022,
+      bevelThickness: 0.002,
+      bevelSegments: 2,
+      curveSegments: 4,
+    }),
+    emblemMat,
+  )
+  emblem.position.set(0, TIP_Y + 0.008, 0.043)
+  emblem.rotation.z = -0.09
+  envelope.add(emblem)
+
   // ── The surface behind, so the envelope has something to sit on
   // and cast onto. On a phone the crop is tight enough that it never
   // shows; on a desktop it is most of the frame.
+  // Only the shadow, never the surface. A lit plane behind the envelope has
+  // to be lit correctly or it goes muddy, and it can never match the page
+  // around the canvas; a shadow-only material is transparent everywhere else,
+  // so the ivory of the page itself becomes the stationery the envelope is
+  // lying on and the two can never drift apart.
   const backdrop = new THREE.Mesh(
     new THREE.PlaneGeometry(26, 26),
-    new THREE.MeshStandardMaterial({ color: 0x322a23, roughness: 1 }),
+    new THREE.ShadowMaterial({ opacity: 0.2 }),
   )
-  backdrop.position.z = -1.9
+  backdrop.position.z = -0.32
   backdrop.receiveShadow = true
   scene.add(backdrop)
 
   // ── Light ─────────────────────────────────────────────────────
   // One warm key from the upper left decides every shadow in the frame.
-  const key = new THREE.DirectionalLight(0xfff0d8, 1.55)
-  key.position.set(-1.7, 2.1, 2.6)
+  const key = new THREE.DirectionalLight(0xfff3e0, 2.1)
+  key.position.set(-1.5, 1.9, 2.9)
   key.castShadow = true
-  key.shadow.mapSize.set(768, 768)
+  key.shadow.mapSize.set(1024, 1024)
   key.shadow.camera.near = 0.5
-  key.shadow.camera.far = 9
-  key.shadow.camera.left = -1.6
-  key.shadow.camera.right = 1.6
-  key.shadow.camera.top = 1.6
-  key.shadow.camera.bottom = -1.6
+  key.shadow.camera.far = 12
+  key.shadow.camera.left = -2.4
+  key.shadow.camera.right = 2.4
+  key.shadow.camera.top = 2.4
+  key.shadow.camera.bottom = -2.4
   key.shadow.bias = -0.0012
-  key.shadow.radius = 3
+  key.shadow.radius = 7
   scene.add(key)
 
   const fill = new THREE.DirectionalLight(0xdfe8ff, 0.16)
@@ -463,7 +511,7 @@ export function createEnvelopeScene(
 
   // The light shut inside the envelope. Dark until the flap gives.
   const inside = new THREE.PointLight(0xffcf8c, 0, 2.2, 2)
-  inside.position.set(0, 0.24, POCKET_Z / 2)
+  inside.position.set(0, 0.2, -0.05)
   envelope.add(inside)
 
   // ── Framing ───────────────────────────────────────────────────
@@ -471,15 +519,35 @@ export function createEnvelopeScene(
   // width hard — which is exactly the close-in framing the whole thing is
   // built around — and on a landscape one it leaves the surface visible
   // around it.
-  const LOOK_Y = 0.075
+  // The whole envelope, with room around it, sized as a share of the
+  // viewport's width rather than cropped to its height. On a tall phone that
+  // leaves a lot of space above and below, which is what the masthead and the
+  // cue are for.
+  const LOOK_Y = 0.06
   let baseZ = 3
   function frame() {
     const w = canvas.clientWidth || window.innerWidth
     const h = canvas.clientHeight || window.innerHeight
     renderer.setSize(w, h, false)
-    camera.aspect = w / h
-    const coverH = H * 0.74
-    baseZ = coverH / 2 / Math.tan((camera.fov * Math.PI) / 360)
+    const aspect = w / h
+    camera.aspect = aspect
+    const tanHalf = Math.tan((camera.fov * Math.PI) / 360)
+
+    // The brief sizes the envelope against the viewport's width and names
+    // devices, not aspect ratios — about seven eighths of a phone easing to
+    // under two thirds of a desktop.
+    const t = Math.min(1, Math.max(0, (w - 480) / 720))
+    const share = 0.88 + (0.62 - 0.88) * t
+    baseZ = W / share / (2 * tanHalf * aspect)
+
+    // Two guards. On a very tall frame the width fit alone would leave the
+    // envelope a stamp in the middle; on a short wide one it would grow until
+    // it crowded the masthead and the cue off the screen. On a window short
+    // enough for the two to disagree, height wins and the envelope comes in
+    // under its width share — losing the heading is the worse trade.
+    baseZ = Math.min(baseZ, H / 0.24 / (2 * tanHalf))
+    baseZ = Math.max(baseZ, H / 0.72 / (2 * tanHalf))
+
     camera.position.set(0, LOOK_Y, baseZ * zoom)
     camera.lookAt(0, LOOK_Y, 0)
     camera.updateProjectionMatrix()
@@ -530,43 +598,50 @@ export function createEnvelopeScene(
     if (opening) {
       const t = (performance.now() - t0) / 1000
 
-      // The wax gives first, then falls away.
-      const s = clamp01((t - 0.1) / 0.62)
-      wax.position.y = TIP_Y + 0.01 - ease(s) * 0.42
-      wax.position.z = T * 4 + ease(s) * 0.22
-      wax.rotation.z = -0.09 - ease(s) * 0.7
-      wax.rotation.x = ease(s) * 1.1
-      waxMat.opacity = 1 - clamp01((t - 0.42) / 0.4)
-      waxMat.transparent = true
-      wax.visible = waxMat.opacity > 0.01
-
-      // The flap turns back on its fold.
-      const f = clamp01((t - 0.46) / 1.5)
-      hinge.rotation.x = easeInOut(f) * 2.1
-
-      // And the light that was shut inside comes up.
-      inside.intensity = clamp01((t - 0.5) / 0.9) * 3.4
-
       // The pose comes square as it opens: a tilted envelope is a nice
       // object to look at, but a crooked doorway to walk through.
-      const settle = ease(clamp01((t - 0.2) / 1.1))
+      const settle = ease(clamp01(t / 0.8))
       pose.rotation.x = -0.055 * (1 - settle)
       pose.rotation.y = -0.105 * (1 - settle)
       pose.rotation.z = 0.02 * (1 - settle)
       pose.position.y = 0
 
-      // The camera gives ground first, so the flap is actually watched
-      // opening, and only then dives through the mouth. Pushing in from the
-      // start would hold the fold above the top of the frame the whole way.
-      const out = ease(clamp01((t - 0.28) / 1.05))
-      const dive = ease(clamp01((t - 1.5) / 1.3))
-      zoom = 1 + out * 0.24 - dive * 0.78
+      // The wax gives first, then falls away.
+      const sealT = clamp01((t - 0.05) / 0.5)
+      wax.position.y = TIP_Y + 0.008 - ease(sealT) * 0.4
+      wax.position.z = 0.03 + ease(sealT) * 0.2
+      wax.rotation.z = -0.09 - ease(sealT) * 0.7
+      wax.rotation.x = ease(sealT) * 1.1
+      emblem.position.copy(wax.position)
+      emblem.position.z += 0.013
+      emblem.rotation.copy(wax.rotation)
+      const sealFade = 1 - clamp01((t - 0.36) / 0.34)
+      waxMat.transparent = true
+      emblemMat.transparent = true
+      waxMat.opacity = sealFade
+      emblemMat.opacity = sealFade
+      wax.visible = emblem.visible = sealFade > 0.01
 
-      if (!revealed && t > 2.25) {
+      // The flap lifts on its fold.
+      const f = clamp01((t - 0.3) / 0.9)
+      hinge.rotation.x = easeInOut(f) * 2.15
+
+      // And the card rises out of the envelope.
+      const c = clamp01((t - 0.72) / 1.05)
+      card.position.y = easeInOut(c) * 0.58
+      card.position.z = -0.02 + easeInOut(c) * 0.14
+
+      // The light shut inside comes up behind it.
+      inside.intensity = clamp01((t - 0.5) / 0.7) * 1.1
+
+      // The camera gives a little ground so the card has somewhere to go.
+      zoom = 1 + ease(clamp01((t - 0.3) / 1.1)) * 0.42
+
+      if (!revealed && t > 1.95) {
         revealed = true
         opts.onRevealed?.()
       }
-      if (!finished && t > 3.2) {
+      if (!finished && t > 2.6) {
         finished = true
         opts.onFinished?.()
       }

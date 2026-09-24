@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { EnvelopeFlat } from './EnvelopeFlat'
+import { GateMasthead } from './GateMasthead'
+import { GoldCorners } from './GoldCorners'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import type { EnvelopeScene } from '../three/envelopeScene'
 import './Envelope.css'
@@ -115,13 +117,17 @@ export function Envelope({ onReveal }: EnvelopeProps) {
         }
       />
 
+      <GoldCorners />
+
+      <GateMasthead ready={ready} opening={opening} />
+
       <motion.p
         className="gate__hint"
         animate={
           opening
             ? { opacity: 0, y: 6 }
             : ready
-              ? { opacity: [0.4, 0.95, 0.4] }
+              ? { opacity: [0.45, 1, 0.45] }
               : { opacity: 0 }
         }
         transition={
@@ -132,6 +138,14 @@ export function Envelope({ onReveal }: EnvelopeProps) {
       >
         Tap to open
       </motion.p>
+
+      {opening && (
+        <div className="gate__sparks" aria-hidden="true">
+          {Array.from({ length: 20 }, (_, i) => (
+            <span key={i} className={`gate__spark gate__spark--${i % 5}`} />
+          ))}
+        </div>
+      )}
 
       {!opening && ready && (
         <button

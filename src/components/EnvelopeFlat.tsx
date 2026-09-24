@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { DaisyRelief } from './DaisyRelief'
+import { GateMasthead } from './GateMasthead'
+import { GoldCorners } from './GoldCorners'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import './Envelope.css'
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const
 
-// Beats of the opening, in seconds from the tap. The envelope fills the
-// frame, so there is nowhere for a card to be drawn out to — instead the
-// flap lifts and the light that was shut inside floods forward and takes
-// over the screen.
+// Beats of the opening, in seconds from the tap. The flap lifts, the camera
+// pushes in past the paper's edge, and the light that was shut inside floods
+// forward and takes over the screen.
 const SEAL_AT = 0.12
 const SEAL_DUR = 0.66
 const FLAP_AT = 0.34
@@ -82,6 +83,9 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
       animate={{ opacity: opening && reduced ? 0 : 1 }}
       transition={{ duration: 0.45, ease: 'easeIn' }}
     >
+      <GoldCorners />
+      <GateMasthead ready={!gone} opening={opening} />
+
       {/* The camera eases in as the flap gives, so the paper grows past the
           frame and the viewer ends up inside the envelope rather than
           watching it from across a room. */}
@@ -172,6 +176,7 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
             floods the frame rather than being clipped to the opening. */}
         <motion.div
           className="gate__bloom"
+          initial={{ opacity: 0, scale: 0.3 }}
           animate={
             run
               ? { opacity: [0, 0.5, 1, 1], scale: [0.3, 0.85, 2.4, 6] }
