@@ -23,9 +23,17 @@ export const venue = {
   // A search link rather than a dropped pin: it resolves in the Maps app on
   // a phone and on the web, and does not depend on coordinates that have not
   // been confirmed.
+  address: 'Pavillion Watergate, Butuan City, Agusan del Norte, Philippines',
   mapsUrl:
     'https://www.google.com/maps/search/?api=1&query=' +
     encodeURIComponent('Pavillion Watergate, Butuan City, Philippines'),
+  // The same search, rendered inline. Keyless, so there is no API key to
+  // leak or to expire the week of the wedding.
+  embedUrl:
+    'https://www.google.com/maps?output=embed&q=' +
+    encodeURIComponent('Pavillion Watergate, Butuan City, Philippines'),
+  note:
+    'Parking is available on site. The ceremony and the reception are both held here, so there is no travel between them.',
 }
 
 export const rsvp = {
@@ -147,6 +155,55 @@ export const details = [
     note: 'Dinner, toasts, and dancing to follow at the same venue.',
   },
 ] as const
+
+export type ProgramEntry = {
+  time: string
+  /** 24-hour, for the <time> element a screen reader and a search engine read. */
+  iso: string
+  title: string
+  note: string
+}
+
+/** The order of the day. Doors and ceremony are fixed; the hours after them
+    are the couple's intended shape for the evening and are easy to adjust. */
+export const program: ProgramEntry[] = [
+  {
+    time: 'Half past two',
+    iso: '14:30',
+    title: 'Doors open',
+    note: 'Guests are welcomed and seated. Please arrive with time to spare.',
+  },
+  {
+    time: 'Three o’clock',
+    iso: '15:00',
+    title: 'The ceremony',
+    note: 'Ryan and Angel are married. The ceremony begins promptly.',
+  },
+  {
+    time: 'Four o’clock',
+    iso: '16:00',
+    title: 'Cocktails & photographs',
+    note: 'Drinks on the terrace while the family portraits are taken.',
+  },
+  {
+    time: 'Half past five',
+    iso: '17:30',
+    title: 'Dinner & toasts',
+    note: 'Guests are seated for dinner, followed by the speeches.',
+  },
+  {
+    time: 'Seven o’clock',
+    iso: '19:00',
+    title: 'The first dance',
+    note: 'The floor opens to everyone once the first dance is done.',
+  },
+  {
+    time: 'Eight o’clock',
+    iso: '20:00',
+    title: 'Last song',
+    note: 'A send-off for the newlyweds to close the evening.',
+  },
+]
 
 export const dressCode = {
   label: 'Attire',

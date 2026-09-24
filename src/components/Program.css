@@ -1,0 +1,123 @@
+/* ── The order of the day ────────────────────────────────────────
+   One rule down the page with the hours marked on it. On a phone the rule
+   sits at the left and everything hangs off it; from the tablet width up the
+   time moves to its own column and the rule runs between the two, so the
+   hours line up as a column you can read down. */
+
+.program {
+  background: var(--warm-ivory);
+}
+
+.program__list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  width: min(760px, 100%);
+}
+
+.program__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: clamp(1.1rem, 3vw, 1.8rem);
+  padding-bottom: clamp(2.4rem, 5vw, 3.4rem);
+  /* The rule itself: drawn on each row rather than once behind the list, so
+     it stops cleanly at the last entry instead of running past it. */
+  padding-left: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.program__row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  bottom: 0;
+  width: 1px;
+  background: var(--bronze-soft);
+}
+
+.program__row:last-child {
+  padding-bottom: 0;
+}
+
+/* The last hour's rule stops at its own marker — a line continuing past the
+   final entry reads as a programme that was cut off. */
+.program__row:last-child::before {
+  bottom: auto;
+  height: 0;
+}
+
+.program__marker {
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  translate: -3px 0;
+  rotate: 45deg;
+  background: var(--champagne);
+}
+
+.program__time {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  /* Its own row on a phone: at this tracking the longer hours would otherwise
+     force the heading into a narrow column beside them. */
+  grid-column: 1 / -1;
+  margin-bottom: 0.5rem;
+}
+
+.program__body {
+  grid-column: 1 / -1;
+}
+
+.program__title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+  line-height: 1.25;
+  margin-bottom: 0.45rem;
+}
+
+.program__note {
+  font-family: var(--sans);
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--ink-soft, var(--paper-text));
+  max-width: 46ch;
+}
+
+@media (min-width: 720px) {
+  .program__row {
+    grid-template-columns: 11.5rem 1fr;
+    padding-left: 0;
+    column-gap: 0;
+  }
+
+  /* The rule moves between the two columns, so the hours read down the left
+     and the programme down the right. */
+  .program__row::before {
+    left: 11.5rem;
+  }
+
+  .program__marker {
+    left: 11.5rem;
+  }
+
+  .program__time {
+    grid-column: 1;
+    margin-bottom: 0;
+    padding-right: clamp(1.4rem, 3vw, 2rem);
+    text-align: right;
+    /* Optically level with the first line of the heading beside it. */
+    padding-top: 0.42em;
+  }
+
+  .program__body {
+    grid-column: 2;
+    padding-left: clamp(1.4rem, 3vw, 2rem);
+  }
+}

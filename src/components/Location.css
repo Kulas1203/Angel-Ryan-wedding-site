@@ -1,0 +1,266 @@
+/* ── The venue ───────────────────────────────────────────────────
+   Address on one side, map on the other. The map is the only element on the
+   page with a hard rectangular edge, so it is given a hairline and a soft
+   shadow rather than being left to sit flat on the ivory. */
+
+.location {
+  background: var(--soft-beige);
+}
+
+.location__layout {
+  display: grid;
+  gap: clamp(2.4rem, 5vw, 3.6rem);
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .location__layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(3rem, 5vw, 4.5rem);
+  }
+}
+
+/* ── The address ─────────────────────────────────────────────── */
+
+.location__aside {
+  text-align: center;
+}
+
+@media (min-width: 900px) {
+  .location__aside {
+    text-align: left;
+  }
+}
+
+.location__name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.location__address {
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  margin-top: 0.7rem;
+  max-width: 34ch;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .location__address {
+    margin-inline: 0;
+  }
+}
+
+.location__divider {
+  display: block;
+  width: 46px;
+  height: 1px;
+  background: var(--champagne-soft);
+  margin: clamp(1.4rem, 3vw, 1.9rem) auto;
+}
+
+@media (min-width: 900px) {
+  .location__divider {
+    margin-inline: 0;
+  }
+}
+
+.location__note {
+  font-family: var(--sans);
+  font-size: 0.93rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  max-width: 40ch;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .location__note {
+    margin-inline: 0;
+  }
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+
+.location__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.7rem, 2vw, 1rem);
+  margin-top: clamp(1.8rem, 4vw, 2.4rem);
+}
+
+@media (min-width: 900px) {
+  .location__actions {
+    justify-content: flex-start;
+  }
+}
+
+/* The same pill as the day's section, inverted for a light ground: the
+   champagne is decoration here, never the text colour — at 2.4:1 on ivory it
+   would not be readable as type. */
+.location__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  /* Tall enough to be a comfortable tap target on a phone. */
+  padding: 0.95rem 1.7rem;
+  min-height: 46px;
+  cursor: pointer;
+  transition:
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.location__action--primary {
+  background: var(--alabaster);
+}
+
+.location__action:hover {
+  border-color: var(--sage-green);
+  background: rgba(135, 155, 122, 0.12);
+}
+
+.location__action:focus-visible {
+  outline: 2px solid var(--emerald);
+  outline-offset: 3px;
+}
+
+.location__action svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  fill: none;
+  stroke: var(--deep-sage);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 420px) {
+  .location__action {
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    padding-inline: 1.3rem;
+  }
+}
+
+/* ── The map ─────────────────────────────────────────────────── */
+
+.location__map {
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 2px 6px rgba(27, 42, 33, 0.06),
+    0 18px 44px rgba(27, 42, 33, 0.1);
+  /* Wide and shallow on a phone, squarer once it has a column of its own. */
+  aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 900px) {
+  .location__map {
+    aspect-ratio: 16 / 11;
+  }
+}
+
+.location__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* Google's tiles are brighter and bluer than anything else on the page;
+     easing the saturation lets the map sit in the palette without going so
+     grey that the roads stop being legible. */
+  filter: saturate(0.72) contrast(0.96);
+}
+
+/* ── The map's stand-in ──────────────────────────────────────────
+   Shown until the guest asks for the map. It is a drawing, not a tile: a
+   few streets, a river and a pin, in the page's own palette. */
+
+.location__placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.9rem;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: linear-gradient(168deg, var(--warm-ivory) 0%, #eee9dc 62%, #e4ddcc 100%);
+  transition: background-color 0.4s ease;
+}
+
+.location__sketch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(135, 155, 122, 0.34);
+  stroke-width: 1.4;
+  /* The roads are drawn past the edges of the viewBox, so none of them ends
+     in mid-air inside the frame. */
+}
+
+.location__river {
+  stroke: rgba(201, 168, 92, 0.34);
+  stroke-width: 2.4;
+}
+
+.location__pin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--alabaster);
+  box-shadow: 0 3px 10px rgba(27, 42, 33, 0.14);
+}
+
+.location__pin svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--deep-sage);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.location__placeholder-label {
+  position: relative;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.location__placeholder:hover {
+  background: linear-gradient(168deg, #fbf9f3 0%, #f1ece0 62%, #e8e2d2 100%);
+}
+
+.location__placeholder:focus-visible {
+  outline: 2px solid var(--emerald);
+  outline-offset: -3px;
+}

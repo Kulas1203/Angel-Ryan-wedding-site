@@ -8,6 +8,8 @@ import { Countdown } from './components/Countdown'
 import { Invitation } from './components/Invitation'
 import { Story } from './components/Story'
 import { Details } from './components/Details'
+import { Program } from './components/Program'
+import { Location } from './components/Location'
 import { Gallery } from './components/Gallery'
 import { Rsvp, RsvpFab } from './components/Rsvp'
 import { Footer } from './components/Footer'
@@ -57,6 +59,8 @@ export default function App() {
         <Invitation onRsvp={() => setRsvpOpen(true)} />
         <Story />
         <Details />
+        <Program />
+        <Location />
         <Gallery />
       </main>
       <Footer />

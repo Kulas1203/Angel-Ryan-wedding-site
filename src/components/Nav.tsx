@@ -7,6 +7,8 @@ const links = [
   { label: 'Invitation', target: '#invitation' },
   { label: 'Our Story', target: '#story' },
   { label: 'Details', target: '#details' },
+  { label: 'Programme', target: '#program' },
+  { label: 'Venue', target: '#location' },
   { label: 'Gallery', target: '#gallery' },
 ]
 
