@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import { DaisyRelief } from './DaisyRelief'
+import { Sprig } from './Sprig'
 import { GateMasthead } from './GateMasthead'
-import { GoldCorners } from './GoldCorners'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import './Envelope.css'
 
@@ -83,7 +82,6 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
       animate={{ opacity: opening && reduced ? 0 : 1 }}
       transition={{ duration: 0.45, ease: 'easeIn' }}
     >
-      <GoldCorners />
       <GateMasthead ready={!gone} opening={opening} />
 
       {/* The camera eases in as the flap gives, so the paper grows past the
@@ -129,13 +127,18 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
           >
             <span className="gate__flap-face" aria-hidden="true" />
             <span className="gate__flap-edge" aria-hidden="true" />
-            <div className="gate__flower">
-              <DaisyRelief />
-            </div>
+            {/* The printed sprig, inside the flap's upper-left shoulder. */}
+            <Sprig
+              className="gate__sprig gate__sprig--flap"
+              ox={0.12}
+              oy={0.3}
+              angle={-0.3}
+              seed={91}
+            />
           </motion.div>
 
-          {/* Wax, struck with the couple's mark inside a ring of petals. It
-              gives first: the light catches it, then it loosens off the paper. */}
+          {/* Wax, struck with a single gold sprig. It gives first: the light
+              catches it, then it loosens off the paper. */}
           <motion.div
             className="gate__seal-pos"
             animate={
@@ -148,25 +151,18 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
             <div className="gate__seal">
               <span className="gate__seal-rim" aria-hidden="true" />
               <span className="gate__seal-field" aria-hidden="true" />
-              {/* The die's flower, struck into the well — the same bloom that
-                  is embossed on the flap above, pressed small. */}
-              <svg className="gate__seal-die" viewBox="0 0 100 100" aria-hidden="true">
-                <g className="gate__seal-petal">
-                  {Array.from({ length: 18 }, (_, i) => (
-                    <ellipse
-                      key={i}
-                      cx="50"
-                      cy="27"
-                      rx="3.7"
-                      ry="17"
-                      transform={`rotate(${i * 20} 50 50)`}
-                    />
-                  ))}
-                </g>
-                <circle className="gate__seal-eye" cx="50" cy="50" r="8.4" />
-              </svg>
+              {/* The die's own sprig, the same drawing pressed small. */}
+              <Sprig kind="seal" className="gate__seal-die" />
             </div>
           </motion.div>
+
+          <Sprig
+            className="gate__sprig gate__sprig--body"
+            ox={0.9}
+            oy={0.92}
+            angle={-2.05}
+            seed={17}
+          />
 
           <span className="gate__light" aria-hidden="true" />
         </div>

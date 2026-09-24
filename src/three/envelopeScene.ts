@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import { DAISY_BUMP_URL } from './daisyBump'
+import { drawSealSprig, drawSprig } from './botanical'
 
 /**
  * The sealed envelope, as an actual object in a lit scene.
@@ -26,7 +26,7 @@ const TIP_Y = FLAP_HINGE_Y - FLAP_DROP
 const CARD_W = W * 0.93
 const CARD_H = H * 0.88
 
-const PAPER = 0x9aae8b
+const PAPER_HEX = '#87977a'
 
 export interface EnvelopeScene {
   open(): void
@@ -62,6 +62,57 @@ function shapeFrom(pts: [number, number][]) {
   for (let i = 1; i < pts.length; i++) s.lineTo(pts[i][0], pts[i][1])
   s.closePath()
   return s
+}
+
+/**
+ * The flap: a wide shallow triangle whose two shoulders and whose point are
+ * all rounded, with the long edges bowed very slightly outward. A flap cut
+ * to sharp corners reads as a paper dart; the radii are what make it read as
+ * stock that was folded.
+ */
+function flapShape(w = W, drop = FLAP_DROP) {
+  const hw = w / 2
+  const rc = w * 0.045 // the two top shoulders
+  const rt = w * 0.032 // the point
+  const len = Math.hypot(hw, drop)
+  const ux = -hw / len // along the right edge, corner → point
+  const uy = -drop / len
+  const nx = -uy // and outward from it
+  const ny = ux
+  const bow = w * 0.011
+
+  // Where the shoulder rejoins the slanted edge, and where the point's own
+  // radius begins.
+  const cx = hw + ux * rc
+  const cy = uy * rc
+  const px = hw + ux * (len - rt)
+  const py = uy * (len - rt)
+  const mx = (cx + px) / 2 + nx * bow
+  const my = (cy + py) / 2 + ny * bow
+
+  const s = new THREE.Shape()
+  s.moveTo(-hw + rc, 0)
+  s.lineTo(hw - rc, 0)
+  s.quadraticCurveTo(hw, 0, cx, cy)
+  s.quadraticCurveTo(mx, my, px, py)
+  s.quadraticCurveTo(0, -drop, -px, py)
+  s.quadraticCurveTo(-mx, my, -cx, cy)
+  s.quadraticCurveTo(-hw, 0, -hw + rc, 0)
+  s.closePath()
+  return s
+}
+
+function extrude(shape: THREE.Shape, depth = T) {
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    depth,
+    bevelEnabled: true,
+    bevelSize: 0.0016,
+    bevelThickness: 0.0016,
+    bevelSegments: 2,
+    curveSegments: 14,
+  })
+  boxUVs(geo)
+  return geo
 }
 
 function sheet(pts: [number, number][], depth = T) {
@@ -108,39 +159,78 @@ function waxShape(r = 0.066) {
   return shapeFrom(pts)
 }
 
+/** A canvas of the bare stock, ready to be printed on. */
+function stock(w: number, h: number) {
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const ctx = c.getContext('2d')!
+  ctx.fillStyle = PAPER_HEX
+  ctx.fillRect(0, 0, w, h)
+  return { c, ctx }
+}
+
+function canvasTex(c: HTMLCanvasElement) {
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = 8
+  return t
+}
+
 /**
- * The seal's emblem: a ring of leaves around a centre, echoing the sprigs at
- * the corners of the page so the suite reads as one hand.
+ * The flap's face: the stock with one sprig inside the upper-left shoulder.
+ *
+ * The canvas is laid across the flap's bounding box, and CanvasTexture flips
+ * on load, so the top of the canvas is the top of the flap and the art can be
+ * placed by eye.
  */
-function emblemShape(r: number) {
-  const s = new THREE.Shape()
-  const leaves = 8
-  for (let i = 0; i < leaves; i++) {
-    const a = (i / leaves) * Math.PI * 2
-    const ux = Math.cos(a)
-    const uy = Math.sin(a)
-    const nx = -uy
-    const ny = ux
-    const base = 0.34 * r
-    const tip = 1.55 * r
-    const half = 0.3 * r
-    s.moveTo(ux * base, uy * base)
-    s.quadraticCurveTo(
-      ux * tip * 0.55 + nx * half,
-      uy * tip * 0.55 + ny * half,
-      ux * tip,
-      uy * tip,
-    )
-    s.quadraticCurveTo(
-      ux * tip * 0.55 - nx * half,
-      uy * tip * 0.55 - ny * half,
-      ux * base,
-      uy * base,
-    )
+function flapFace() {
+  const w = 1400
+  const h = Math.round(w * (FLAP_DROP / W))
+  const { c, ctx } = stock(w, h)
+  drawSprig(ctx, w * 0.135, h * 0.3, w * 0.185, -0.3, 91)
+  return canvasTex(c)
+}
+
+/** The body, with the larger sprig low on the right where the flap's edge
+    leaves the stock bare. */
+function frontFace() {
+  const w = 1400
+  const h = Math.round(w * (H / W))
+  const { c, ctx } = stock(w, h)
+
+  // This is the back of the envelope — it has to be, or there would be no
+  // flap to open — so the two side flaps folded in underneath show as faint
+  // creases converging below the seal. Each is drawn as a shadow with a lit
+  // side beside it, because that is all a crease in paper is.
+  ctx.lineWidth = Math.max(1.5, w * 0.0014)
+  const crease = (x0: number, y0: number, x1: number, y1: number) => {
+    ctx.strokeStyle = 'rgba(58, 70, 50, 0.16)'
+    ctx.beginPath()
+    ctx.moveTo(x0, y0)
+    ctx.lineTo(x1, y1)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(232, 240, 220, 0.16)'
+    ctx.beginPath()
+    ctx.moveTo(x0, y0 + ctx.lineWidth)
+    ctx.lineTo(x1, y1 + ctx.lineWidth)
+    ctx.stroke()
   }
-  s.moveTo(0.42 * r, 0)
-  s.absarc(0, 0, 0.42 * r, 0, Math.PI * 2, false)
-  return s
+  crease(0, h * 0.29, w * 0.5, h * 0.82)
+  crease(w, h * 0.29, w * 0.5, h * 0.82)
+
+  drawSprig(ctx, w * 0.945, h * 0.95, w * 0.2, -2.05, 17)
+  return canvasTex(c)
+}
+
+/** The small gold sprig struck into the middle of the wax. */
+function sealEmblemTexture() {
+  const s = 320
+  const c = document.createElement('canvas')
+  c.width = c.height = s
+  const ctx = c.getContext('2d')!
+  drawSealSprig(ctx, s * 0.5, s * 0.87, s * 0.74)
+  return canvasTex(c)
 }
 
 /** The invitation's printed face, so the card that rises out says something. */
@@ -194,45 +284,6 @@ function cardFace() {
   return tex
 }
 
-/** The die's flower, as a height field drawn straight to a canvas. */
-function waxDieTexture() {
-  const c = document.createElement('canvas')
-  c.width = c.height = 512
-  const g = c.getContext('2d')!
-  g.fillStyle = '#6e6e6e'
-  g.fillRect(0, 0, 512, 512)
-  // A ring of petals around a clear centre.
-  g.translate(256, 256)
-  for (let i = 0; i < 18; i++) {
-    g.save()
-    g.rotate((i * Math.PI * 2) / 18)
-    g.beginPath()
-    g.ellipse(0, -118, 26, 84, 0, 0, Math.PI * 2)
-    g.fillStyle = '#d2d2d2'
-    g.fill()
-    g.lineWidth = 3
-    g.strokeStyle = '#5a5a5a'
-    g.stroke()
-    g.restore()
-  }
-  g.beginPath()
-  g.arc(0, 0, 44, 0, Math.PI * 2)
-  g.fillStyle = '#e6e6e6'
-  g.fill()
-  g.lineWidth = 3
-  g.strokeStyle = '#5a5a5a'
-  g.stroke()
-  // Same reason as the flower: a ridge needs a ramp, not a cliff.
-  const blurred = document.createElement('canvas')
-  blurred.width = blurred.height = 512
-  const bg = blurred.getContext('2d')!
-  bg.filter = 'blur(3px)'
-  bg.drawImage(c, 0, 0)
-  const tex = new THREE.CanvasTexture(blurred)
-  tex.colorSpace = THREE.NoColorSpace
-  return tex
-}
-
 
 /**
  * Renders an image to a canvas through a blur, and hands back a texture.
@@ -242,29 +293,6 @@ function waxDieTexture() {
  * art. The blur puts a ramp on every edge, which is the bevel a press
  * actually leaves in the stock.
  */
-function blurredTexture(url: string, w: number, h: number, blur: number) {
-  const c = document.createElement('canvas')
-  c.width = w
-  c.height = h
-  const g = c.getContext('2d')!
-  // Mid-grey is the flat plane; it must also back the blur so the edges of
-  // the patch do not fall away into black.
-  g.fillStyle = '#808080'
-  g.fillRect(0, 0, w, h)
-  const tex = new THREE.CanvasTexture(c)
-  tex.colorSpace = THREE.NoColorSpace
-  const img = new Image()
-  img.crossOrigin = 'anonymous'
-  img.onload = () => {
-    g.filter = `blur(${blur}px)`
-    g.drawImage(img, 0, 0, w, h)
-    g.filter = 'none'
-    tex.needsUpdate = true
-  }
-  img.src = url
-  return tex
-}
-
 export function createEnvelopeScene(
   canvas: HTMLCanvasElement,
   opts: Options = {},
@@ -278,7 +306,7 @@ export function createEnvelopeScene(
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.06
+  renderer.toneMappingExposure = 0.92
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
@@ -291,7 +319,7 @@ export function createEnvelopeScene(
   const pmrem = new THREE.PMREMGenerator(renderer)
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04)
   scene.environment = envRT.texture
-  scene.environmentIntensity = 0.5
+  scene.environmentIntensity = 0.3
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40)
 
   // ── Textures ──────────────────────────────────────────────────
@@ -301,38 +329,33 @@ export function createEnvelopeScene(
   grain.repeat.set(3, 2)
   grain.colorSpace = THREE.NoColorSpace
 
-  const daisy = blurredTexture(DAISY_BUMP_URL, 1024, 1331, 4)
-  // One bloom, centred across the flap, sitting above the tip where the wax
-  // holds it down. Nothing outside that patch should be embossed.
-  daisy.wrapS = daisy.wrapT = THREE.ClampToEdgeWrapping
-  const dW = 0.245 // fraction of the flap's width the flower occupies
-  const dH = 0.76 // ...and of its height
-  daisy.repeat.set(1 / dW, 1 / dH)
-  daisy.offset.set(-(1 - dW) / 2 / dW, -0.1 / dH)
+  const printed = { flap: flapFace(), front: frontFace() }
 
   const paperMat = new THREE.MeshPhysicalMaterial({
-    color: PAPER,
+    map: printed.front,
+    color: 0xffffff,
     roughness: 0.62,
     metalness: 0,
-    sheen: 1,
-    sheenRoughness: 0.72,
-    sheenColor: new THREE.Color(0xfff2dd),
-    specularIntensity: 0.35,
+    sheen: 0.35,
+    sheenRoughness: 0.85,
+    sheenColor: new THREE.Color(0xf6ecd8),
+    specularIntensity: 0.22,
     bumpMap: grain,
     bumpScale: 0.55,
     side: THREE.DoubleSide,
   })
-  // The flap carries the flower as well as the tooth of the stock.
+  // The flap carries its own sprig, so it needs its own map.
   const flapMat = new THREE.MeshPhysicalMaterial({
-    color: PAPER,
+    map: printed.flap,
+    color: 0xffffff,
     roughness: 0.6,
     metalness: 0,
-    sheen: 1,
-    sheenRoughness: 0.72,
-    sheenColor: new THREE.Color(0xfff2dd),
-    specularIntensity: 0.35,
-    bumpMap: daisy,
-    bumpScale: 8,
+    sheen: 0.35,
+    sheenRoughness: 0.85,
+    sheenColor: new THREE.Color(0xf6ecd8),
+    specularIntensity: 0.22,
+    bumpMap: grain,
+    bumpScale: 0.5,
     side: THREE.DoubleSide,
   })
 
@@ -401,15 +424,7 @@ export function createEnvelopeScene(
   hinge.position.set(0, FLAP_HINGE_Y, 0.012)
   envelope.add(hinge)
 
-  const flap = new THREE.Mesh(
-    sheet([
-      [-W / 2, 0],
-      [W / 2, 0],
-      [0.014, -FLAP_DROP],
-      [-0.014, -FLAP_DROP],
-    ]),
-    flapMat,
-  )
+  const flap = new THREE.Mesh(extrude(flapShape()), flapMat)
   flap.position.z = 0.01
   flap.castShadow = true
   flap.receiveShadow = true
@@ -422,47 +437,60 @@ export function createEnvelopeScene(
     metalness: 0.06,
     clearcoat: 0.35,
     clearcoatRoughness: 0.45,
-    bumpMap: waxDieTexture(),
-    bumpScale: 2.6,
+    bumpMap: grain,
+    bumpScale: 0.3,
   })
-  const waxGeo = new THREE.ExtrudeGeometry(waxShape(), {
-    depth: 0.01,
+  const SEAL_R = 0.075
+  const waxGeo = new THREE.ExtrudeGeometry(waxShape(SEAL_R), {
+    depth: 0.012,
     bevelEnabled: true,
-    bevelSize: 0.009,
-    bevelThickness: 0.008,
+    bevelSize: 0.007,
+    bevelThickness: 0.006,
     bevelSegments: 5,
     curveSegments: 3,
   })
   boxUVs(waxGeo)
-  const wax = new THREE.Mesh(waxGeo, waxMat)
+
+  // The wax is one object that moves as one, so the disc, its bead and the
+  // emblem are parented together rather than having their transforms copied
+  // frame by frame.
+  const wax = new THREE.Group()
+  const waxDisc = new THREE.Mesh(waxGeo, waxMat)
+  waxDisc.castShadow = true
+  wax.add(waxDisc)
+
+  // The bead: wax that squeezed out under the die and set proud of the rim.
+  // It is the single feature that most distinguishes a struck seal from a
+  // printed dot, so it is real geometry rather than a highlight.
+  const bead = new THREE.Mesh(
+    new THREE.TorusGeometry(SEAL_R * 0.845, SEAL_R * 0.125, 12, 64),
+    waxMat,
+  )
+  bead.position.z = 0.019
+  bead.castShadow = true
+  wax.add(bead)
+
   wax.position.set(0, TIP_Y + 0.008, 0.03)
   wax.rotation.z = -0.09
-  wax.castShadow = true
   envelope.add(wax)
 
   // The botanical emblem, in champagne gold. Its own mesh rather than more
   // relief in the wax: the brief asks for gold on green, and a bump map can
   // only ever give a lighter shade of whatever is underneath it.
   const emblemMat = new THREE.MeshPhysicalMaterial({
-    color: 0xd9bb72,
-    roughness: 0.22,
-    metalness: 0.9,
+    map: sealEmblemTexture(),
+    transparent: true,
+    depthWrite: false,
+    roughness: 0.26,
+    metalness: 0.85,
     clearcoat: 0.3,
   })
   const emblem = new THREE.Mesh(
-    new THREE.ExtrudeGeometry(emblemShape(0.042), {
-      depth: 0.004,
-      bevelEnabled: true,
-      bevelSize: 0.0022,
-      bevelThickness: 0.002,
-      bevelSegments: 2,
-      curveSegments: 4,
-    }),
+    new THREE.PlaneGeometry(SEAL_R * 1.4, SEAL_R * 1.4),
     emblemMat,
   )
-  emblem.position.set(0, TIP_Y + 0.008, 0.043)
-  emblem.rotation.z = -0.09
-  envelope.add(emblem)
+  emblem.position.z = 0.0205
+  wax.add(emblem)
 
   // ── The surface behind, so the envelope has something to sit on
   // and cast onto. On a phone the crop is tight enough that it never
@@ -474,7 +502,7 @@ export function createEnvelopeScene(
   // lying on and the two can never drift apart.
   const backdrop = new THREE.Mesh(
     new THREE.PlaneGeometry(26, 26),
-    new THREE.ShadowMaterial({ opacity: 0.2 }),
+    new THREE.ShadowMaterial({ opacity: 0.11 }),
   )
   backdrop.position.z = -0.32
   backdrop.receiveShadow = true
@@ -482,8 +510,8 @@ export function createEnvelopeScene(
 
   // ── Light ─────────────────────────────────────────────────────
   // One warm key from the upper left decides every shadow in the frame.
-  const key = new THREE.DirectionalLight(0xfff3e0, 2.1)
-  key.position.set(-1.5, 1.9, 2.9)
+  const key = new THREE.DirectionalLight(0xfff3e0, 1.45)
+  key.position.set(-0.8, 2.1, 3.4)
   key.castShadow = true
   key.shadow.mapSize.set(1024, 1024)
   key.shadow.camera.near = 0.5
@@ -503,11 +531,11 @@ export function createEnvelopeScene(
   // Separates the silhouette from the ground behind it. Without a rim the
   // envelope's outline dissolves into the backdrop and it stops being an
   // object sitting in front of something.
-  const rim = new THREE.DirectionalLight(0xffe2b4, 0.95)
+  const rim = new THREE.DirectionalLight(0xffe2b4, 0.5)
   rim.position.set(1.6, 1.4, -2.2)
   scene.add(rim)
 
-  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x4a3c30, 0.16))
+  scene.add(new THREE.HemisphereLight(0xfff4e2, 0x4a3c30, 0.1))
 
   // The light shut inside the envelope. Dark until the flap gives.
   const inside = new THREE.PointLight(0xffcf8c, 0, 2.2, 2)
@@ -523,7 +551,7 @@ export function createEnvelopeScene(
   // viewport's width rather than cropped to its height. On a tall phone that
   // leaves a lot of space above and below, which is what the masthead and the
   // cue are for.
-  const LOOK_Y = 0.06
+  const LOOK_Y = 0.095
   let baseZ = 3
   function frame() {
     const w = canvas.clientWidth || window.innerWidth
@@ -546,7 +574,7 @@ export function createEnvelopeScene(
     // enough for the two to disagree, height wins and the envelope comes in
     // under its width share — losing the heading is the worse trade.
     baseZ = Math.min(baseZ, H / 0.24 / (2 * tanHalf))
-    baseZ = Math.max(baseZ, H / 0.72 / (2 * tanHalf))
+    baseZ = Math.max(baseZ, H / 0.65 / (2 * tanHalf))
 
     camera.position.set(0, LOOK_Y, baseZ * zoom)
     camera.lookAt(0, LOOK_Y, 0)
@@ -598,10 +626,13 @@ export function createEnvelopeScene(
     if (opening) {
       const t = (performance.now() - t0) / 1000
 
-      // The pose comes square as it opens: a tilted envelope is a nice
-      // object to look at, but a crooked doorway to walk through.
+      // The envelope squares up on its vertical axis and tips its top toward
+      // the viewer, which is what brings the raised flap up into the frame
+      // behind the mouth. Square on, the flap opens straight away from the
+      // camera and disappears behind the body, and then nothing on screen
+      // says "envelope" at the moment it is supposed to say it most.
       const settle = ease(clamp01(t / 0.8))
-      pose.rotation.x = -0.055 * (1 - settle)
+      pose.rotation.x = -0.055 + (0.3 - -0.055) * settle
       pose.rotation.y = -0.105 * (1 - settle)
       pose.rotation.z = 0.02 * (1 - settle)
       pose.position.y = 0
@@ -612,24 +643,24 @@ export function createEnvelopeScene(
       wax.position.z = 0.03 + ease(sealT) * 0.2
       wax.rotation.z = -0.09 - ease(sealT) * 0.7
       wax.rotation.x = ease(sealT) * 1.1
-      emblem.position.copy(wax.position)
-      emblem.position.z += 0.013
-      emblem.rotation.copy(wax.rotation)
       const sealFade = 1 - clamp01((t - 0.36) / 0.34)
       waxMat.transparent = true
       emblemMat.transparent = true
       waxMat.opacity = sealFade
       emblemMat.opacity = sealFade
-      wax.visible = emblem.visible = sealFade > 0.01
+      wax.visible = sealFade > 0.01
 
-      // The flap lifts on its fold.
+      // The flap lifts on its fold, stopping short of flat so it still shows
+      // its face rather than turning into a line.
       const f = clamp01((t - 0.3) / 0.9)
-      hinge.rotation.x = easeInOut(f) * 2.15
+      hinge.rotation.x = easeInOut(f) * 1.92
 
       // And the card rises out of the envelope.
+      // The card comes up through the mouth and forward, clearing the paper
+      // without climbing over the open flap behind it.
       const c = clamp01((t - 0.72) / 1.05)
-      card.position.y = easeInOut(c) * 0.58
-      card.position.z = -0.02 + easeInOut(c) * 0.14
+      card.position.y = easeInOut(c) * 0.46
+      card.position.z = -0.02 + easeInOut(c) * 0.2
 
       // The light shut inside comes up behind it.
       inside.intensity = clamp01((t - 0.5) / 0.7) * 1.1
@@ -680,7 +711,6 @@ export function createEnvelopeScene(
         else mat?.dispose()
       })
       grain.dispose()
-      daisy.dispose()
       renderer.dispose()
     },
   }

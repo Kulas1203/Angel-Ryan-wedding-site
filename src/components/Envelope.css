@@ -12,7 +12,7 @@
   overflow: hidden;
   /* The ground the envelope is shown against on wide screens; on portrait
      the paper covers it entirely. */
-  background: radial-gradient(120% 90% at 50% 46%, #fbf9f3 0%, #f4efe4 56%, #e7e0d1 100%);
+  background: radial-gradient(120% 90% at 50% 46%, #efe8dd 0%, #e6ded2 56%, #dbd2c5 100%);
 
   /* Antique gold foil, shared by the seal and the flower's struck stem. */
   --foil-hi: #f4e3b4;
@@ -215,93 +215,29 @@
   opacity: 0.55;
 }
 
-/* ── The blind-embossed daisy ───────────────────────────────────
+/* ── The printed sprigs ─────────────────────────────────────────
+   The same gold line art the rendered envelope prints, drawn to a canvas.
+   Both are sized against the envelope, not the viewport, so they hold their
+   place on the paper at every width. */
 
-   Blind embossing carries no ink: the flower is the same paper as the flap,
-   and the whole image is the shadow its raised edge casts plus the light its
-   facing side catches. So every fill here is the stock, and the relief comes
-   from paired light/dark offsets — a dark one down-right, a light one
-   up-left, matching the key. */
-
-.gate__flower {
+.gate__sprig {
   position: absolute;
-  left: 50%;
-  bottom: 24%; /* the stem ends on the seal, which sits at 76% */
-  width: 31%;
-  translate: -50% 0;
-  aspect-ratio: 200 / 260;
+  display: block;
+  width: 33%;
+  aspect-ratio: 1;
   pointer-events: none;
-  /* Blind embossing is only ever two things: the shadow the raised edge
-     throws away from the light, and the sliver the facing side catches.
-     Both offsets follow the key from the upper left. */
-  filter:
-    drop-shadow(0.7px 1.2px 0.8px rgba(48, 54, 47, 0.46))
-    drop-shadow(-0.6px -0.9px 0.6px rgba(255, 252, 243, 0.6));
 }
 
-.relief {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.gate__sprig--flap {
+  left: 4%;
+  top: 3%;
 }
 
-/* The petals are the paper, a shade off the flap so the edges declare
-   themselves without turning into line art. */
-.relief__petal path {
-  stroke: rgba(48, 54, 47, 0.16);
-  stroke-width: 0.4;
-  vector-effect: non-scaling-stroke;
-}
-
-.relief__petal--back path {
-  fill: #96aa87;
-}
-
-.relief__petal--front path {
-  fill: #a6b997;
-}
-
-.relief__blade path {
-  fill: #6d8062;
-  stroke: rgba(48, 54, 47, 0.5);
-  stroke-width: 0.4;
-  vector-effect: non-scaling-stroke;
-}
-
-/* The disc is the one place the paper lifts far enough to catch the foil. */
-.relief__disc {
-  fill: #9dab82;
-}
-
-.relief__floret circle {
-  fill: rgba(56, 66, 52, 0.6);
-}
-
-/* Stem, midribs and veins are the one part struck in foil, the way a pressed
-   flower is finished on good stationery. */
-.relief__foil path {
-  fill: none;
-  stroke-linecap: round;
-  stroke: var(--foil);
-}
-
-/* A thread of light down the lit side of the stem and ribs. */
-.relief__foil--stem path,
-.relief__foil--rib path {
-  filter: drop-shadow(-0.5px -0.5px 0.3px rgba(252, 246, 226, 0.9));
-}
-
-.relief__foil--stem path {
-  stroke-width: 3.8;
-}
-
-.relief__foil--rib path {
-  stroke-width: 1.2;
-}
-
-.relief__foil--vein path {
-  stroke-width: 0.5;
-  opacity: 0.8;
+/* On the body, below where the flap's right edge leaves the stock bare. */
+.gate__sprig--body {
+  z-index: 3;
+  right: 2%;
+  bottom: 2%;
 }
 
 /* ── Wax seal ────────────────────────────────────────────────── */
@@ -371,9 +307,10 @@
 /* The petal ring cut into the die, sitting proud of the well floor. */
 .gate__seal-die {
   position: absolute;
-  inset: 9.5%;
-  width: 81%;
-  height: 81%;
+  inset: 21%;
+  display: block;
+  width: 58%;
+  height: 58%;
   pointer-events: none;
 }
 
@@ -425,7 +362,7 @@
   background:
     radial-gradient(38% 30% at 16% 22%, rgba(135, 155, 122, 0.16), transparent 70%),
     radial-gradient(34% 28% at 86% 78%, rgba(135, 155, 122, 0.13), transparent 70%),
-    radial-gradient(circle at center, #faf8f1 0%, #f1ece1 100%);
+    radial-gradient(circle at 50% 46%, #efe8dd 0%, #e6ded2 56%, #dbd2c5 100%);
 }
 
 /* Paper tooth on the ground, so the page itself reads as stationery. */

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { EnvelopeFlat } from './EnvelopeFlat'
 import { GateMasthead } from './GateMasthead'
-import { GoldCorners } from './GoldCorners'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import type { EnvelopeScene } from '../three/envelopeScene'
 import './Envelope.css'
@@ -116,8 +115,6 @@ export function Envelope({ onReveal }: EnvelopeProps) {
             : { duration: 0.2 }
         }
       />
-
-      <GoldCorners />
 
       <GateMasthead ready={ready} opening={opening} />
 
