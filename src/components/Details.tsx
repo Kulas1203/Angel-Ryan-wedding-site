@@ -64,11 +64,30 @@ export function Details() {
           </div>
         </Reveal>
 
+        {/* The dress-code card carries its own heading, palette and closing
+            line, so nothing is set around it that would say the same thing
+            twice. The colours are repeated underneath as text because a guest
+            picking out a dress has to be able to read them, and because an
+            image that never loads would otherwise take the whole dress code
+            with it. */}
         <Reveal delay={0.2}>
           <div className="details__attire">
-            <p className="details__label">{dressCode.label}</p>
-            <p className="details__attire-value">{dressCode.value}</p>
-            <p className="details__note">{dressCode.note}</p>
+            <figure className="details__dress">
+              <img
+                className="details__dress-img"
+                src="/images/dress-code.webp"
+                alt={`Dress code: we would love to see you in our theme colours — ${dressCode.palette
+                  .join(', ')
+                  .toLowerCase()} — shown on illustrated guests in suits and gowns.`}
+                width={1312}
+                height={1199}
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption className="details__dress-caption">
+                {dressCode.palette.join(' · ')}
+              </figcaption>
+            </figure>
             <p className="details__hashtag">{couple.hashtag}</p>
           </div>
         </Reveal>

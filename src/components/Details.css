@@ -140,9 +140,30 @@
   gap: 0.8rem;
 }
 
-.details__attire-value {
-  font-family: var(--serif);
-  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+/* ── Dress code ──────────────────────────────────────────────── */
+
+.details__dress {
+  margin: 0;
+  width: min(820px, 100%);
+}
+
+.details__dress-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(250, 253, 246, 0.14);
+  /* The artwork is cream on a near-black section, so it needs a seat under
+     it or it reads as a hole cut in the page. */
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+}
+
+.details__dress-caption {
+  margin-top: 1.3rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--sage);
 }
 
 .details__hashtag {

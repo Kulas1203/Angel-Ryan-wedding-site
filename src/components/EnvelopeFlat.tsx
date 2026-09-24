@@ -92,9 +92,14 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
           animate={run ? { y: '-58%' } : { y: '0%' }}
           transition={{ delay: CARD_AT, duration: CARD_DUR, ease: [0.3, 0, 0.2, 1] }}
         >
-          <p className="gate__card-eyebrow">Together with their families</p>
-          <p className="gate__card-names">Ryan &amp; Angel</p>
-          <p className="gate__card-date">October 29, 2026</p>
+          {/* The monogram carries their names and the date already, so the
+              card is the monogram and the place beneath it. */}
+          <img
+            className="gate__card-monogram"
+            src="/images/monogram.webp"
+            alt="Ryan &amp; Angel, the twenty-ninth of October twenty twenty-six"
+          />
+          <p className="gate__card-venue">Pavillion Watergate</p>
         </motion.div>
 
         {/* The envelope's inside, uncovered as the flap turns off it. */}

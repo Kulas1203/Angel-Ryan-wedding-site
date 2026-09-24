@@ -206,6 +206,10 @@ export const program: ProgramEntry[] = [
 ]
 
 export const dressCode = {
+  // The four the dress-code card names, kept as text as well as in the
+  // artwork: a guest choosing a dress needs to be able to read them, and the
+  // picture may never load.
+  palette: ['Sage green', 'Emerald green', 'Beige', 'Cream'],
   label: 'Attire',
   value: 'Formal · Sage, emerald & earth tones',
   note: 'We kindly invite you to dress in garden elegance — sage green, emerald, and warm rustic neutrals are warmly encouraged.',

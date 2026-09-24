@@ -269,8 +269,15 @@ function cutArt(img: HTMLImageElement) {
   return { paper: tex(paper), seal: tex(seal), mouth: tex(mouth) }
 }
 
-/** The invitation's printed face, so the card that rises out says something. */
-function cardFace() {
+/**
+ * The invitation's printed face: the couple's own monogram, which already
+ * carries their names and the date, inside a champagne rule.
+ *
+ * The monogram is black line art on opaque white, so it is composited with
+ * `multiply` — white leaves the card beneath it untouched and only the
+ * drawing lands. Keying the white out by hand would fringe every stroke.
+ */
+function cardFace(mono: HTMLImageElement | null) {
   const w = 1024
   const h = Math.round(w * (CARD_H / CARD_W))
   const c = document.createElement('canvas')
@@ -283,42 +290,40 @@ function cardFace() {
   // A champagne rule inside the trim, the way a card is bordered.
   g.strokeStyle = 'rgba(201, 168, 92, 0.85)'
   g.lineWidth = 3
-  g.strokeRect(w * 0.05, h * 0.07, w * 0.9, h * 0.86)
+  g.strokeRect(w * 0.05, h * 0.02, w * 0.9, h * 0.92)
   g.strokeStyle = 'rgba(201, 168, 92, 0.35)'
   g.lineWidth = 2
-  g.strokeRect(w * 0.065, h * 0.092, w * 0.87, h * 0.816)
+  g.strokeRect(w * 0.065, h * 0.042, w * 0.87, h * 0.876)
+
+  // Everything sits in the upper three fifths of the card, because that is
+  // all of it that ever clears the envelope's top edge — the rest stays in
+  // the pocket, which is what a card half drawn out looks like.
+  if (mono) {
+    const size = h * 0.52
+    g.save()
+    g.globalCompositeOperation = 'multiply'
+    g.drawImage(mono, (w - size) / 2, h * 0.035, size, size)
+    g.restore()
+  } else {
+    // Without it the card still has to say whose day this is.
+    g.textAlign = 'center'
+    g.fillStyle = '#30362f'
+    g.font = `400 ${Math.round(h * 0.15)}px 'Cormorant Garamond', Georgia, serif`
+    g.fillText('Ryan & Angel', w / 2, h * 0.36)
+  }
 
   g.textAlign = 'center'
   g.fillStyle = '#7c7a63'
-  g.font = `500 ${Math.round(h * 0.052)}px Jost, system-ui, sans-serif`
-  g.letterSpacing = `${Math.round(h * 0.024)}px`
-  g.fillText('TOGETHER WITH THEIR FAMILIES', w / 2, h * 0.26)
-
-  g.letterSpacing = '0px'
-  g.fillStyle = '#30362f'
-  g.font = `400 ${Math.round(h * 0.17)}px 'Cormorant Garamond', Georgia, serif`
-  g.fillText('Ryan & Angel', w / 2, h * 0.5)
-
-  g.strokeStyle = 'rgba(201, 168, 92, 0.8)'
-  g.lineWidth = 2
-  g.beginPath()
-  g.moveTo(w * 0.4, h * 0.585)
-  g.lineTo(w * 0.6, h * 0.585)
-  g.stroke()
-
-  g.fillStyle = '#65785d'
-  g.font = `500 ${Math.round(h * 0.062)}px Jost, system-ui, sans-serif`
-  g.letterSpacing = `${Math.round(h * 0.03)}px`
-  g.fillText('OCTOBER 29, 2026', w / 2, h * 0.7)
-  g.font = `400 ${Math.round(h * 0.046)}px Jost, system-ui, sans-serif`
-  g.fillStyle = '#7c7a63'
-  g.fillText('PAVILLION WATERGATE', w / 2, h * 0.8)
+  g.font = `400 ${Math.round(h * 0.045)}px Jost, system-ui, sans-serif`
+  g.letterSpacing = `${Math.round(h * 0.028)}px`
+  g.fillText('PAVILLION WATERGATE', w / 2, h * 0.6)
 
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.anisotropy = 4
   return tex
 }
+
 
 
 /**
@@ -381,6 +386,7 @@ export function createEnvelopeScene(
   // it asks for is the card rising out. None of that needs the four-flap
   // back, and the back was costing a class of bug it could not pay for.
 
+  const cardMat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
   const card = new THREE.Mesh(
     sheet([
       [-CARD_W / 2, -CARD_H / 2],
@@ -388,7 +394,7 @@ export function createEnvelopeScene(
       [CARD_W / 2, CARD_H / 2],
       [-CARD_W / 2, CARD_H / 2],
     ]),
-    new THREE.MeshBasicMaterial({ map: cardFace(), side: THREE.DoubleSide }),
+    cardMat,
   )
   card.position.z = -0.02
   card.castShadow = true
@@ -598,7 +604,7 @@ export function createEnvelopeScene(
       // and a card that floats over the pocket it is supposedly still in is
       // the one thing that gives the whole illusion away.
       const c = clamp01((t - 0.72) / 1.05)
-      card.position.y = easeInOut(c) * 0.62
+      card.position.y = easeInOut(c) * 0.6
 
       // The camera gives a little ground so the card has somewhere to go.
       zoom = 1 + ease(clamp01((t - 0.3) / 1.1)) * 0.42
@@ -625,21 +631,30 @@ export function createEnvelopeScene(
 
   // Nothing is shown until the photograph is here: an envelope that arrives
   // as flat colour and then becomes a picture is worse than one that waits.
-  const img = new Image()
-  img.decoding = 'async'
-  img.onload = () => {
-    const art = cutArt(img)
-    paperMat.map = art.paper
-    flapMat.map = art.paper
-    mouthMat.map = art.mouth
-    waxMat.map = art.seal
-    paperMat.needsUpdate = true
-    flapMat.needsUpdate = true
-    mouthMat.needsUpdate = true
-    waxMat.needsUpdate = true
-    opts.onReady?.()
-  }
-  img.src = ART.url
+  const load = (url: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image()
+      i.decoding = 'async'
+      i.onload = () => resolve(i)
+      i.onerror = reject
+      i.src = url
+    })
+
+  // The monogram is allowed to fail — the card falls back to setting their
+  // names in type — but the envelope is not, since there is no envelope
+  // without it.
+  Promise.all([load(ART.url), load('/images/monogram.webp').catch(() => null)]).then(
+    ([photo, mono]) => {
+      const art = cutArt(photo)
+      paperMat.map = art.paper
+      flapMat.map = art.paper
+      mouthMat.map = art.mouth
+      waxMat.map = art.seal
+      cardMat.map = cardFace(mono)
+      for (const m of [paperMat, flapMat, mouthMat, waxMat, cardMat]) m.needsUpdate = true
+      opts.onReady?.()
+    },
+  )
 
   const onResize = () => frame()
   window.addEventListener('resize', onResize)
