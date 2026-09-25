@@ -1,7 +1,11 @@
 import { motion } from 'motion/react'
 
 type Props = {
-  /** Held back until the envelope itself is on screen, so the words and the
+  /* The delays below are set against the curtain, which is clear at about two
+   seconds: the heading arrives as the light finishes coming up, not behind
+   it. */
+
+/** Held back until the envelope itself is on screen, so the words and the
       paper arrive together rather than the heading landing on an empty page. */
   ready: boolean
   opening: boolean
@@ -17,7 +21,7 @@ export function GateMasthead({ ready, opening }: Props) {
       <motion.p
         className="gate__eyebrow"
         animate={{ opacity: opening ? 0 : ready ? 1 : 0, y: opening ? -6 : 0 }}
-        transition={{ duration: opening ? 0.4 : 1.2, delay: opening ? 0 : 0.25, ease: 'easeOut' }}
+        transition={{ duration: opening ? 0.4 : 1.3, delay: opening ? 0 : 1.5, ease: 'easeOut' }}
       >
         You are cordially invited
       </motion.p>
@@ -28,7 +32,7 @@ export function GateMasthead({ ready, opening }: Props) {
         animate={{ opacity: opening ? 0 : ready ? 1 : 0, scaleX: ready && !opening ? 1 : 0 }}
         transition={{
           duration: opening ? 0.4 : 1.4,
-          delay: opening ? 0 : 0.55,
+          delay: opening ? 0 : 2.05,
           ease: [0.22, 1, 0.36, 1],
         }}
       />
@@ -42,7 +46,7 @@ export function GateMasthead({ ready, opening }: Props) {
         }}
         transition={{
           duration: opening ? 0.5 : 1.5,
-          delay: opening ? 0 : 0.34,
+          delay: opening ? 0 : 1.72,
           ease: [0.22, 1, 0.36, 1],
         }}
       >

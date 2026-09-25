@@ -626,6 +626,7 @@ export function createEnvelopeScene(
     camera.position.z = baseZ * zoom
     camera.lookAt(0, LOOK_Y, 0)
 
+    publishSeal()
     renderer.render(scene, camera)
   }
 
@@ -655,6 +656,21 @@ export function createEnvelopeScene(
       opts.onReady?.()
     },
   )
+
+  // A fixed point on the paper where the wax sits, reported to CSS each
+  // frame in screen percentages. Taken from the envelope rather than from the
+  // wax mesh, because the wax flies away and the light it left behind should
+  // not follow it.
+  const host = canvas.parentElement as HTMLElement | null
+  const sealPoint = new THREE.Vector3()
+  function publishSeal() {
+    if (!host) return
+    sealPoint.set(SEAL_X, SEAL_Y, 0.03)
+    envelope.localToWorld(sealPoint)
+    sealPoint.project(camera)
+    host.style.setProperty('--seal-x', `${(sealPoint.x * 0.5 + 0.5) * 100}%`)
+    host.style.setProperty('--seal-y', `${(-sealPoint.y * 0.5 + 0.5) * 100}%`)
+  }
 
   const onResize = () => frame()
   window.addEventListener('resize', onResize)

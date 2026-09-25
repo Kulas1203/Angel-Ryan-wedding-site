@@ -143,7 +143,7 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
         transition={
           opening
             ? { duration: 0.3, ease: 'easeIn' }
-            : { duration: 3, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }
+            : { duration: 3, delay: 2.9, repeat: Infinity, ease: 'easeInOut' }
         }
       >
         Tap to open

@@ -22,6 +22,7 @@
 
 .gate--photo {
   perspective: 1500px;
+  --seal-y: 55%;
 }
 
 .gate--opening {
@@ -422,17 +423,27 @@
 
 /* ── Dust in the air, in front of the paper ─────────────────── */
 
-.gate__motes {
+/* The air in front of the paper. It answers the pointer one way; the light
+   behind the canvas answers it the other, and the envelope between them
+   holds still — which is what gives the frame its depth. */
+.gate__air {
   position: absolute;
-  inset: 0;
+  inset: -6%;
   z-index: 2;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 2.2s ease 0.5s;
+  transition: opacity 2.4s ease 0.9s;
+  transform: translate3d(calc(var(--px, 0) * 2.2%), calc(var(--py, 0) * 2.2%), 0);
+  will-change: transform;
 }
 
-.gate__motes.is-lit {
+.gate__air.is-lit {
   opacity: 1;
+}
+
+.gate__aura {
+  transform: translate3d(calc(var(--px, 0) * -1.4%), calc(var(--py, 0) * -1.4%), 0);
+  will-change: transform;
 }
 
 .gate__mote {
@@ -445,15 +456,74 @@
   animation-name: gate-mote;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  /* Nearer motes answer the pointer harder, which is the whole trick. */
+  margin-left: calc(var(--px, 0) * var(--depth, 1) * 0.9vmin);
+  margin-top: calc(var(--py, 0) * var(--depth, 1) * 0.9vmin);
 }
 
-/* Up and slightly across, fading in and out at the ends so no mote is ever
-   seen to appear or to stop. */
-@keyframes gate-mote {
-  0% { opacity: 0; transform: translate3d(0, 6vmin, 0) scale(0.7); }
-  18% { opacity: var(--dim, 0.3); }
-  76% { opacity: var(--dim, 0.3); }
-  100% { opacity: 0; transform: translate3d(var(--drift, 0), -9vmin, 0) scale(1.05); }
+/* ── Shafts ─────────────────────────────────────────────────────
+   Light coming in from above and to the left, as it does in the photograph
+   the envelope was taken in. Soft enough that they are felt rather than
+   counted. */
+
+.gate__shaft {
+  position: absolute;
+  top: -40%;
+  height: 180%;
+  transform-origin: 50% 0;
+  rotate: 17deg;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 250, 233, 0.5) 42%,
+    rgba(255, 250, 233, 0.62) 50%,
+    rgba(255, 250, 233, 0.5) 58%,
+    transparent 100%
+  );
+  will-change: opacity, transform;
+}
+
+.gate__shaft--1 { left: 6%; width: 15%; animation: gate-shaft 29s ease-in-out infinite; }
+.gate__shaft--2 { left: 26%; width: 9%; animation: gate-shaft 41s 3s ease-in-out infinite; }
+.gate__shaft--3 { left: 40%; width: 18%; animation: gate-shaft 53s 8s ease-in-out infinite; }
+
+@keyframes gate-shaft {
+  0%, 100% { opacity: 0.28; transform: translate3d(-3%, 0, 0) scaleX(1); }
+  50% { opacity: 0.62; transform: translate3d(4%, 0, 0) scaleX(1.18); }
+}
+
+/* ── The wax, asking to be pressed ──────────────────────────────
+   A ring of light around the seal, breathing. The whole gate is the tap
+   target, but nothing on screen said where the gesture belonged. */
+
+.gate__halo {
+  position: absolute;
+  /* The scene reports where the wax actually is; the fallback is the
+     average across viewports, for the gate that has no scene. */
+  left: var(--seal-x, 50%);
+  top: var(--seal-y, 58%);
+  z-index: 3;
+  width: 15vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(201, 168, 92, 0.03) 0%,
+    rgba(201, 168, 92, 0.09) 34%,
+    rgba(214, 186, 118, 0.13) 52%,
+    rgba(201, 168, 92, 0.07) 68%,
+    rgba(201, 168, 92, 0.02) 82%,
+    transparent 92%
+  );
+  will-change: transform, opacity;
+  animation: gate-halo 3.8s 2s ease-in-out infinite backwards;
+}
+
+@keyframes gate-halo {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
 }
 
 /* ── A glint across the paper ───────────────────────────────── */
@@ -472,7 +542,7 @@
   will-change: transform, opacity;
   /* The sweep itself takes about a fifth of the cycle; the rest is the
      pause between passes, which is what keeps it a glint and not a strobe. */
-  animation: gate-sheen 13s 2.4s ease-in-out infinite;
+  animation: gate-sheen 13s 2.4s ease-in-out infinite backwards;
 }
 
 @keyframes gate-sheen {
@@ -481,6 +551,61 @@
   17% { opacity: 1; }
   22% { transform: translate3d(58%, 0, 0); opacity: 0; }
   100% { transform: translate3d(58%, 0, 0); opacity: 0; }
+}
+
+/* ── Leaves ─────────────────────────────────────────────────────
+   The one shape the envelope's own printing uses. Made from a single
+   border-radius rather than an asset: a box rounded at two opposite corners
+   is a leaf, and nine of them cost nothing. */
+
+.gate__leaf {
+  position: absolute;
+  top: 0;
+  border-radius: 0 100% 0 100%;
+  background: linear-gradient(150deg, rgba(198, 170, 106, 0.95), rgba(146, 163, 132, 0.85));
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: gate-leaf;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* The midrib, which is most of what makes it read as a leaf rather than a
+   petal at this size. */
+.gate__leaf::after {
+  content: '';
+  position: absolute;
+  inset: 12% 0 12% 50%;
+  width: 1px;
+  translate: -50% 0;
+  background: rgba(255, 250, 235, 0.5);
+}
+
+/* Down, across, and turning over as it goes. */
+@keyframes gate-leaf {
+  0% { opacity: 0; transform: translate3d(0, -16vh, 0) rotate(0deg); }
+  7% { opacity: var(--dim, 0.25); }
+  86% { opacity: var(--dim, 0.25); }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--sway, 0), 118vh, 0) rotate(var(--spin, 200deg));
+  }
+}
+
+/* A phone has less room and less to spare, so it gets the sparser sky. */
+@media (max-width: 640px) {
+  .gate__leaf:nth-child(n + 12) {
+    display: none;
+  }
+}
+
+/* Up and slightly across, fading in and out at the ends so no mote is ever
+   seen to appear or to stop. */
+@keyframes gate-mote {
+  0% { opacity: 0; transform: translate3d(0, 6vmin, 0) scale(0.7); }
+  18% { opacity: var(--dim, 0.3); }
+  76% { opacity: var(--dim, 0.3); }
+  100% { opacity: 0; transform: translate3d(var(--drift, 0), -9vmin, 0) scale(1.05); }
 }
 
 /* ── Vignette ───────────────────────────────────────────────── */
@@ -507,33 +632,86 @@
   opacity: 0;
 }
 
+/* ── The curtain ────────────────────────────────────────────────
+   The frame comes up out of near-dark, so the envelope is found on the page
+   rather than switched on. It sits above everything, because lights coming
+   up should come up on the whole tableau at once. */
+
+.gate__curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 50% 47%, rgba(30, 26, 19, 0.82) 0%, rgba(22, 19, 13, 0.95) 60%, #14110c 100%);
+  opacity: 1;
+  transition: opacity 1.9s cubic-bezier(0.33, 0, 0.2, 1) 0.25s;
+}
+
+.gate__curtain.is-up {
+  opacity: 0;
+}
+
 /* ── The seal giving ─────────────────────────────────────────── */
 
-.gate__burst {
+/* The break itself, travelling out across the paper. A ring rather than a
+   flash: a flash is an event that happened to the screen, a ring is one
+   that happened to the envelope. */
+.gate__shock {
   position: absolute;
-  left: 50%;
-  top: 57%;
+  /* The scene reports where the wax actually is; the fallback is the
+     average across viewports, for the gate that has no scene. */
+  left: var(--seal-x, 50%);
+  top: var(--seal-y, 58%);
   z-index: 8;
-  width: 46vmin;
+  width: 22vmin;
   aspect-ratio: 1;
-  translate: -50% -50%;
   border-radius: 50%;
   pointer-events: none;
   background: radial-gradient(
     circle,
-    rgba(255, 252, 240, 0.9) 0%,
-    rgba(255, 244, 214, 0.5) 30%,
-    rgba(201, 168, 92, 0.22) 54%,
-    transparent 74%
+    transparent 66%,
+    rgba(240, 222, 168, 0.14) 76%,
+    rgba(228, 203, 140, 0.22) 82%,
+    rgba(201, 168, 92, 0.07) 90%,
+    transparent 97%
   );
   will-change: transform, opacity;
-  animation: gate-burst 2.4s 0.12s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: gate-shock 1.15s 0.04s cubic-bezier(0.1, 0.85, 0.25, 1) both;
+}
+
+@keyframes gate-shock {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.12); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); }
+}
+
+.gate__burst {
+  position: absolute;
+  /* The scene reports where the wax actually is; the fallback is the
+     average across viewports, for the gate that has no scene. */
+  left: var(--seal-x, 50%);
+  top: var(--seal-y, 58%);
+  z-index: 8;
+  width: 24vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 252, 240, 0.6) 0%,
+    rgba(255, 246, 220, 0.34) 26%,
+    rgba(214, 186, 118, 0.14) 50%,
+    transparent 72%
+  );
+  will-change: transform, opacity;
+  animation: gate-burst 2.4s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes gate-burst {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
   18% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.1); }
 }
 
 /* ── Gold lifting off the wax ───────────────────────────────── */
@@ -547,15 +725,17 @@
 
 .gate__spark {
   position: absolute;
-  left: 50%;
-  top: 57%;
+  /* The scene reports where the wax actually is; the fallback is the
+     average across viewports, for the gate that has no scene. */
+  left: var(--seal-x, 50%);
+  top: var(--seal-y, 58%);
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: radial-gradient(circle, #fff6dc 0%, var(--champagne) 55%, transparent 100%);
   opacity: 0;
   will-change: transform, opacity;
-  animation: gate-spark 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  animation: gate-spark 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
 /* Five drifts, dealt round the motes, so no two leave together. */
@@ -594,9 +774,20 @@
 @media (prefers-reduced-motion: reduce) {
   .gate__spark,
   .gate__burst,
-  .gate__motes,
-  .gate__sheen {
+  .gate__shock,
+  .gate__halo,
+  .gate__leaf,
+  .gate__air,
+  .gate__sheen,
+  .gate__shaft {
     display: none;
+  }
+
+  /* The curtain still lifts, because arriving in the dark and staying there
+     is worse than any animation — it just does it without easing drama. */
+  .gate__curtain {
+    transition-duration: 0.5s;
+    transition-delay: 0s;
   }
 
   .gate__aura-pool {
