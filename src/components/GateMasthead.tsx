@@ -17,14 +17,34 @@ export function GateMasthead({ ready, opening }: Props) {
       <motion.p
         className="gate__eyebrow"
         animate={{ opacity: opening ? 0 : ready ? 1 : 0, y: opening ? -6 : 0 }}
-        transition={{ duration: opening ? 0.4 : 1, delay: opening ? 0 : 0.2, ease: 'easeOut' }}
+        transition={{ duration: opening ? 0.4 : 1.2, delay: opening ? 0 : 0.25, ease: 'easeOut' }}
       >
         You are cordially invited
       </motion.p>
+      {/* Drawn out from the middle, between the two lines. */}
+      <motion.hr
+        className="gate__flourish"
+        aria-hidden="true"
+        animate={{ opacity: opening ? 0 : ready ? 1 : 0, scaleX: ready && !opening ? 1 : 0 }}
+        transition={{
+          duration: opening ? 0.4 : 1.4,
+          delay: opening ? 0 : 0.55,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      />
       <motion.h1
         className="gate__title"
-        animate={{ opacity: opening ? 0 : ready ? 1 : 0, y: opening ? -10 : 0 }}
-        transition={{ duration: opening ? 0.45 : 1.2, delay: opening ? 0 : 0.34, ease: 'easeOut' }}
+        animate={{
+          opacity: opening ? 0 : ready ? 1 : 0,
+          y: opening ? -14 : 0,
+          // A hair under size on the way in, so it settles into place.
+          scale: ready && !opening ? 1 : 0.965,
+        }}
+        transition={{
+          duration: opening ? 0.5 : 1.5,
+          delay: opening ? 0 : 0.34,
+          ease: [0.22, 1, 0.36, 1],
+        }}
       >
         An Evening to Remember
       </motion.h1>

@@ -253,9 +253,16 @@
 
 .gate--scene {
   background:
-    radial-gradient(38% 30% at 16% 22%, rgba(135, 155, 122, 0.16), transparent 70%),
-    radial-gradient(34% 28% at 86% 78%, rgba(135, 155, 122, 0.13), transparent 70%),
-    radial-gradient(circle at 50% 44%, #e4ddd4 0%, #ded7ce 58%, #d2cabf 100%);
+    radial-gradient(38% 30% at 16% 22%, rgba(135, 155, 122, 0.14), transparent 70%),
+    radial-gradient(34% 28% at 86% 78%, rgba(135, 155, 122, 0.12), transparent 70%),
+    radial-gradient(
+      circle at 50% 46%,
+      #e6dfd6 0%,
+      #ded7cd 34%,
+      #cec5b8 64%,
+      #b9af9f 86%,
+      #a89d8c 100%
+    );
 }
 
 /* Paper tooth on the ground, so the page itself reads as stationery. */
@@ -294,6 +301,25 @@
   padding-left: 0.44em; /* balance the trailing letter-space */
 }
 
+/* A hairline that draws out from the middle under the eyebrow, so the
+   heading is announced rather than simply switched on. */
+.gate__flourish {
+  display: block;
+  width: min(15rem, 46vw);
+  height: 1px;
+  margin: clamp(0.8rem, 2vw, 1.15rem) auto 0;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--champagne-soft) 22%,
+    var(--champagne) 50%,
+    var(--champagne-soft) 78%,
+    transparent 100%
+  );
+  transform-origin: 50% 50%;
+}
+
 .gate__title {
   margin-top: clamp(0.7rem, 2vw, 1.1rem);
   font-family: var(--serif);
@@ -304,41 +330,211 @@
   color: var(--paper-text);
 }
 
-/* ── Champagne botanicals at the corners ────────────────────── */
+/* ── Ambience ────────────────────────────────────────────────────
+   The light the envelope sits in, and the air in front of it. Everything
+   here is behind or in front of the canvas — none of it is the envelope,
+   which renders exactly as it did without any of this.
 
-.corners {
+   All of it moves on transform and opacity only, and every cycle is a
+   different length and a prime-ish multiple of its neighbours, so the whole
+   thing never visibly repeats. */
+
+/* Behind the canvas. Its alpha lets these read as the ground. */
+.gate__aura {
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.gate__aura-pool {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+.gate__aura-pool--a {
+  left: 50%;
+  top: 46%;
+  width: 96%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  /* Many stops, eased, because a radial with three stops contours into
+     visible rings the moment it is scaled. */
+  background: radial-gradient(
+    circle,
+    rgba(255, 250, 238, 0.92) 0%,
+    rgba(255, 249, 235, 0.76) 18%,
+    rgba(253, 245, 229, 0.5) 34%,
+    rgba(250, 241, 222, 0.28) 48%,
+    rgba(246, 236, 214, 0.12) 62%,
+    rgba(240, 230, 206, 0.04) 76%,
+    transparent 88%
+  );
+  animation: gate-pool-a 26s ease-in-out infinite;
+}
+
+.gate__aura-pool--b {
+  right: 2%;
+  bottom: 4%;
+  width: 58%;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    circle,
+    rgba(168, 182, 157, 0.4) 0%,
+    rgba(168, 182, 157, 0.22) 30%,
+    rgba(168, 182, 157, 0.08) 54%,
+    transparent 76%
+  );
+  animation: gate-pool-b 63s ease-in-out infinite;
+}
+
+.gate__aura-pool--c {
+  left: 28%;
+  top: 30%;
+  width: 52%;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    circle,
+    rgba(201, 168, 92, 0.22) 0%,
+    rgba(201, 168, 92, 0.11) 32%,
+    rgba(201, 168, 92, 0.04) 56%,
+    transparent 78%
+  );
+  animation: gate-pool-c 39s ease-in-out infinite;
+}
+
+@keyframes gate-pool-a {
+  0%, 100% { transform: scale(1); opacity: 0.82; }
+  50% { transform: scale(1.09); opacity: 1; }
+}
+
+@keyframes gate-pool-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); opacity: 0.85; }
+  50% { transform: translate3d(-8%, -6%, 0) scale(0.94); opacity: 1; }
+}
+
+@keyframes gate-pool-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.96); opacity: 0.7; }
+  50% { transform: translate3d(4%, -7%, 0) scale(1.16); opacity: 1; }
+}
+
+/* ── Dust in the air, in front of the paper ─────────────────── */
+
+.gate__motes {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 2;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 2.2s ease 0.5s;
 }
 
-.corners__sprig {
+.gate__motes.is-lit {
+  opacity: 1;
+}
+
+.gate__mote {
   position: absolute;
-  width: clamp(72px, 13vw, 148px);
-  height: auto;
-  fill: none;
-  opacity: 0.55;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf4 0%, #f3dfa8 44%, var(--champagne) 70%, transparent 100%);
+  box-shadow: 0 0 6px rgba(201, 168, 92, 0.55);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: gate-mote;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
-.corners__stem {
-  stroke: var(--champagne);
-  stroke-width: 0.9;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
+/* Up and slightly across, fading in and out at the ends so no mote is ever
+   seen to appear or to stop. */
+@keyframes gate-mote {
+  0% { opacity: 0; transform: translate3d(0, 6vmin, 0) scale(0.7); }
+  18% { opacity: var(--dim, 0.3); }
+  76% { opacity: var(--dim, 0.3); }
+  100% { opacity: 0; transform: translate3d(var(--drift, 0), -9vmin, 0) scale(1.05); }
 }
 
-.corners__leaf {
-  fill: var(--champagne-soft);
-  stroke: var(--champagne);
-  stroke-width: 0.6;
-  vector-effect: non-scaling-stroke;
+/* ── A glint across the paper ───────────────────────────────── */
+
+.gate__sheen {
+  position: absolute;
+  inset: -30% -60%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    transparent 42%,
+    rgba(255, 253, 245, 0.42) 50%,
+    transparent 58%
+  );
+  will-change: transform, opacity;
+  /* The sweep itself takes about a fifth of the cycle; the rest is the
+     pause between passes, which is what keeps it a glint and not a strobe. */
+  animation: gate-sheen 13s 2.4s ease-in-out infinite;
 }
 
-.corners__sprig--tl { top: clamp(14px, 3vw, 34px); left: clamp(14px, 3vw, 34px); }
-.corners__sprig--tr { top: clamp(14px, 3vw, 34px); right: clamp(14px, 3vw, 34px); scale: -1 1; }
-.corners__sprig--bl { bottom: clamp(14px, 3vw, 34px); left: clamp(14px, 3vw, 34px); scale: 1 -1; }
-.corners__sprig--br { bottom: clamp(14px, 3vw, 34px); right: clamp(14px, 3vw, 34px); scale: -1 -1; }
+@keyframes gate-sheen {
+  0% { transform: translate3d(-58%, 0, 0); opacity: 0; }
+  4% { opacity: 1; }
+  17% { opacity: 1; }
+  22% { transform: translate3d(58%, 0, 0); opacity: 0; }
+  100% { transform: translate3d(58%, 0, 0); opacity: 0; }
+}
+
+/* ── Vignette ───────────────────────────────────────────────── */
+
+.gate__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(
+    112% 92% at 50% 47%,
+    transparent 30%,
+    rgba(74, 64, 48, 0.08) 52%,
+    rgba(62, 53, 39, 0.2) 74%,
+    rgba(44, 37, 26, 0.38) 100%
+  );
+  opacity: 1;
+  transition: opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* It opens out as the envelope gives, which is most of why the frame reads
+   as brightening rather than as a light being switched on. */
+.gate--opening .gate__vignette {
+  opacity: 0;
+}
+
+/* ── The seal giving ─────────────────────────────────────────── */
+
+.gate__burst {
+  position: absolute;
+  left: 50%;
+  top: 57%;
+  z-index: 8;
+  width: 46vmin;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 252, 240, 0.9) 0%,
+    rgba(255, 244, 214, 0.5) 30%,
+    rgba(201, 168, 92, 0.22) 54%,
+    transparent 74%
+  );
+  will-change: transform, opacity;
+  animation: gate-burst 2.4s 0.12s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes gate-burst {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+}
 
 /* ── Gold lifting off the wax ───────────────────────────────── */
 
@@ -352,26 +548,30 @@
 .gate__spark {
   position: absolute;
   left: 50%;
-  top: 62%;
+  top: 57%;
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: radial-gradient(circle, #fff6dc 0%, var(--champagne) 55%, transparent 100%);
   opacity: 0;
-  animation: gate-spark 2.1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  animation: gate-spark 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 
-/* Five drifts, dealt round the twenty motes, so no two leave together. */
-.gate__spark--0 { animation-delay: 0.16s; --dx: -34vmin; --dy: -30vmin; }
-.gate__spark--1 { animation-delay: 0.3s;  --dx: 26vmin;  --dy: -38vmin; }
-.gate__spark--2 { animation-delay: 0.44s; --dx: -14vmin; --dy: -46vmin; }
-.gate__spark--3 { animation-delay: 0.24s; --dx: 40vmin;  --dy: -22vmin; }
-.gate__spark--4 { animation-delay: 0.52s; --dx: 6vmin;   --dy: -34vmin; }
+/* Five drifts, dealt round the motes, so no two leave together. */
+.gate__spark--0 { animation-delay: 0.16s; --dx: -38vmin; --dy: -34vmin; }
+.gate__spark--1 { animation-delay: 0.3s;  --dx: 30vmin;  --dy: -42vmin; }
+.gate__spark--2 { animation-delay: 0.44s; --dx: -16vmin; --dy: -52vmin; }
+.gate__spark--3 { animation-delay: 0.24s; --dx: 46vmin;  --dy: -24vmin; }
+.gate__spark--4 { animation-delay: 0.52s; --dx: 7vmin;   --dy: -38vmin; }
 
 .gate__spark:nth-child(4n) { width: 3px; height: 3px; }
-.gate__spark:nth-child(3n) { animation-duration: 2.6s; }
-.gate__spark:nth-child(5n) { animation-duration: 1.7s; }
+.gate__spark:nth-child(3n) { animation-duration: 3.1s; }
+.gate__spark:nth-child(5n) { animation-duration: 2s; }
 .gate__spark:nth-child(2n) { animation-delay: 0.62s; }
+.gate__spark:nth-child(7n) { width: 5px; height: 5px; animation-delay: 0.38s; }
+.gate__spark:nth-child(6n) { animation-delay: 0.82s; }
+.gate__spark:nth-child(11n) { animation-delay: 1.02s; }
 
 @keyframes gate-spark {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
@@ -392,8 +592,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gate__spark {
+  .gate__spark,
+  .gate__burst,
+  .gate__motes,
+  .gate__sheen {
     display: none;
+  }
+
+  .gate__aura-pool {
+    animation: none;
+  }
+
+  .gate__vignette {
+    transition: none;
   }
 }
 

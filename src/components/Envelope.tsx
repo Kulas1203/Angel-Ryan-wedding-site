@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { EnvelopeFlat } from './EnvelopeFlat'
+import { GateAmbience } from './GateAmbience'
 import { GateMasthead } from './GateMasthead'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import type { EnvelopeScene } from '../three/envelopeScene'
@@ -49,6 +50,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
   const sceneRef = useRef<EnvelopeScene | null>(null)
   const [opening, setOpening] = useState(false)
   const [gone, setGone] = useState(false)
+  const [fading, setFading] = useState(false)
   const [ready, setReady] = useState(false)
 
   const revealRef = useRef(onReveal)
@@ -77,7 +79,7 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           lockScroll(false)
           revealRef.current()
         },
-        onFinished: () => setGone(true),
+        onFinished: () => setFading(true),
         onReady: () => setReady(true),
       })
       sceneRef.current = scene
@@ -94,24 +96,31 @@ export function Envelope({ onReveal }: EnvelopeProps) {
   if (gone) return null
 
   return (
-    <div className={`gate gate--scene ${opening ? 'gate--opening' : ''}`}>
+    <motion.div
+      className={`gate gate--scene ${opening ? 'gate--opening' : ''}`}
+      animate={{ opacity: fading ? 0 : 1 }}
+      transition={{ duration: 1, ease: 'easeInOut' }}
+      onAnimationComplete={() => fading && setGone(true)}
+    >
       <motion.canvas
         ref={canvasRef}
         className="gate__canvas"
         initial={{ opacity: 0 }}
         animate={{ opacity: ready ? 1 : 0 }}
-        transition={{ duration: 0.9, ease: 'easeOut' }}
+        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
       />
+
+      <GateAmbience ready={ready} opening={opening} />
 
       {/* The last of the light, carried past the canvas so the hand-off to
           the hero is a wash rather than a cut. */}
       <motion.div
         className="gate__wash"
         initial={{ opacity: 0 }}
-        animate={{ opacity: opening ? [0, 0, 1, 0] : 0 }}
+        animate={{ opacity: opening ? [0, 0, 0.94, 0.94] : 0 }}
         transition={
           opening
-            ? { duration: 3.2, times: [0, 0.58, 0.78, 1], ease: 'easeInOut' }
+            ? { duration: 2.5, times: [0, 0.38, 0.88, 1], ease: 'easeInOut' }
             : { duration: 0.2 }
         }
       />
@@ -136,14 +145,6 @@ export function Envelope({ onReveal }: EnvelopeProps) {
         Tap to open
       </motion.p>
 
-      {opening && (
-        <div className="gate__sparks" aria-hidden="true">
-          {Array.from({ length: 20 }, (_, i) => (
-            <span key={i} className={`gate__spark gate__spark--${i % 5}`} />
-          ))}
-        </div>
-      )}
-
       {!opening && ready && (
         <button
           className="gate__hit"
@@ -155,6 +156,6 @@ export function Envelope({ onReveal }: EnvelopeProps) {
           autoFocus
         />
       )}
-    </div>
+    </motion.div>
   )
 }

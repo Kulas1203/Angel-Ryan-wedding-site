@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import { GateAmbience } from './GateAmbience'
 import { GateMasthead } from './GateMasthead'
 import { lockScroll } from '../hooks/useSmoothScroll'
 import './Envelope.css'
@@ -78,9 +79,16 @@ export function EnvelopeFlat({ onReveal }: EnvelopeFlatProps) {
   return (
     <motion.div
       className={`gate gate--photo ${opening ? 'gate--opening' : ''}`}
-      animate={{ opacity: opening && reduced ? 0 : 1 }}
-      transition={{ duration: 0.45, ease: 'easeIn' }}
+      animate={{ opacity: opening ? 0 : 1 }}
+      transition={{
+        duration: reduced ? 0.45 : 0.9,
+        // Reduced motion cuts straight to the page; otherwise the gate holds
+        // while the card comes out and then dissolves into the hero.
+        delay: opening && !reduced ? 1.4 : 0,
+        ease: 'easeIn',
+      }}
     >
+      <GateAmbience ready={!gone} opening={opening} />
       <GateMasthead ready={!gone} opening={opening} />
 
       <div className="gate__env">
