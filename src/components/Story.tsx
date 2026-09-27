@@ -80,6 +80,7 @@ export function Story() {
                       src={entry.image}
                       alt={entry.title}
                       loading="lazy"
+                      style={entry.focus ? { objectPosition: entry.focus } : undefined}
                       initial={{ scale: 1.14 }}
                       whileInView={{ scale: 1 }}
                       viewport={{ once: true, margin: '-15% 0px' }}

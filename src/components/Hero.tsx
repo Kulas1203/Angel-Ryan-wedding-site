@@ -46,7 +46,7 @@ export function Hero({ revealed }: HeroProps) {
       <motion.div className="hero__bg" style={reduced ? undefined : { y: bgY }}>
         <div
           className="hero__bg-zoom"
-          style={{ backgroundImage: 'url(/images/photo-overlook-view.jpg)' }}
+          style={{ backgroundImage: 'url(/images/pre-antiques.webp)' }}
         />
         <div className="hero__scrim" />
       </motion.div>

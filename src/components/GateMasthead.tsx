@@ -1,18 +1,18 @@
 import { motion } from 'motion/react'
 
 type Props = {
-  /* The delays below are set against the curtain, which is clear at about two
-   seconds: the heading arrives as the light finishes coming up, not behind
-   it. */
-
-/** Held back until the envelope itself is on screen, so the words and the
+  /** Held back until the envelope itself is on screen, so the words and the
       paper arrive together rather than the heading landing on an empty page. */
   ready: boolean
   opening: boolean
 }
 
 /**
- * The words above the envelope. Shared by both gates: whether a guest gets
+ * The words above the envelope.
+ *
+ * The delays are set against the curtain, which is clear at about two
+ * seconds: the heading arrives as the light finishes coming up, not behind
+ * it. Shared by both gates: whether a guest gets
  * the rendered envelope or the CSS one, they are invited in the same voice.
  */
 export function GateMasthead({ ready, opening }: Props) {

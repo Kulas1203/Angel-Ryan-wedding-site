@@ -15,12 +15,15 @@ const assets = [
   'images/monogram-ivory.webp',
   'images/og.jpg',
   'images/paper-grain.png',
-  'images/photo-bouquet.jpg',
-  'images/photo-garden-bench.jpg',
-  'images/photo-hiraya.jpg',
-  'images/photo-overlook-portrait.jpg',
-  'images/photo-overlook-view.jpg',
-  'fonts/alex-brush-latin.woff2',
+  'images/envelope.webp',
+  'images/dress-code.webp',
+  'images/pre-vow.webp',
+  'images/pre-walk.webp',
+  'images/pre-bridge.webp',
+  'images/pre-umbrella.webp',
+  'images/pre-lawn.webp',
+  'images/pre-antiques.webp',
+  'images/pre-piano.webp',
 ]
 
 const publicDir = new URL('../public/', import.meta.url).pathname
